@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "KanoonAI - Legal Document Generator"
+version = "1.0.0"
+id = "artifacts/kanoon-ai"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20839
+
+[services.development]
+run = "pnpm --filter @workspace/kanoon-ai run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/kanoon-ai", "run", "build" ]
+publicDir = "artifacts/kanoon-ai/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20839"
+BASE_PATH = "/"

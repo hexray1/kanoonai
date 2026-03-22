@@ -1,0 +1,23 @@
+packages:
+  "framer-motion": "For page transitions, card hovers, and premium micro-interactions"
+  "recharts": "For the admin panel dashboard charts and analytics"
+  "date-fns": "For formatting dates in dashboard and admin tables"
+  "react-hook-form": "For handling the dynamic smart forms"
+  "@hookform/resolvers": "For form validation"
+  "lucide-react": "For UI icons across the application"
+
+images:
+  - path: "artifacts/kanoon-ai/public/images/hero-bg.png"
+    description: "A premium, luxurious dark navy blue abstract background with subtle glowing gold dust, geometric legal scales faintly visible in the background, professional and trustworthy"
+    aspect_ratio: "16:9"
+  - path: "artifacts/kanoon-ai/public/images/logo.png"
+    description: "A minimalist, premium logo mark for a legal tech company named KanoonAI. Dark navy background with a sharp, modern golden shield and scales of justice motif."
+    aspect_ratio: "1:1"
+  - path: "artifacts/kanoon-ai/public/images/trust-badge.png"
+    description: "A shiny golden premium guarantee badge or seal of authenticity on a dark background, looking very official and trustworthy."
+    aspect_ratio: "1:1"
+
+notes:
+  - "Assuming JWT token should be stored in localStorage as 'kanoon_token'"
+  - "Assuming customFetch from @workspace/api-client-react needs Authorization headers patched via global fetch interceptor"
+  - "Using window.Razorpay for payment gateway integration (loaded via CDN dynamically)"

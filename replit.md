@@ -1,8 +1,8 @@
-# Workspace
+# KanoonAI - AI Legal Document Generator SaaS
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+KanoonAI is a production-ready AI Legal Document Generator SaaS for India. Users can generate professional legal documents in 60 seconds using Claude AI, with phone OTP login, Razorpay payments, and PDF download.
 
 ## Stack
 
@@ -14,83 +14,87 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Database**: PostgreSQL + Drizzle ORM
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Build**: esbuild (ESM bundle)
+- **Frontend**: React + Vite + TailwindCSS + Framer Motion
+- **AI**: Anthropic Claude (claude-sonnet-4-20250514)
+- **Payments**: Razorpay
+- **Auth**: Phone OTP + JWT
+- **PDF**: PDFKit
 
-## Structure
+## Project Structure
 
 ```text
-artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
-│   ├── api-spec/           # OpenAPI spec + Orval codegen config
-│   ├── api-client-react/   # Generated React Query hooks
-│   ├── api-zod/            # Generated Zod schemas from OpenAPI
-│   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+artifacts/
+├── api-server/         # Express API server (Port 8080, path /api)
+│   └── src/
+│       ├── routes/     # auth.ts, documents.ts, payments.ts, admin.ts
+│       ├── middleware/ # auth.ts (JWT middleware)
+│       └── utils/      # aiGenerator.ts, pdfGenerator.ts, otpService.ts
+└── kanoon-ai/          # React frontend (Port 20839, path /)
+    └── src/
+        ├── pages/      # Home, Login, documents/, Dashboard, admin/
+        ├── components/ # layout/ (Navbar, Footer)
+        ├── hooks/      # use-auth.ts, use-language.ts
+        └── lib/        # constants.ts (document types, prices, fields)
+lib/
+├── api-spec/           # OpenAPI spec + Orval codegen
+├── api-client-react/   # Generated React Query hooks
+├── api-zod/            # Generated Zod schemas
+└── db/
+    └── schema/         # users, documents, payments, subscriptions, referrals
 ```
 
-## TypeScript & Composite Projects
+## Features
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+1. **Landing Page**: High-converting hero, trust badges, pricing, FAQ
+2. **Auth**: Phone OTP login (MSG91 or dev mode), JWT tokens, auto account creation
+3. **Document Selection**: 25+ document types across 6 categories
+4. **AI Generation**: Claude AI with document-specific prompts, Hindi/English support
+5. **Payment**: Razorpay integration, per-document pricing (₹99-₹499), subscription plans
+6. **PDF Download**: PDFKit-generated professional PDFs with letterhead
+7. **User Dashboard**: Document history, subscription status, referral system
+8. **Admin Panel**: Revenue stats, user management, transaction history
+9. **Multi-language**: Hindi, English toggle (Marathi, Tamil, Telugu in AI output)
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+## Document Categories & Prices
 
-## Root Scripts
+- **Rental & Housing**: Rent Agreement ₹199, Leave & License ₹199, NOC ₹99, Eviction ₹99
+- **Business & Finance**: Partnership Deed ₹499, MOU ₹499, Business Contract ₹499, NDA ₹299
+- **Personal & Family**: Affidavit ₹199, Gift Deed ₹499, Will ₹499
+- **Legal Notices**: FIR Draft ₹199, Legal Notice ₹299, RTI ₹99
+- **Employment**: Offer Letter ₹99, Employment Contract ₹199, Termination Letter ₹99
+- **Government**: Income/Caste/Domicile/Ration Card applications ₹99
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+## Subscription Plans
 
-## Packages
+- **Basic**: ₹299/month (5 docs)
+- **Pro**: ₹699/month (unlimited)
+- **Business**: ₹1999/month (team + API)
 
-### `artifacts/api-server` (`@workspace/api-server`)
+## Environment Variables Required
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
+- `ANTHROPIC_API_KEY` - For Claude AI document generation
+- `RAZORPAY_KEY_ID` - Razorpay payment gateway key
+- `RAZORPAY_KEY_SECRET` - Razorpay payment gateway secret
+- `JWT_SECRET` - JWT signing secret (already set)
+- `MSG91_API_KEY` - For SMS OTP (optional, dev mode shows OTP in response)
+- `DATABASE_URL` - PostgreSQL connection (auto-provisioned)
 
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+## Development
 
-### `lib/db` (`@workspace/db`)
+Without MSG91_API_KEY, the API returns the OTP in the response (dev mode only). This allows testing without real SMS.
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+Without RAZORPAY keys, a dev order is created and payment verification is auto-approved (for testing).
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
+## Admin Access
 
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+To make a user admin, run: `UPDATE users SET is_admin = true WHERE phone = '<phone>';`
+Then login with that phone number to access `/admin`.
 
-### `lib/api-spec` (`@workspace/api-spec`)
+## Database Tables
 
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
-
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+- `users` - id, phone, name, plan, referral_code, otp_hash, otp_expiry, is_admin
+- `documents` - id, user_id, type, title, content, form_data, pdf_url, paid, language, price
+- `payments` - id, user_id, document_id, amount, razorpay_order_id, razorpay_payment_id, status, plan
+- `subscriptions` - id, user_id, plan, start_date, end_date, status
+- `referrals` - id, referrer_id, referred_id, reward_paid
