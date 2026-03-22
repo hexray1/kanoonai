@@ -11,12 +11,18 @@ import { Footer } from "@/components/layout/Footer";
 // Pages
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
+import AuthCallback from "@/pages/AuthCallback";
 import DocumentSelection from "@/pages/documents/Index";
 import GenerateDocument from "@/pages/documents/Generate";
 import DocumentPreview from "@/pages/documents/Preview";
 import DownloadDocument from "@/pages/documents/Download";
 import Dashboard from "@/pages/Dashboard";
 import AdminDashboard from "@/pages/admin/Dashboard";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import Terms from "@/pages/Terms";
+import RefundPolicy from "@/pages/RefundPolicy";
+import Contact from "@/pages/Contact";
+import FAQ from "@/pages/FAQ";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -28,15 +34,14 @@ const queryClient = new QueryClient({
   },
 });
 
-// Protected Route wrapper
-function ProtectedRoute({ component: Component, adminOnly = false }: { component: any, adminOnly?: boolean }) {
+function ProtectedRoute({ component: Component, adminOnly = false }: { component: any; adminOnly?: boolean }) {
   const { token, user } = useAuthStore();
-  
+
   if (!token) {
     return <Redirect to="/login" />;
   }
 
-  if (adminOnly && user?.phone !== 'admin') { // Mock admin check based on setup
+  if (adminOnly && !user?.isAdmin) {
     return <div className="min-h-screen bg-background flex justify-center pt-20 text-white">Access Denied. Admins only.</div>;
   }
 
@@ -51,7 +56,8 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/login" component={Login} />
-          
+          <Route path="/auth/callback" component={AuthCallback} />
+
           <Route path="/documents" component={DocumentSelection} />
           <Route path="/documents/generate/:type">
             {() => <ProtectedRoute component={GenerateDocument} />}
@@ -62,14 +68,21 @@ function Router() {
           <Route path="/documents/:id/download">
             {() => <ProtectedRoute component={DownloadDocument} />}
           </Route>
-          
+
           <Route path="/dashboard">
             {() => <ProtectedRoute component={Dashboard} />}
           </Route>
-          
+
           <Route path="/admin">
             {() => <ProtectedRoute component={AdminDashboard} adminOnly={true} />}
           </Route>
+
+          {/* Footer pages */}
+          <Route path="/privacy" component={PrivacyPolicy} />
+          <Route path="/terms" component={Terms} />
+          <Route path="/refund" component={RefundPolicy} />
+          <Route path="/contact" component={Contact} />
+          <Route path="/faq" component={FAQ} />
 
           <Route component={NotFound} />
         </Switch>

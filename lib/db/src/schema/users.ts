@@ -4,13 +4,14 @@ import { z } from "zod/v4";
 
 export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
-  phone: text("phone").notNull().unique(),
+  phone: text("phone").unique(),
+  email: text("email").unique(),
   name: text("name"),
+  profilePicture: text("profile_picture"),
+  googleId: text("google_id").unique(),
   plan: text("plan").notNull().default("free"),
   referralCode: text("referral_code").unique(),
   referredBy: text("referred_by"),
-  otpHash: text("otp_hash"),
-  otpExpiry: timestamp("otp_expiry"),
   isAdmin: boolean("is_admin").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

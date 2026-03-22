@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
-  const [location, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   const { language, setLanguage, t } = useLanguage();
   const { user, logout } = useAuthStore();
 
@@ -36,22 +36,42 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+            onClick={() => setLanguage(language === "en" ? "hi" : "en")}
             className="hidden sm:flex text-muted-foreground hover:text-white"
           >
             <Globe className="mr-2 h-4 w-4" />
-            {language === 'en' ? 'हिंदी' : 'English'}
+            {language === "en" ? "हिंदी" : "English"}
           </Button>
 
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="border-primary/20 bg-primary/10 text-primary hover:bg-primary/20">
-                  <User className="mr-2 h-4 w-4" />
-                  {user.name || user.phone}
+                <Button
+                  variant="outline"
+                  className="border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 gap-2 pr-4"
+                >
+                  {user.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt={user.name || "User"}
+                      className="h-6 w-6 rounded-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    />
+                  ) : (
+                    <User className="h-4 w-4" />
+                  )}
+                  <span className="max-w-[120px] truncate">
+                    {user.name?.split(" ")[0] || user.email?.split("@")[0] || "Account"}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-card border-border">
+              <DropdownMenuContent align="end" className="w-52 bg-card border-border">
+                {(user.name || user.email) && (
+                  <div className="px-3 py-2 border-b border-white/10">
+                    <p className="text-white text-sm font-medium truncate">{user.name || ""}</p>
+                    {user.email && <p className="text-muted-foreground text-xs truncate">{user.email}</p>}
+                  </div>
+                )}
                 <DropdownMenuItem onClick={() => setLocation("/dashboard")} className="cursor-pointer hover:bg-white/5">
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   {t("Dashboard", "डैशबोर्ड")}
@@ -60,20 +80,26 @@ export function Navbar() {
                   <Scale className="mr-2 h-4 w-4" />
                   {t("New Document", "नया दस्तावेज़")}
                 </DropdownMenuItem>
-                {user.phone === "admin" && ( // Mock admin check
+                {user.isAdmin && (
                   <DropdownMenuItem onClick={() => setLocation("/admin")} className="cursor-pointer hover:bg-white/5 text-primary">
                     <ShieldCheck className="mr-2 h-4 w-4" />
                     Admin Panel
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-400 focus:text-red-400 hover:bg-red-400/10">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-red-400 focus:text-red-400 hover:bg-red-400/10 mt-1 border-t border-white/10"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   {t("Logout", "लॉग आउट")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={() => setLocation("/login")} className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold">
+            <Button
+              onClick={() => setLocation("/login")}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold"
+            >
               {t("Login", "लॉग इन")}
             </Button>
           )}
