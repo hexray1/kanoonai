@@ -6,12 +6,32 @@ import { signToken, authMiddleware, type AuthRequest } from "../middleware/auth.
 
 const router = Router();
 
+function getBaseUrl(): string {
+  if (process.env.GOOGLE_REDIRECT_URI) {
+    // If explicitly set, derive base from it
+    return "";
+  }
+  // Auto-detect Replit domain
+  const replitDomain = process.env.REPLIT_DEV_DOMAIN || process.env.REPLIT_DOMAINS?.split(",")[0];
+  if (replitDomain) return `https://${replitDomain}`;
+  return "http://localhost:80";
+}
+
+function getRedirectUri(): string {
+  if (process.env.GOOGLE_REDIRECT_URI) return process.env.GOOGLE_REDIRECT_URI;
+  return `${getBaseUrl()}/api/auth/google/callback`;
+}
+
+function getFrontendUrl(): string {
+  if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
+  return getBaseUrl();
+}
+
 function getOAuth2Client() {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   if (!clientId || !clientSecret) return null;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || "http://localhost:8080/auth/google/callback";
-  return new OAuth2Client(clientId, clientSecret, redirectUri);
+  return new OAuth2Client(clientId, clientSecret, getRedirectUri());
 }
 
 function generateReferralCode(): string {
@@ -22,8 +42,7 @@ function generateReferralCode(): string {
 router.get("/google", (req, res) => {
   const client = getOAuth2Client();
   if (!client) {
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:80";
-    return res.redirect(`${frontendUrl}/login?error=no_google_config`);
+    return res.redirect(`${getFrontendUrl()}/login?error=no_google_config`);
   }
 
   const url = client.generateAuthUrl({
@@ -37,19 +56,16 @@ router.get("/google", (req, res) => {
 
 // GET /auth/google/callback — exchange code, create user, issue JWT
 router.get("/google/callback", async (req, res) => {
-  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:80";
-  const base = import.meta.env?.BASE_URL || "";
-
   try {
     const { code, error } = req.query as { code?: string; error?: string };
 
     if (error || !code) {
-      return res.redirect(`${frontendUrl}/login?error=google_denied`);
+      return res.redirect(`${getFrontendUrl()}/login?error=google_denied`);
     }
 
     const client = getOAuth2Client();
     if (!client) {
-      return res.redirect(`${frontendUrl}/login?error=no_google_config`);
+      return res.redirect(`${getFrontendUrl()}/login?error=no_google_config`);
     }
 
     const { tokens } = await client.getToken(code);
@@ -98,10 +114,10 @@ router.get("/google/callback", async (req, res) => {
     }
 
     const token = signToken({ userId: existing.id, isAdmin: existing.isAdmin });
-    return res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+    return res.redirect(`${getFrontendUrl()}/auth/callback?token=${token}`);
   } catch (err) {
     console.error("Google OAuth error:", err);
-    return res.redirect(`${frontendUrl}/login?error=server_error`);
+    return res.redirect(`${getFrontendUrl()}/login?error=server_error`);
   }
 });
 
