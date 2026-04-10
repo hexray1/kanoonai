@@ -87,8 +87,11 @@ router.get("/users", async (req: AuthRequest, res) => {
       return {
         id: user.id,
         phone: user.phone,
+        email: user.email,
         name: user.name,
+        profilePicture: user.profilePicture,
         plan: user.plan,
+        isAdmin: user.isAdmin,
         documentCount: Number(docCount.count),
         totalSpent: Number(spent.total),
         createdAt: user.createdAt,

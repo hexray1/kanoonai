@@ -67,7 +67,12 @@ export default function Home() {
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg h-14 px-8 border-white/20 text-white hover:bg-white/5">
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto text-lg h-14 px-8 border-white/20 text-white hover:bg-white/5"
+              onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
+            >
               {t("View Pricing", "मूल्य निर्धारण देखें")}
             </Button>
           </motion.div>
@@ -105,7 +110,7 @@ export default function Home() {
       </section>
 
       {/* PRICING */}
-      <section className="py-24">
+      <section id="pricing" className="py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Simple, transparent pricing</h2>
           <p className="text-muted-foreground mb-16 max-w-2xl mx-auto">Pay per document or subscribe for unlimited access.</p>

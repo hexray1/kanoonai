@@ -5,14 +5,13 @@ import { eq } from "drizzle-orm";
 
 export interface AuthRequest extends Request {
   userId?: number;
-  userPhone?: string;
   isAdmin?: boolean;
 }
 
 const JWT_SECRET = process.env.JWT_SECRET || "kanoonai-dev-secret-change-in-prod";
 
-export function signToken(userId: number, phone: string): string {
-  return jwt.sign({ userId, phone }, JWT_SECRET, { expiresIn: "30d" });
+export function signToken(payload: { userId: number; isAdmin: boolean }): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "30d" });
 }
 
 export async function authMiddleware(
@@ -28,17 +27,19 @@ export async function authMiddleware(
 
   const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; phone: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; isAdmin: boolean };
     req.userId = decoded.userId;
-    req.userPhone = decoded.phone;
 
-    const user = await db.select().from(usersTable).where(eq(usersTable.id, decoded.userId)).limit(1);
-    if (user.length > 0) {
-      req.isAdmin = user[0].isAdmin;
-    }
+    const [user] = await db
+      .select({ isAdmin: usersTable.isAdmin })
+      .from(usersTable)
+      .where(eq(usersTable.id, decoded.userId))
+      .limit(1);
+
+    req.isAdmin = user?.isAdmin ?? false;
     next();
   } catch {
-    res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid or expired token" });
   }
 }
 

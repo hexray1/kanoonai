@@ -69,7 +69,7 @@ router.post("/create-order", async (req: AuthRequest, res) => {
 
     res.json({
       orderId: order.id,
-      amount: amount * 100,
+      amount,
       currency: "INR",
       keyId: RAZORPAY_KEY_ID || "rzp_test_placeholder",
     });
