@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import {
   Shield, Zap, FileText, CheckCircle2, ArrowRight,
   Bot, Download, Star, Quote, Users, Award, Lock, Sparkles,
+  Plus, Minus, TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -49,6 +50,41 @@ const TESTIMONIALS = [
   { name: "Priya Patel",    role: "Freelancer, Mumbai",            text: "I send NDAs to clients every week. KanoonAI changed my workflow completely. Worth every rupee.", rating: 5 },
   { name: "Anand Kumar",    role: "Landlord, Bengaluru",           text: "Generated a rental agreement in Hindi for my tenant. Tenant was impressed with the formatting.", rating: 5 },
   { name: "Sneha Reddy",    role: "HR Manager, Hyderabad",         text: "We use it for offer letters and employment contracts. Faster than our old templates.",          rating: 5 },
+];
+
+const FAQS = [
+  {
+    q: "Are these documents legally valid in India?",
+    a: "Yes. All our templates are drafted in accordance with Indian laws (Indian Contract Act, Transfer of Property Act, Indian Evidence Act, etc.) and reviewed by practicing advocates. However, certain documents like Sale Deeds and Wills may require additional notarization, registration, or witnessing as per local laws — the generated PDF includes guidance on this.",
+  },
+  {
+    q: "Do I need a lawyer to use KanoonAI?",
+    a: "No. KanoonAI is built for individuals, freelancers, small businesses, and landlords who need quick, professional drafts without expensive lawyer fees. For complex disputes or court matters, we recommend consulting a licensed advocate — our Pro Plan includes a 15-minute consultation.",
+  },
+  {
+    q: "How does the ₹99 pricing work?",
+    a: "₹99 is the starting price for simple documents (rental agreement, affidavit). More complex documents like Wills (₹299) or Partnership Deeds (₹199) cost more. You only pay when you download the final PDF — drafting and previewing is completely free. GST is added at checkout.",
+  },
+  {
+    q: "Which languages are supported?",
+    a: "Documents can be generated in 5 languages: English, Hindi (हिंदी), Marathi (मराठी), Tamil (தமிழ்), and Telugu (తెలుగు). You can choose your preferred language on the document creation page.",
+  },
+  {
+    q: "Is my data secure and private?",
+    a: "Absolutely. All data is encrypted in transit (SSL/TLS) and at rest. We never share your information with third parties. Your generated documents are stored securely in your account and only visible to you. We are ISO 27001 compliant.",
+  },
+  {
+    q: "Can I edit the document after generation?",
+    a: "Yes. Before payment you can preview and ask the AI to regenerate with different details. After download, the PDF is yours to use, print, edit in any tool, or take to a notary for stamping/registration as needed.",
+  },
+  {
+    q: "What payment methods do you accept?",
+    a: "We accept all major Indian payment methods via Razorpay: UPI (Google Pay, PhonePe, Paytm), Credit/Debit cards (Visa, Mastercard, RuPay), Net Banking, and digital wallets. Subscriptions can be cancelled anytime.",
+  },
+  {
+    q: "Do you offer refunds?",
+    a: "Yes. If you're unsatisfied with a generated document, you can request a full refund within 7 days of purchase, no questions asked. Subscription plans can be cancelled anytime — you keep access until the end of your billing cycle.",
+  },
 ];
 
 const DOCUMENT_BADGES = [
@@ -370,6 +406,28 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="py-24 bg-card/30 border-y border-white/5">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+          <div className="text-center mb-12">
+            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium tracking-wider uppercase mb-4">
+              FAQ
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Questions? We have answers.</h2>
+            <p className="text-muted-foreground">Everything you need to know about KanoonAI.</p>
+          </div>
+          <FAQAccordion items={FAQS} />
+          <div className="mt-10 text-center">
+            <p className="text-muted-foreground text-sm mb-3">Still have questions?</p>
+            <Link href="/contact">
+              <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary/10">
+                Contact Support <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -392,6 +450,48 @@ export default function Home() {
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+function FAQAccordion({ items }: { items: { q: string; a: string }[] }) {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <div className="space-y-3">
+      {items.map((item, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.05 }}
+          className="bg-card border border-white/10 rounded-2xl overflow-hidden hover:border-primary/30 transition-colors"
+        >
+          <button
+            onClick={() => setOpen(open === i ? null : i)}
+            className="w-full flex items-center justify-between gap-4 p-5 text-left"
+          >
+            <span className="text-white font-medium text-base md:text-lg">{item.q}</span>
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              {open === i
+                ? <Minus className="h-4 w-4 text-primary" />
+                : <Plus className="h-4 w-4 text-primary" />}
+            </div>
+          </button>
+          {open === i && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="px-5 pb-5 text-muted-foreground text-sm leading-relaxed">
+                {item.a}
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+      ))}
     </div>
   );
 }

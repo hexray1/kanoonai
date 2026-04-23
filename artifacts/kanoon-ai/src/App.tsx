@@ -7,6 +7,7 @@ import { useAuthStore } from "@/hooks/use-auth";
 // Components
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { FloatingSupport } from "@/components/layout/FloatingSupport";
 
 // Pages
 import Home from "@/pages/Home";
@@ -88,6 +89,7 @@ function Router() {
         </Switch>
       </main>
       <Footer />
+      <FloatingSupport />
     </div>
   );
 }
