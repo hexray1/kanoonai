@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, documentsTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { authMiddleware, type AuthRequest } from "../middleware/auth.js";
 import { generateLegalDocument, getDocumentPrice, getDocumentTitle } from "../utils/aiGenerator.js";
 import { generatePDF } from "../utils/pdfGenerator.js";
@@ -13,7 +13,8 @@ router.get("/", async (req: AuthRequest, res) => {
   try {
     const docs = await db.select()
       .from(documentsTable)
-      .where(eq(documentsTable.userId, req.userId!));
+      .where(eq(documentsTable.userId, req.userId!))
+      .orderBy(desc(documentsTable.createdAt));
 
     res.json(docs.map(d => ({
       ...d,

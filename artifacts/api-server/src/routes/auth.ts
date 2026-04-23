@@ -78,7 +78,7 @@ router.get("/google/callback", async (req, res) => {
 
     const payload = ticket.getPayload();
     if (!payload) {
-      return res.redirect(`${frontendUrl}/login?error=invalid_token`);
+      return res.redirect(`${getFrontendUrl()}/login?error=invalid_token`);
     }
 
     const { sub: googleId, email, name, picture } = payload;
