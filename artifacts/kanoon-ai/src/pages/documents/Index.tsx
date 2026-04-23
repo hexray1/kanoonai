@@ -55,13 +55,13 @@ export default function DocumentSelection() {
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium tracking-wider uppercase mb-5">
               <Sparkles className="h-3 w-3" /> {totalDocs} Lawyer-Reviewed Templates
             </span>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight leading-tight">
               {t("Choose your", "अपना चुनें")}{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-200">
                 legal document
               </span>
             </h1>
-            <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-base sm:text-lg mb-8 max-w-2xl mx-auto">
               {t(
                 "From rental agreements to wills — every Indian legal document, drafted by AI in 60 seconds.",
                 "किराये के समझौते से लेकर वसीयत तक — हर भारतीय कानूनी दस्तावेज़, 60 सेकंड में एआई द्वारा तैयार।"
@@ -213,43 +213,44 @@ function DocCard({ id, doc, index, language, t }: any) {
         whileHover={{ y: -4 }}
         className="group relative cursor-pointer p-5 rounded-2xl bg-card border border-white/5 hover:border-primary/40 hover:bg-card/80 transition-all shadow-lg hover:shadow-gold h-full flex flex-col"
       >
-        {/* Badges */}
-        <div className="absolute top-3 right-3 flex gap-1">
-          {isPopular && (
-            <span className="text-[10px] font-bold px-2 py-0.5 bg-red-500/10 text-red-400 rounded-full border border-red-500/20 uppercase">
-              Popular
-            </span>
-          )}
-          {isNew && (
-            <span className="text-[10px] font-bold px-2 py-0.5 bg-green-500/10 text-green-400 rounded-full border border-green-500/20 uppercase">
-              New
-            </span>
-          )}
-        </div>
-
-        <div className="flex justify-between items-start mb-4">
-          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors border border-primary/10">
+        {/* Top row: icon + badges */}
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors border border-primary/10 shrink-0">
             <FileText className="h-5 w-5 text-primary" />
           </div>
-          <span className="text-sm font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-md mt-6">
-            ₹{doc.price}
-          </span>
+          <div className="flex flex-wrap gap-1 justify-end">
+            {isPopular && (
+              <span className="text-[10px] font-bold px-2 py-1 bg-red-500/10 text-red-400 rounded-full border border-red-500/20 uppercase whitespace-nowrap">
+                Popular
+              </span>
+            )}
+            {isNew && (
+              <span className="text-[10px] font-bold px-2 py-1 bg-green-500/10 text-green-400 rounded-full border border-green-500/20 uppercase whitespace-nowrap">
+                New
+              </span>
+            )}
+          </div>
         </div>
 
-        <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors line-clamp-1">
+        <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors line-clamp-2 min-h-[3.5rem]">
           {language === "en" ? doc.name : doc.nameHi}
         </h3>
 
         <div className="flex items-center gap-1.5 mb-4 text-xs text-muted-foreground">
-          <TrendingUp className="h-3 w-3 text-green-400" />
+          <TrendingUp className="h-3 w-3 text-green-400 shrink-0" />
           <span>{created} created today</span>
         </div>
 
-        <div className="mt-auto flex items-center justify-between text-sm">
-          <span className="text-muted-foreground group-hover:text-white transition-colors flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5" /> ~60s
-          </span>
-          <span className="text-primary font-medium flex items-center gap-1">
+        <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-sm">
+          <div className="flex items-center gap-3">
+            <span className="text-base font-bold text-primary">
+              ₹{doc.price}
+            </span>
+            <span className="text-muted-foreground flex items-center gap-1 text-xs">
+              <Clock className="h-3 w-3" /> ~60s
+            </span>
+          </div>
+          <span className="text-primary font-medium flex items-center gap-1 text-xs">
             {t("Generate", "बनाएँ")}
             <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </span>

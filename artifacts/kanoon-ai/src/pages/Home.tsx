@@ -120,9 +120,9 @@ export default function Home() {
 
           <motion.h1
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-tight max-w-4xl mx-auto"
+            className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.1] max-w-4xl mx-auto"
           >
-            60 seconds mein apna <br />
+            60 seconds mein apna <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-200">
               legal document ready
             </span>
@@ -160,12 +160,12 @@ export default function Home() {
           {/* Trust badges row */}
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted-foreground"
+            className="flex flex-wrap items-center justify-center gap-x-5 sm:gap-x-8 gap-y-3 text-xs text-muted-foreground px-2"
           >
-            <div className="flex items-center gap-2"><Lock className="h-4 w-4 text-primary" /> SSL Encrypted</div>
-            <div className="flex items-center gap-2"><Shield className="h-4 w-4 text-primary" /> Razorpay Verified</div>
-            <div className="flex items-center gap-2"><Award className="h-4 w-4 text-primary" /> Lawyer-Reviewed Templates</div>
-            <div className="flex items-center gap-2"><Users className="h-4 w-4 text-primary" /> 5,000+ Customers</div>
+            <div className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-primary shrink-0" /> SSL Encrypted</div>
+            <div className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-primary shrink-0" /> Razorpay Verified</div>
+            <div className="flex items-center gap-1.5"><Award className="h-3.5 w-3.5 text-primary shrink-0" /> Lawyer-Reviewed</div>
+            <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-primary shrink-0" /> 5,000+ Customers</div>
           </motion.div>
         </div>
       </section>

@@ -85,7 +85,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop nav links */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
               <button
                 key={link.href}
@@ -107,7 +107,7 @@ export function Navbar() {
               variant="ghost"
               size="sm"
               onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-              className="hidden md:flex text-muted-foreground hover:text-white"
+              className="hidden lg:flex text-muted-foreground hover:text-white"
             >
               <Globe className="mr-2 h-4 w-4" />
               {language === "en" ? "हिंदी" : "English"}
@@ -178,7 +178,7 @@ export function Navbar() {
             {/* Mobile menu toggle */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden p-2 text-white hover:bg-white/5 rounded-lg transition-colors"
+              className="md:hidden p-2 text-white hover:bg-white/5 rounded-lg transition-colors"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -188,7 +188,7 @@ export function Navbar() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="lg:hidden border-t border-white/10 bg-background/95 backdrop-blur-xl">
+          <div className="md:hidden border-t border-white/10 bg-background/95 backdrop-blur-xl">
             <div className="container mx-auto px-4 py-3 space-y-1">
               {NAV_LINKS.map((link) => {
                 const Icon = link.icon;
