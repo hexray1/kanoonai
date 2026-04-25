@@ -14,7 +14,15 @@ export default function Login() {
 
   useEffect(() => {
     if (token) {
-      setLocation("/dashboard");
+      let redirect = "/dashboard";
+      try {
+        const stored = sessionStorage.getItem("kanoon_redirect_after_login");
+        if (stored) {
+          redirect = stored;
+          sessionStorage.removeItem("kanoon_redirect_after_login");
+        }
+      } catch {}
+      setLocation(redirect.startsWith("/") ? redirect : "/dashboard");
     }
   }, [token]);
 

@@ -96,6 +96,22 @@ const DOCUMENT_BADGES = [
 export default function Home() {
   const { t } = useLanguage();
 
+  // Handle hash scrolling (e.g. /#pricing) on initial load and hash changes
+  useEffect(() => {
+    const scrollToHash = () => {
+      const hash = window.location.hash.slice(1);
+      if (!hash) return;
+      // Wait for sections to render
+      setTimeout(() => {
+        const el = document.getElementById(hash);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    };
+    scrollToHash();
+    window.addEventListener("hashchange", scrollToHash);
+    return () => window.removeEventListener("hashchange", scrollToHash);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* HERO */}
@@ -385,7 +401,7 @@ export default function Home() {
                 <li className="flex items-center gap-3 text-white"><CheckCircle2 className="h-5 w-5 text-primary" /> Free Edits (7 days)</li>
                 <li className="flex items-center gap-3 text-white"><CheckCircle2 className="h-5 w-5 text-primary" /> No Watermark</li>
               </ul>
-              <Link href="/pricing"><Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">Subscribe Now</Button></Link>
+              <Link href="/documents"><Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">Get Started</Button></Link>
             </div>
 
             <div className="p-8 rounded-3xl bg-card border border-white/10 hover:border-primary/30 transition-all">
@@ -400,7 +416,7 @@ export default function Home() {
                 <li className="flex items-center gap-3 text-muted-foreground"><CheckCircle2 className="h-5 w-5 text-primary" /> API Access</li>
                 <li className="flex items-center gap-3 text-muted-foreground"><CheckCircle2 className="h-5 w-5 text-primary" /> White-label Output</li>
               </ul>
-              <Link href="/pricing"><Button variant="outline" className="w-full">Subscribe Now</Button></Link>
+              <Link href="/contact"><Button variant="outline" className="w-full">Contact Sales</Button></Link>
             </div>
           </div>
         </div>

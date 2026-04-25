@@ -39,11 +39,27 @@ function ProtectedRoute({ component: Component, adminOnly = false }: { component
   const { token, user } = useAuthStore();
 
   if (!token) {
+    // Save the page the user tried to visit, so we can return after login
+    try {
+      const path = window.location.pathname + window.location.search;
+      if (path && !path.includes("/login") && !path.includes("/auth/callback")) {
+        sessionStorage.setItem("kanoon_redirect_after_login", path);
+      }
+    } catch {}
     return <Redirect to="/login" />;
   }
 
   if (adminOnly && !user?.isAdmin) {
-    return <div className="min-h-screen bg-background flex justify-center pt-20 text-white">Access Denied. Admins only.</div>;
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
+        <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+          <span className="text-3xl">🔒</span>
+        </div>
+        <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
+        <p className="text-muted-foreground mb-6">This area is reserved for administrators.</p>
+        <a href="/" className="text-primary hover:underline">← Back to Home</a>
+      </div>
+    );
   }
 
   return <Component />;

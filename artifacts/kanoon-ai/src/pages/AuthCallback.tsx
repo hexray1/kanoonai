@@ -31,7 +31,15 @@ export default function AuthCallback() {
         if (data.success && data.user) {
           setAuth(token, data.user);
           toast({ title: `Welcome, ${data.user.name || "there"}!`, description: "You are now signed in." });
-          setLocation("/dashboard");
+          let redirect = "/dashboard";
+          try {
+            const stored = sessionStorage.getItem("kanoon_redirect_after_login");
+            if (stored) {
+              redirect = stored;
+              sessionStorage.removeItem("kanoon_redirect_after_login");
+            }
+          } catch {}
+          setLocation(redirect.startsWith("/") ? redirect : "/dashboard");
         } else {
           throw new Error("Invalid user data");
         }
