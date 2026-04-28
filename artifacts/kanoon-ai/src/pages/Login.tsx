@@ -7,7 +7,13 @@ import { Scale } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
+import { useSeo } from "@/hooks/use-seo";
+
 export default function Login() {
+  useSeo({
+    title: "Sign In with Google — KanoonAI",
+    description: "Sign in to KanoonAI with your Google account to draft and download Indian legal documents.",
+  });
   const [, setLocation] = useLocation();
   const { token } = useAuthStore();
   const { toast } = useToast();

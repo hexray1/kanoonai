@@ -5,8 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useSeo } from "@/hooks/use-seo";
 
 export default function Contact() {
+  useSeo({
+    title: "Contact KanoonAI — WhatsApp, Email & Phone Support for Legal Documents",
+    description: "Reach KanoonAI on WhatsApp +91 98765 43210 or email support@kanoonai.in. Mon–Sat, 10 AM – 6 PM IST. Average response under 24 hours.",
+  });
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sending, setSending] = useState(false);
   const { toast } = useToast();

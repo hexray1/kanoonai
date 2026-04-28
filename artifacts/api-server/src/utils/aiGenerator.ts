@@ -1,8 +1,26 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+if (!process.env.AI_INTEGRATIONS_GEMINI_BASE_URL) {
+  throw new Error(
+    "AI_INTEGRATIONS_GEMINI_BASE_URL must be set. Did you forget to provision the Gemini AI integration?",
+  );
+}
+
+if (!process.env.AI_INTEGRATIONS_GEMINI_API_KEY) {
+  throw new Error(
+    "AI_INTEGRATIONS_GEMINI_API_KEY must be set. Did you forget to provision the Gemini AI integration?",
+  );
+}
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
+  httpOptions: {
+    apiVersion: "",
+    baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
+  },
 });
+
+const GEMINI_MODEL = "gemini-2.5-pro";
 
 const DOCUMENT_PROMPTS: Record<string, string> = {
   "rent-agreement": `You are a legal document expert specializing in Indian tenancy law. Generate a comprehensive Rent Agreement in proper legal format. Include:
@@ -108,19 +126,24 @@ Requirements:
 7. Format it as a proper A4 document with appropriate headers and sections
 8. Do NOT include any XML tags or markdown, use plain text with proper spacing`;
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 4096,
-    system: systemPrompt,
-    messages: [{ role: "user", content: userPrompt }],
+  const response = await ai.models.generateContent({
+    model: GEMINI_MODEL,
+    contents: [
+      { role: "user", parts: [{ text: userPrompt }] },
+    ],
+    config: {
+      systemInstruction: systemPrompt,
+      maxOutputTokens: 8192,
+      temperature: 0.4,
+    },
   });
 
-  const textContent = response.content.find((block) => block.type === "text");
-  if (!textContent || textContent.type !== "text") {
+  const text = response.text;
+  if (!text) {
     throw new Error("No text content in AI response");
   }
 
-  return textContent.text;
+  return text;
 }
 
 export function getDocumentPrice(documentType: string): number {

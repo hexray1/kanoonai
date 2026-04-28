@@ -17,7 +17,13 @@ import { useToast } from "@/hooks/use-toast";
 
 type Filter = "all" | "paid" | "draft";
 
+import { useSeo } from "@/hooks/use-seo";
+
 export default function Dashboard() {
+  useSeo({
+    title: "My Documents — Dashboard | KanoonAI",
+    description: "View, download and manage all your generated Indian legal documents from your KanoonAI dashboard.",
+  });
   const [, setLocation] = useLocation();
   const { user } = useAuthStore();
   const { toast } = useToast();

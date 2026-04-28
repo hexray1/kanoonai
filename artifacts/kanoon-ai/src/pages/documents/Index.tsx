@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DOC_CATEGORIES, DOCUMENTS } from "@/lib/constants";
 import { useLanguage } from "@/hooks/use-language";
+import { useSeo } from "@/hooks/use-seo";
 
 const POPULAR_IDS = new Set(["rental", "affidavit", "nda", "legal-notice"]);
 const NEW_IDS = new Set(["divorce-petition", "domicile-cert", "ration-card"]);
@@ -24,6 +25,11 @@ export default function DocumentSelection() {
   const { t, language } = useLanguage();
   const [search, setSearch] = useState("");
   const [activeCat, setActiveCat] = useState<string>("all");
+  useSeo({
+    title: "25+ Indian Legal Document Templates | Rental, NDA, Affidavit, Will — KanoonAI",
+    description:
+      "Browse 25+ lawyer-reviewed Indian legal document templates. Rental agreements, NDAs, affidavits, wills, FIRs, RTI, partnership deeds — drafted by AI in 60 seconds. From ₹99.",
+  });
 
   const allDocs = useMemo(() => Object.entries(DOCUMENTS), []);
   const totalDocs = allDocs.length;

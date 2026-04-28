@@ -1,7 +1,13 @@
 import { motion } from "framer-motion";
 import { FileText } from "lucide-react";
 
+import { useSeo } from "@/hooks/use-seo";
+
 export default function Terms() {
+  useSeo({
+    title: "Terms of Service — KanoonAI",
+    description: "Read the KanoonAI Terms of Service governing the use of our AI-powered legal document generation platform.",
+  });
   return (
     <div className="min-h-screen bg-background py-20 px-4">
       <div className="max-w-3xl mx-auto">

@@ -29,7 +29,7 @@ const LANGUAGES = [
 const AI_STAGES = [
   { msg: "Analyzing your inputs...", icon: Bot, ms: 1500 },
   { msg: "Loading Indian legal templates...", icon: Shield, ms: 1800 },
-  { msg: "Drafting clauses with Claude AI...", icon: Sparkles, ms: 2500 },
+  { msg: "Drafting clauses with Gemini AI...", icon: Sparkles, ms: 2500 },
   { msg: "Adding witness & legal sections...", icon: FileText, ms: 1500 },
   { msg: "Finalizing your document...", icon: Check, ms: 1200 },
 ];
@@ -122,7 +122,7 @@ export default function GenerateDocument() {
             Crafting Your Document
           </h2>
           <p className="text-muted-foreground text-sm mb-8">
-            {language === "en" ? docConfig.name : docConfig.nameHi} · Powered by Claude AI
+            {language === "en" ? docConfig.name : docConfig.nameHi} · Powered by Gemini AI
           </p>
 
           <AnimatePresence mode="wait">

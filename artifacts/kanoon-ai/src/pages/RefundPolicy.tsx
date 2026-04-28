@@ -2,7 +2,13 @@ import { motion } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 import { Link } from "wouter";
 
+import { useSeo } from "@/hooks/use-seo";
+
 export default function RefundPolicy() {
+  useSeo({
+    title: "Refund & Cancellation Policy — KanoonAI",
+    description: "KanoonAI's refund policy for digital legal documents. 7-day satisfaction guarantee on most templates.",
+  });
   return (
     <div className="min-h-screen bg-background py-20 px-4">
       <div className="max-w-3xl mx-auto">

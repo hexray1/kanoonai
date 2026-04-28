@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+    <loc>https://kanoonai.in/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en-IN" href="https://kanoonai.in/" />
+    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://kanoonai.in/?lang=hi" />
+  </url>
+
+  <url>
+    <loc>https://kanoonai.in/documents</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- Top 25 document templates - high SEO value -->
+  <url><loc>https://kanoonai.in/documents/generate/rent-agreement</loc><priority>0.9</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/leave-license</loc><priority>0.9</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/affidavit</loc><priority>0.9</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/nda</loc><priority>0.9</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/legal-notice</loc><priority>0.9</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/will</loc><priority>0.9</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/rti</loc><priority>0.9</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/fir-draft</loc><priority>0.9</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/partnership-deed</loc><priority>0.9</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/mou</loc><priority>0.85</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/gift-deed</loc><priority>0.85</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/divorce-petition</loc><priority>0.85</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/business-contract</loc><priority>0.85</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/noc-letter</loc><priority>0.8</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/eviction-notice</loc><priority>0.8</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/invoice</loc><priority>0.8</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/complaint-letter</loc><priority>0.8</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/offer-letter</loc><priority>0.8</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/experience-cert</loc><priority>0.8</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/emp-contract</loc><priority>0.8</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/termination-letter</loc><priority>0.75</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/income-cert</loc><priority>0.75</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/caste-cert</loc><priority>0.75</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/domicile-cert</loc><priority>0.75</priority></url>
+  <url><loc>https://kanoonai.in/documents/generate/ration-card</loc><priority>0.75</priority></url>
+
+  <url><loc>https://kanoonai.in/faq</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kanoonai.in/contact</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kanoonai.in/privacy</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://kanoonai.in/terms</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://kanoonai.in/refund</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+
+</urlset>
