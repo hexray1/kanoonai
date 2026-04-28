@@ -6,8 +6,8 @@ import { useSeo } from "@/hooks/use-seo";
 
 export default function RefundPolicy() {
   useSeo({
-    title: "Refund & Cancellation Policy — KanoonAI",
-    description: "KanoonAI's refund policy for digital legal documents. 7-day satisfaction guarantee on most templates.",
+    title: "Refund & Cancellation Policy — Kanoox AI",
+    description: "Kanoox AI's refund policy for digital legal documents. 7-day satisfaction guarantee on most templates.",
   });
   return (
     <div className="min-h-screen bg-background py-20 px-4">
@@ -52,7 +52,7 @@ export default function RefundPolicy() {
               <h2 className="text-xl font-semibold text-white mb-3">How to Request a Refund</h2>
               <ol className="list-decimal pl-6 space-y-2">
                 <li>Go to your <Link href="/dashboard"><span className="text-primary hover:underline cursor-pointer">Dashboard</span></Link> → select the document → click "Request Refund"</li>
-                <li>Or email us at <strong className="text-primary">refunds@kanoonai.in</strong> with:
+                <li>Or email us at <strong className="text-primary">refunds@kanooxai.in</strong> with:
                   <ul className="list-disc pl-6 mt-1 space-y-1 text-sm">
                     <li>Your registered email address</li>
                     <li>The document type and date of purchase</li>
@@ -94,7 +94,7 @@ export default function RefundPolicy() {
 
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">Contact</h2>
-              <p>For refund-related queries: <strong className="text-primary">refunds@kanoonai.in</strong></p>
+              <p>For refund-related queries: <strong className="text-primary">refunds@kanooxai.in</strong></p>
               <p className="mt-1">We respond to all refund requests within 1 business day.</p>
             </section>
           </div>

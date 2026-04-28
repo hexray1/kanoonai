@@ -21,8 +21,8 @@ import { useSeo } from "@/hooks/use-seo";
 
 export default function Dashboard() {
   useSeo({
-    title: "My Documents — Dashboard | KanoonAI",
-    description: "View, download and manage all your generated Indian legal documents from your KanoonAI dashboard.",
+    title: "My Documents — Dashboard | Kanoox AI",
+    description: "View, download and manage all your generated Indian legal documents from your Kanoox AI dashboard.",
   });
   const [, setLocation] = useLocation();
   const { user } = useAuthStore();

@@ -46,7 +46,7 @@ export default function DocumentPreview() {
         key: order.keyId,
         amount: order.amount * 100,
         currency: order.currency,
-        name: "KanoonAI",
+        name: "Kanoox AI",
         description: doc.title,
         order_id: order.orderId,
         handler: async (response: any) => {

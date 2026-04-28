@@ -11,8 +11,8 @@ import { useSeo } from "@/hooks/use-seo";
 
 export default function Login() {
   useSeo({
-    title: "Sign In with Google — KanoonAI",
-    description: "Sign in to KanoonAI with your Google account to draft and download Indian legal documents.",
+    title: "Sign In with Google — Kanoox AI",
+    description: "Sign in to Kanoox AI with your Google account to draft and download Indian legal documents.",
   });
   const [, setLocation] = useLocation();
   const { token } = useAuthStore();
@@ -67,7 +67,7 @@ export default function Login() {
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-white text-center mb-2">Welcome to KanoonAI</h2>
+        <h2 className="text-2xl font-bold text-white text-center mb-2">Welcome to Kanoox AI</h2>
         <p className="text-muted-foreground text-center mb-8 text-sm">
           Sign in to generate professional legal documents instantly
         </p>

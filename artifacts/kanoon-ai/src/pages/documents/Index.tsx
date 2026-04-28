@@ -26,7 +26,7 @@ export default function DocumentSelection() {
   const [search, setSearch] = useState("");
   const [activeCat, setActiveCat] = useState<string>("all");
   useSeo({
-    title: "25+ Indian Legal Document Templates | Rental, NDA, Affidavit, Will — KanoonAI",
+    title: "25+ Indian Legal Document Templates | Rental, NDA, Affidavit, Will — Kanoox AI",
     description:
       "Browse 25+ lawyer-reviewed Indian legal document templates. Rental agreements, NDAs, affidavits, wills, FIRs, RTI, partnership deeds — drafted by AI in 60 seconds. From ₹99.",
   });

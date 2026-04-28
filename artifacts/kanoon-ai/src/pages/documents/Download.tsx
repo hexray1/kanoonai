@@ -64,7 +64,7 @@ export default function DownloadDocument() {
 
   const handleWhatsAppShare = () => {
     const text = encodeURIComponent(
-      `Check out my legal document (${doc.title}) generated via KanoonAI — India's AI Legal Document Platform. Try it at kanoonai.in`
+      `Check out my legal document (${doc.title}) generated via Kanoox AI — India's AI Legal Document Platform. Try it at kanooxai.in`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
@@ -89,7 +89,7 @@ export default function DownloadDocument() {
           </div>
           <div className="flex-1 overflow-hidden">
             <h4 className="font-medium text-white truncate">{doc.title}.pdf</h4>
-            <span className="text-xs text-muted-foreground">A4 · Print Ready · KanoonAI Legal Format</span>
+            <span className="text-xs text-muted-foreground">A4 · Print Ready · Kanoox AI Legal Format</span>
           </div>
         </div>
 

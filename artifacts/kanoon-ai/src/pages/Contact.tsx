@@ -9,8 +9,8 @@ import { useSeo } from "@/hooks/use-seo";
 
 export default function Contact() {
   useSeo({
-    title: "Contact KanoonAI — WhatsApp, Email & Phone Support for Legal Documents",
-    description: "Reach KanoonAI on WhatsApp +91 98765 43210 or email support@kanoonai.in. Mon–Sat, 10 AM – 6 PM IST. Average response under 24 hours.",
+    title: "Contact Kanoox AI — WhatsApp, Email & Phone Support for Legal Documents",
+    description: "Reach Kanoox AI on WhatsApp +91 98765 43210 or email support@kanooxai.in. Mon–Sat, 10 AM – 6 PM IST. Average response under 24 hours.",
   });
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sending, setSending] = useState(false);
@@ -48,7 +48,7 @@ export default function Contact() {
                 {
                   icon: Mail,
                   title: "Email Support",
-                  desc: "support@kanoonai.in",
+                  desc: "support@kanooxai.in",
                   sub: "We respond within 24 hours",
                 },
                 {

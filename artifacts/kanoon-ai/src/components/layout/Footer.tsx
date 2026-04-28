@@ -82,7 +82,7 @@ export function Footer() {
               <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shadow-gold">
                 <Scale className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold text-white">Kanoon<span className="text-primary">AI</span></span>
+              <span className="text-xl font-bold text-white">Kanoox<span className="text-primary"> AI</span></span>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed mb-5 max-w-sm">
               {t(
@@ -107,10 +107,10 @@ export function Footer() {
             {/* Social */}
             <div className="flex items-center gap-2">
               {[
-                { Icon: Twitter,   href: "https://twitter.com/kanoonai",   label: "Twitter" },
-                { Icon: Facebook,  href: "https://facebook.com/kanoonai",  label: "Facebook" },
-                { Icon: Linkedin,  href: "https://linkedin.com/company/kanoonai", label: "LinkedIn" },
-                { Icon: Instagram, href: "https://instagram.com/kanoonai", label: "Instagram" },
+                { Icon: Twitter,   href: "https://twitter.com/kanooxai",   label: "Twitter" },
+                { Icon: Facebook,  href: "https://facebook.com/kanooxai",  label: "Facebook" },
+                { Icon: Linkedin,  href: "https://linkedin.com/company/kanooxai", label: "LinkedIn" },
+                { Icon: Instagram, href: "https://instagram.com/kanooxai", label: "Instagram" },
               ].map(({ Icon, href, label }) => (
                 <a
                   key={label}
@@ -170,7 +170,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <a href="mailto:support@kanoonai.in" className="hover:text-primary transition-colors break-all">support@kanoonai.in</a>
+                <a href="mailto:support@kanooxai.in" className="hover:text-primary transition-colors break-all">support@kanooxai.in</a>
               </li>
               <li className="flex items-start gap-2">
                 <Phone className="h-4 w-4 text-primary mt-0.5 shrink-0" />
@@ -201,10 +201,10 @@ export function Footer() {
 
           <div className="border-t border-white/5 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
             <div>
-              © {new Date().getFullYear()} <span className="text-white">KanoonAI Technologies Pvt. Ltd.</span> · All rights reserved · Made with ❤️ in India
+              © {new Date().getFullYear()} <span className="text-white">Kanoox AI Technologies Pvt. Ltd.</span> · All rights reserved · Made with ❤️ in India
             </div>
             <div className="text-center md:text-right max-w-md">
-              <strong className="text-white/70">Disclaimer:</strong> KanoonAI is not a law firm. Documents are AI-generated drafts for informational purposes only and not a substitute for advice from a licensed advocate.
+              <strong className="text-white/70">Disclaimer:</strong> Kanoox AI is not a law firm. Documents are AI-generated drafts for informational purposes only and not a substitute for advice from a licensed advocate.
             </div>
           </div>
         </div>

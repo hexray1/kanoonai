@@ -25,4 +25,4 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-Sitemap: https://kanoonai.in/sitemap.xml
+Sitemap: https://kanooxai.in/sitemap.xml

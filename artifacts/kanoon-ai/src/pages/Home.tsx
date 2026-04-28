@@ -47,7 +47,7 @@ const STEPS = [
 
 const TESTIMONIALS = [
   { name: "Rahul Sharma",   role: "Small Business Owner, Delhi",  text: "Drafted my partnership deed in 5 minutes. Saved ₹3,000 in lawyer fees. Document was perfect.",   rating: 5 },
-  { name: "Priya Patel",    role: "Freelancer, Mumbai",            text: "I send NDAs to clients every week. KanoonAI changed my workflow completely. Worth every rupee.", rating: 5 },
+  { name: "Priya Patel",    role: "Freelancer, Mumbai",            text: "I send NDAs to clients every week. Kanoox AI changed my workflow completely. Worth every rupee.", rating: 5 },
   { name: "Anand Kumar",    role: "Landlord, Bengaluru",           text: "Generated a rental agreement in Hindi for my tenant. Tenant was impressed with the formatting.", rating: 5 },
   { name: "Sneha Reddy",    role: "HR Manager, Hyderabad",         text: "We use it for offer letters and employment contracts. Faster than our old templates.",          rating: 5 },
 ];
@@ -58,8 +58,8 @@ const FAQS = [
     a: "Yes. All our templates are drafted in accordance with Indian laws (Indian Contract Act, Transfer of Property Act, Indian Evidence Act, etc.) and reviewed by practicing advocates. However, certain documents like Sale Deeds and Wills may require additional notarization, registration, or witnessing as per local laws — the generated PDF includes guidance on this.",
   },
   {
-    q: "Do I need a lawyer to use KanoonAI?",
-    a: "No. KanoonAI is built for individuals, freelancers, small businesses, and landlords who need quick, professional drafts without expensive lawyer fees. For complex disputes or court matters, we recommend consulting a licensed advocate — our Pro Plan includes a 15-minute consultation.",
+    q: "Do I need a lawyer to use Kanoox AI?",
+    a: "No. Kanoox AI is built for individuals, freelancers, small businesses, and landlords who need quick, professional drafts without expensive lawyer fees. For complex disputes or court matters, we recommend consulting a licensed advocate — our Pro Plan includes a 15-minute consultation.",
   },
   {
     q: "How does the ₹99 pricing work?",
@@ -288,7 +288,7 @@ export default function Home() {
       <section className="py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Why KanoonAI?</h2>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Why Kanoox AI?</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">Built for Indians. Trusted across India.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -430,7 +430,7 @@ export default function Home() {
               FAQ
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Questions? We have answers.</h2>
-            <p className="text-muted-foreground">Everything you need to know about KanoonAI.</p>
+            <p className="text-muted-foreground">Everything you need to know about Kanoox AI.</p>
           </div>
           <FAQAccordion items={FAQS} />
           <div className="mt-10 text-center">

@@ -17,7 +17,7 @@ export function FloatingSupport() {
       Icon: MessageCircle,
       label: "WhatsApp",
       sub: "Reply within 5 minutes",
-      href: "https://wa.me/918012345678?text=Hi%20KanoonAI%2C%20I%20need%20help%20with%20a%20document",
+      href: "https://wa.me/918012345678?text=Hi%20Kanoox AI%2C%20I%20need%20help%20with%20a%20document",
       color: "bg-green-500",
     },
     {
@@ -30,8 +30,8 @@ export function FloatingSupport() {
     {
       Icon: Mail,
       label: "Email Us",
-      sub: "support@kanoonai.in",
-      href: "mailto:support@kanoonai.in",
+      sub: "support@kanooxai.in",
+      href: "mailto:support@kanooxai.in",
       color: "bg-primary",
     },
   ];
