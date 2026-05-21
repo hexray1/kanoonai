@@ -46,7 +46,7 @@ export default function PrivacyPolicy() {
               <h2 className="text-xl font-semibold text-white mb-3">3. Data Sharing</h2>
               <p>We do <strong className="text-white">not</strong> sell, rent, or trade your personal information. We share data only with:</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li><strong className="text-white">Google (Gemini AI):</strong> Your document form data is sent to Google's Gemini AI for document generation via secure enterprise API. Google does not train on API data by default.</li>
+                <li><strong className="text-white">NVIDIA AI:</strong> Your document form data is sent to NVIDIA's enterprise AI API for document generation. NVIDIA does not train on customer API data by default.</li>
                 <li><strong className="text-white">Razorpay:</strong> Payment processing. Governed by Razorpay's Privacy Policy.</li>
                 <li><strong className="text-white">Google:</strong> Authentication only. We receive your name, email, and profile photo.</li>
                 <li><strong className="text-white">Legal Authorities:</strong> If required by law or court order under Indian law (IT Act, 2000).</li>
