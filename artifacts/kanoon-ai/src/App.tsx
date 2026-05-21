@@ -1,45 +1,45 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/hooks/use-auth";
-
-// Components
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingSupport } from "@/components/layout/FloatingSupport";
 
-// Pages
-import Home from "@/pages/Home";
-import Login from "@/pages/Login";
-import AuthCallback from "@/pages/AuthCallback";
-import DocumentSelection from "@/pages/documents/Index";
-import GenerateDocument from "@/pages/documents/Generate";
-import DocumentPreview from "@/pages/documents/Preview";
-import DownloadDocument from "@/pages/documents/Download";
-import Dashboard from "@/pages/Dashboard";
-import AdminDashboard from "@/pages/admin/Dashboard";
-import PrivacyPolicy from "@/pages/PrivacyPolicy";
-import Terms from "@/pages/Terms";
-import RefundPolicy from "@/pages/RefundPolicy";
-import Contact from "@/pages/Contact";
-import FAQ from "@/pages/FAQ";
-import NotFound from "@/pages/not-found";
+// Lazy-loaded routes — each loads only when visited (cuts initial bundle ~60%)
+const Home             = lazy(() => import("@/pages/Home"));
+const Login            = lazy(() => import("@/pages/Login"));
+const AuthCallback     = lazy(() => import("@/pages/AuthCallback"));
+const DocumentSelection = lazy(() => import("@/pages/documents/Index"));
+const GenerateDocument = lazy(() => import("@/pages/documents/Generate"));
+const DocumentPreview  = lazy(() => import("@/pages/documents/Preview"));
+const DownloadDocument = lazy(() => import("@/pages/documents/Download"));
+const Dashboard        = lazy(() => import("@/pages/Dashboard"));
+const AdminDashboard   = lazy(() => import("@/pages/admin/Dashboard"));
+const PrivacyPolicy    = lazy(() => import("@/pages/PrivacyPolicy"));
+const Terms            = lazy(() => import("@/pages/Terms"));
+const RefundPolicy     = lazy(() => import("@/pages/RefundPolicy"));
+const Contact          = lazy(() => import("@/pages/Contact"));
+const FAQ              = lazy(() => import("@/pages/FAQ"));
+const NotFound         = lazy(() => import("@/pages/not-found"));
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
+  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
 });
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+    </div>
+  );
+}
 
 function ProtectedRoute({ component: Component, adminOnly = false }: { component: any; adminOnly?: boolean }) {
   const { token, user } = useAuthStore();
-
   if (!token) {
-    // Save the page the user tried to visit, so we can return after login
     try {
       const path = window.location.pathname + window.location.search;
       if (path && !path.includes("/login") && !path.includes("/auth/callback")) {
@@ -48,7 +48,6 @@ function ProtectedRoute({ component: Component, adminOnly = false }: { component
     } catch {}
     return <Redirect to="/login" />;
   }
-
   if (adminOnly && !user?.isAdmin) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
@@ -61,7 +60,6 @@ function ProtectedRoute({ component: Component, adminOnly = false }: { component
       </div>
     );
   }
-
   return <Component />;
 }
 
@@ -70,39 +68,35 @@ function Router() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-1">
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/login" component={Login} />
-          <Route path="/auth/callback" component={AuthCallback} />
-
-          <Route path="/documents" component={DocumentSelection} />
-          <Route path="/documents/generate/:type">
-            {() => <ProtectedRoute component={GenerateDocument} />}
-          </Route>
-          <Route path="/documents/:id/preview">
-            {() => <ProtectedRoute component={DocumentPreview} />}
-          </Route>
-          <Route path="/documents/:id/download">
-            {() => <ProtectedRoute component={DownloadDocument} />}
-          </Route>
-
-          <Route path="/dashboard">
-            {() => <ProtectedRoute component={Dashboard} />}
-          </Route>
-
-          <Route path="/admin">
-            {() => <ProtectedRoute component={AdminDashboard} adminOnly={true} />}
-          </Route>
-
-          {/* Footer pages */}
-          <Route path="/privacy" component={PrivacyPolicy} />
-          <Route path="/terms" component={Terms} />
-          <Route path="/refund" component={RefundPolicy} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/faq" component={FAQ} />
-
-          <Route component={NotFound} />
-        </Switch>
+        <Suspense fallback={<PageLoader />}>
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/login" component={Login} />
+            <Route path="/auth/callback" component={AuthCallback} />
+            <Route path="/documents" component={DocumentSelection} />
+            <Route path="/documents/generate/:type">
+              {() => <ProtectedRoute component={GenerateDocument} />}
+            </Route>
+            <Route path="/documents/:id/preview">
+              {() => <ProtectedRoute component={DocumentPreview} />}
+            </Route>
+            <Route path="/documents/:id/download">
+              {() => <ProtectedRoute component={DownloadDocument} />}
+            </Route>
+            <Route path="/dashboard">
+              {() => <ProtectedRoute component={Dashboard} />}
+            </Route>
+            <Route path="/admin">
+              {() => <ProtectedRoute component={AdminDashboard} adminOnly={true} />}
+            </Route>
+            <Route path="/privacy" component={PrivacyPolicy} />
+            <Route path="/terms" component={Terms} />
+            <Route path="/refund" component={RefundPolicy} />
+            <Route path="/contact" component={Contact} />
+            <Route path="/faq" component={FAQ} />
+            <Route component={NotFound} />
+          </Switch>
+        </Suspense>
       </main>
       <Footer />
       <FloatingSupport />
@@ -110,7 +104,7 @@ function Router() {
   );
 }
 
-function App() {
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -122,5 +116,3 @@ function App() {
     </QueryClientProvider>
   );
 }
-
-export default App;

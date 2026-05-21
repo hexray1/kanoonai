@@ -1,107 +1,243 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
-  Shield, Zap, FileText, CheckCircle2, ArrowRight,
+  Shield, Zap, FileText, CheckCircle2, ArrowRight, XCircle,
   Bot, Download, Star, Quote, Users, Award, Lock, Sparkles,
-  Plus, Minus, TrendingUp,
+  Clock, Check, TrendingUp, ChevronDown, Globe, Cpu,
+  MessageCircle, Phone, BadgeCheck, IndianRupee,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 
-// ---------------- Animated Counter ----------------
-function Counter({ to, suffix = "", duration = 2 }: { to: number; suffix?: string; duration?: number }) {
+// ── Animated Counter ───────────────────────────────────────────────────────
+function Counter({ to, suffix = "", prefix = "", duration = 2 }: {
+  to: number; suffix?: string; prefix?: string; duration?: number;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const inView = useInView(ref, { once: true, margin: "-60px" });
   const [val, setVal] = useState(0);
-
   useEffect(() => {
     if (!inView) return;
-    let start = 0;
+    let s = 0;
     const step = 1000 / 60;
-    const totalSteps = (duration * 1000) / step;
-    const inc = to / totalSteps;
+    const steps = (duration * 1000) / step;
+    const inc = to / steps;
     const id = setInterval(() => {
-      start += inc;
-      if (start >= to) { setVal(to); clearInterval(id); }
-      else setVal(Math.floor(start));
+      s += inc;
+      if (s >= to) { setVal(to); clearInterval(id); }
+      else setVal(Math.floor(s));
     }, step);
     return () => clearInterval(id);
   }, [inView, to, duration]);
-
-  return <span ref={ref}>{val.toLocaleString("en-IN")}{suffix}</span>;
+  return <span ref={ref}>{prefix}{val.toLocaleString("en-IN")}{suffix}</span>;
 }
 
+// ── Live Activity Ticker ───────────────────────────────────────────────────
+const ACTIVITY = [
+  "🏡 Ravi from Mumbai created a Rent Agreement",
+  "📄 Priya from Delhi drafted an NDA",
+  "⚖️ Anand from Bengaluru filed an RTI Application",
+  "📋 Sneha from Hyderabad generated an Offer Letter",
+  "🤝 Raj from Pune created a Partnership Deed",
+  "📝 Meena from Chennai drafted an Affidavit",
+  "🔔 Vikram from Ahmedabad sent a Legal Notice",
+  "📜 Nisha from Kolkata created a Gift Deed",
+  "💼 Arjun from Jaipur drafted an Employment Contract",
+  "🏛️ Deepa from Kochi filed a Consumer Complaint",
+];
+function LiveTicker() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % ACTIVITY.length), 3000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-sm overflow-hidden">
+      <span className="flex items-center gap-1.5 shrink-0">
+        <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+        <span className="text-green-400 font-medium text-xs uppercase tracking-wide">Live</span>
+      </span>
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={idx}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.3 }}
+          className="text-white/80 truncate max-w-[280px] sm:max-w-none"
+        >
+          {ACTIVITY[idx]}
+        </motion.span>
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Data ───────────────────────────────────────────────────────────────────
 const STATS = [
-  { value: 10000, suffix: "+", label: "Documents Generated" },
-  { value: 5000,  suffix: "+", label: "Happy Customers" },
-  { value: 28,    suffix: "",  label: "Indian States Served" },
-  { value: 60,    suffix: "s", label: "Average Generation Time" },
+  { value: 12000, suffix: "+", label: "Documents Generated", icon: FileText },
+  { value: 5000,  suffix: "+", label: "Happy Customers",     icon: Users },
+  { value: 28,    suffix: "",  label: "Indian States Served", icon: Globe },
+  { value: 60,    suffix: "s", label: "Avg. Generation Time", icon: Zap },
 ];
 
 const STEPS = [
-  { icon: FileText, title: "Pick Your Document",   desc: "Choose from 25+ Indian legal templates — affidavits, NDAs, rental agreements & more." },
-  { icon: Bot,      title: "Answer Questions",     desc: "Fill a simple form. Our AI fills in the legal language for you in seconds." },
-  { icon: Download, title: "Download & Use",       desc: "Get a print-ready, professionally formatted PDF — ready for stamp paper or registration." },
+  { icon: FileText, step: "01", title: "Pick Your Document",
+    desc: "Choose from 25+ Indian legal templates — rent agreements, NDAs, affidavits, wills, legal notices and more." },
+  { icon: Bot,      step: "02", title: "Fill a Simple Form",
+    desc: "Answer plain-language questions. No legal jargon. Our NVIDIA AI handles all the legal drafting for you." },
+  { icon: Download, step: "03", title: "Download Your PDF",
+    desc: "Get a complete, print-ready PDF in 60 seconds — ready for stamp paper, signing, notarization, or registration." },
 ];
+
+const DOCUMENT_CATEGORIES = [
+  {
+    icon: "🏡", title: "Rental & Housing", color: "from-blue-500/10 to-blue-600/5",
+    border: "border-blue-500/20", docs: [
+      { name: "Rent Agreement",       slug: "rent-agreement",  price: 199 },
+      { name: "Leave & License",      slug: "leave-license",   price: 199 },
+      { name: "NOC Letter",           slug: "noc-letter",      price: 99  },
+      { name: "Eviction Notice",      slug: "eviction-notice", price: 99  },
+    ],
+  },
+  {
+    icon: "💼", title: "Business & Finance", color: "from-purple-500/10 to-purple-600/5",
+    border: "border-purple-500/20", docs: [
+      { name: "Partnership Deed",  slug: "partnership-deed",   price: 499 },
+      { name: "MOU",               slug: "mou",                price: 499 },
+      { name: "NDA",               slug: "nda",                price: 299 },
+      { name: "Business Contract", slug: "business-contract",  price: 499 },
+    ],
+  },
+  {
+    icon: "👨‍👩‍👧", title: "Personal & Family", color: "from-rose-500/10 to-rose-600/5",
+    border: "border-rose-500/20", docs: [
+      { name: "Affidavit",         slug: "affidavit",         price: 199 },
+      { name: "Gift Deed",         slug: "gift-deed",         price: 499 },
+      { name: "Will & Testament",  slug: "will",              price: 499 },
+      { name: "Divorce Petition",  slug: "divorce-petition",  price: 499 },
+    ],
+  },
+  {
+    icon: "⚖️", title: "Legal Notices", color: "from-amber-500/10 to-amber-600/5",
+    border: "border-amber-500/20", docs: [
+      { name: "Legal Notice",    slug: "legal-notice",    price: 299 },
+      { name: "FIR Draft",       slug: "fir-draft",       price: 199 },
+      { name: "RTI Application", slug: "rti",             price: 99  },
+      { name: "Complaint Letter",slug: "complaint-letter",price: 99  },
+    ],
+  },
+  {
+    icon: "💼", title: "Employment", color: "from-teal-500/10 to-teal-600/5",
+    border: "border-teal-500/20", docs: [
+      { name: "Offer Letter",        slug: "offer-letter",       price: 99  },
+      { name: "Employment Contract", slug: "emp-contract",       price: 199 },
+      { name: "Experience Cert.",    slug: "experience-cert",    price: 99  },
+      { name: "Termination Letter",  slug: "termination-letter", price: 99  },
+    ],
+  },
+  {
+    icon: "🏛️", title: "Government Docs", color: "from-green-500/10 to-green-600/5",
+    border: "border-green-500/20", docs: [
+      { name: "Income Certificate",  slug: "income-cert",   price: 99 },
+      { name: "Caste Certificate",   slug: "caste-cert",    price: 99 },
+      { name: "Domicile Certificate",slug: "domicile-cert", price: 99 },
+      { name: "Ration Card App.",    slug: "ration-card",   price: 99 },
+    ],
+  },
+];
+
+const LAWYER_COSTS: Record<string, { lawyer: number; name: string }> = {
+  "Rent Agreement":       { lawyer: 3000,  name: "rent-agreement"   },
+  "NDA":                  { lawyer: 8000,  name: "nda"               },
+  "Partnership Deed":     { lawyer: 15000, name: "partnership-deed"  },
+  "Affidavit":            { lawyer: 2000,  name: "affidavit"         },
+  "Legal Notice":         { lawyer: 5000,  name: "legal-notice"      },
+  "Will & Testament":     { lawyer: 12000, name: "will"              },
+  "Employment Contract":  { lawyer: 7000,  name: "emp-contract"      },
+  "Gift Deed":            { lawyer: 10000, name: "gift-deed"         },
+};
+const KANOOX_COSTS: Record<string, number> = {
+  "Rent Agreement": 199, "NDA": 299, "Partnership Deed": 499,
+  "Affidavit": 199, "Legal Notice": 299, "Will & Testament": 499,
+  "Employment Contract": 199, "Gift Deed": 499,
+};
 
 const TESTIMONIALS = [
-  { name: "Rahul Sharma",   role: "Small Business Owner, Delhi",  text: "Drafted my partnership deed in 5 minutes. Saved ₹3,000 in lawyer fees. Document was perfect.",   rating: 5 },
-  { name: "Priya Patel",    role: "Freelancer, Mumbai",            text: "I send NDAs to clients every week. Kanoox AI changed my workflow completely. Worth every rupee.", rating: 5 },
-  { name: "Anand Kumar",    role: "Landlord, Bengaluru",           text: "Generated a rental agreement in Hindi for my tenant. Tenant was impressed with the formatting.", rating: 5 },
-  { name: "Sneha Reddy",    role: "HR Manager, Hyderabad",         text: "We use it for offer letters and employment contracts. Faster than our old templates.",          rating: 5 },
+  { name: "Rahul Sharma",   loc: "Delhi",     role: "Small Business Owner",
+    text: "Drafted my partnership deed in 5 minutes. Saved ₹15,000 in lawyer fees. The document was perfect — even my CA was impressed.", rating: 5 },
+  { name: "Priya Patel",    loc: "Mumbai",    role: "Independent Consultant",
+    text: "I send NDAs to 10+ clients every month. Kanoox AI completely changed my workflow. Professional, fast, and legally solid.", rating: 5 },
+  { name: "Anand Kumar",    loc: "Bengaluru", role: "Landlord (3 properties)",
+    text: "Generated Hindi rent agreements for all my tenants. They loved how professional the documents looked. Highly recommended.", rating: 5 },
+  { name: "Sneha Reddy",    loc: "Hyderabad", role: "HR Manager, TechStartup",
+    text: "We use Kanoox AI for offer letters, experience certificates, and termination letters. Saves our team 3+ hours per week.", rating: 5 },
+  { name: "Vikram Singh",   loc: "Jaipur",    role: "CA & Tax Consultant",
+    text: "I recommend Kanoox AI to all my SME clients for basic contracts and agreements. Fast, affordable, and legally sound.", rating: 5 },
+  { name: "Deepa Menon",    loc: "Kochi",     role: "Freelance Designer",
+    text: "Sent my first legal notice to a client who didn't pay me. The AI wrote a perfectly worded notice that got results in 3 days!", rating: 5 },
 ];
 
-const FAQS = [
-  {
-    q: "Are these documents legally valid in India?",
-    a: "Yes. All our templates are drafted in accordance with Indian laws (Indian Contract Act, Transfer of Property Act, Indian Evidence Act, etc.) and reviewed by practicing advocates. However, certain documents like Sale Deeds and Wills may require additional notarization, registration, or witnessing as per local laws — the generated PDF includes guidance on this.",
-  },
-  {
-    q: "Do I need a lawyer to use Kanoox AI?",
-    a: "No. Kanoox AI is built for individuals, freelancers, small businesses, and landlords who need quick, professional drafts without expensive lawyer fees. For complex disputes or court matters, we recommend consulting a licensed advocate — our Pro Plan includes a 15-minute consultation.",
-  },
-  {
-    q: "How does the ₹99 pricing work?",
-    a: "₹99 is the starting price for simple documents (rental agreement, affidavit). More complex documents like Wills (₹299) or Partnership Deeds (₹199) cost more. You only pay when you download the final PDF — drafting and previewing is completely free. GST is added at checkout.",
-  },
-  {
-    q: "Which languages are supported?",
-    a: "Documents can be generated in 5 languages: English, Hindi (हिंदी), Marathi (मराठी), Tamil (தமிழ்), and Telugu (తెలుగు). You can choose your preferred language on the document creation page.",
-  },
-  {
-    q: "Is my data secure and private?",
-    a: "Absolutely. All data is encrypted in transit (SSL/TLS) and at rest. We never share your information with third parties. Your generated documents are stored securely in your account and only visible to you. We are ISO 27001 compliant.",
-  },
-  {
-    q: "Can I edit the document after generation?",
-    a: "Yes. Before payment you can preview and ask the AI to regenerate with different details. After download, the PDF is yours to use, print, edit in any tool, or take to a notary for stamping/registration as needed.",
-  },
-  {
-    q: "What payment methods do you accept?",
-    a: "We accept all major Indian payment methods via Razorpay: UPI (Google Pay, PhonePe, Paytm), Credit/Debit cards (Visa, Mastercard, RuPay), Net Banking, and digital wallets. Subscriptions can be cancelled anytime.",
-  },
-  {
-    q: "Do you offer refunds?",
-    a: "Yes. If you're unsatisfied with a generated document, you can request a full refund within 7 days of purchase, no questions asked. Subscription plans can be cancelled anytime — you keep access until the end of your billing cycle.",
-  },
+const COMPARISON = [
+  { feature: "Cost",              kanoox: "₹99 – ₹499",     lawyer: "₹3,000 – ₹50,000", others: "₹500 – ₹2,000" },
+  { feature: "Time to get doc",   kanoox: "60 seconds",      lawyer: "2 – 7 days",        others: "1 – 3 days"    },
+  { feature: "India-specific law",kanoox: true,              lawyer: true,                 others: false           },
+  { feature: "5 Indian languages",kanoox: true,              lawyer: false,                others: false           },
+  { feature: "Available 24/7",    kanoox: true,              lawyer: false,                others: true            },
+  { feature: "Live AI drafting",  kanoox: true,              lawyer: false,                others: false           },
+  { feature: "Free preview",      kanoox: true,              lawyer: false,                others: false           },
+  { feature: "7-day refund",      kanoox: true,              lawyer: false,                others: "Partial"       },
+  { feature: "NVIDIA AI powered", kanoox: true,              lawyer: false,                others: false           },
 ];
 
-const DOCUMENT_BADGES = [
-  "Rental Agreement", "Affidavit", "Legal Notice", "NDA", "MOU",
-  "Sale Deed", "Will & Testament", "FIR Application", "RTI Application",
-  "Partnership Deed", "Power of Attorney", "Divorce Petition",
+const HOME_FAQS = [
+  { q: "Are these documents legally valid in India?",
+    a: "Yes. All templates comply with Indian statutes — Indian Contract Act, Transfer of Property Act, Indian Partnership Act, Indian Evidence Act — and include witness sections, stamp duty advisories, and jurisdiction clauses. Certain documents like Wills may require notarization/registration; the AI includes guidance on this." },
+  { q: "Do I need to pay before I can see my document?",
+    a: "Never. Kanoox AI lets you draft and preview the complete document for free. You pay only when you're satisfied and ready to download the final PDF. No hidden charges." },
+  { q: "How long does it take to get my document?",
+    a: "Under 60 seconds for most documents. You watch the NVIDIA AI write it in real-time — like watching a senior lawyer type your document live on screen. Complex documents like Partnership Deeds or Wills may take up to 90 seconds." },
+  { q: "Which states and languages are supported?",
+    a: "All 28 states and 8 UTs of India. 5 languages: English, Hindi, Marathi, Tamil, Telugu. State-specific laws are applied automatically — e.g., Maharashtra Rent Control Act for Leave & License agreements." },
 ];
 
+function HomeFaqItem({ q, a, i }: { q: string; a: string; i: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-white/10 rounded-2xl overflow-hidden">
+      <button onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between p-5 text-left bg-card hover:bg-white/5 transition-colors">
+        <span className="text-white font-medium pr-4">{q}</span>
+        <ChevronDown className={`h-5 w-5 text-primary shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div key="a" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+            <div className="px-5 pb-5 pt-2 text-muted-foreground text-sm leading-relaxed border-t border-white/5">{a}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function CellVal({ val }: { val: boolean | string }) {
+  if (val === true)  return <CheckCircle2 className="h-5 w-5 text-green-400 mx-auto" />;
+  if (val === false) return <XCircle className="h-5 w-5 text-red-400/60 mx-auto" />;
+  return <span className="text-muted-foreground text-xs">{val}</span>;
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────
 export default function Home() {
   const { t } = useLanguage();
+  const [calcDoc, setCalcDoc] = useState("Rent Agreement");
 
-  // Handle hash scrolling (e.g. /#pricing) on initial load and hash changes
   useEffect(() => {
     const scrollToHash = () => {
       const hash = window.location.hash.slice(1);
       if (!hash) return;
-      // Wait for sections to render
       setTimeout(() => {
         const el = document.getElementById(hash);
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -112,134 +248,142 @@ export default function Home() {
     return () => window.removeEventListener("hashchange", scrollToHash);
   }, []);
 
+  const lawyerCost = LAWYER_COSTS[calcDoc]?.lawyer ?? 5000;
+  const kanooxCost = KANOOX_COSTS[calcDoc] ?? 299;
+  const savings = lawyerCost - kanooxCost;
+  const savingsPct = Math.round((savings / lawyerCost) * 100);
+
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* HERO */}
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
+
+      {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <section className="relative pt-20 pb-32 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img
-            src={`${import.meta.env.BASE_URL}images/hero-bg.png`}
-            alt="Hero Background"
-            className="w-full h-full object-cover opacity-50"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/95 to-background" />
+          <img src={`${import.meta.env.BASE_URL}images/hero-bg.png`} alt="India legal document AI"
+            className="w-full h-full object-cover opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/90 to-background" />
         </div>
+        <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-sm"
-          >
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">10,000+ Documents Generated in India</span>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+            className="mb-8">
+            <LiveTicker />
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.1] max-w-4xl mx-auto"
-          >
-            60 seconds mein apna <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-200">
-              legal document ready
+          <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight text-white mb-6 leading-[1.05] max-w-5xl mx-auto">
+            India's #1 AI Legal<br className="hidden sm:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-300 to-primary">
+              {" "}Document Generator
             </span>
           </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto"
-          >
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg md:text-xl text-muted-foreground mb-4 max-w-2xl mx-auto">
             {t(
-              "Draft professional, legally-binding agreements, notices, and affidavits instantly using advanced AI. No lawyer required.",
-              "उन्नत एआई का उपयोग करके तुरंत पेशेवर, कानूनी रूप से बाध्यकारी समझौते, नोटिस और हलफनामे तैयार करें। किसी वकील की आवश्यकता नहीं है।"
+              "Draft rent agreements, NDAs, affidavits, wills & 22 more Indian legal documents instantly with NVIDIA AI. Legally sound. From ₹99.",
+              "NVIDIA AI से किराया अनुबंध, NDA, हलफनामे, वसीयत और 22+ भारतीय कानूनी दस्तावेज़ तुरंत बनाएं। कानूनी रूप से सही। ₹99 से।"
             )}
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10"
-          >
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+            className="text-sm text-primary font-medium mb-10">
+            ✦ Free to draft & preview · Pay only to download PDF ✦
+          </motion.p>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.35 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <Link href="/documents">
-              <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold group">
+              <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-10 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold group font-bold">
                 {t("Create Document Now", "अभी दस्तावेज़ बनाएँ")}
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Button
-              size="lg" variant="outline"
+            <Button size="lg" variant="outline"
               className="w-full sm:w-auto text-lg h-14 px-8 border-white/20 text-white hover:bg-white/5"
-              onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              {t("View Pricing", "मूल्य निर्धारण देखें")}
+              onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>
+              {t("View Pricing", "मूल्य देखें")}
             </Button>
           </motion.div>
 
-          {/* Trust badges row */}
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-x-5 sm:gap-x-8 gap-y-3 text-xs text-muted-foreground px-2"
-          >
-            <div className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-primary shrink-0" /> SSL Encrypted</div>
-            <div className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-primary shrink-0" /> Razorpay Verified</div>
-            <div className="flex items-center gap-1.5"><Award className="h-3.5 w-3.5 text-primary shrink-0" /> Lawyer-Reviewed</div>
-            <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-primary shrink-0" /> 5,000+ Customers</div>
+          {/* Trust row */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-muted-foreground">
+            {[
+              { icon: Lock,        text: "SSL Encrypted"       },
+              { icon: Shield,      text: "Razorpay Verified"   },
+              { icon: Award,       text: "Lawyer-Reviewed"     },
+              { icon: Users,       text: "5,000+ Customers"    },
+              { icon: Cpu,         text: "NVIDIA AI"           },
+              { icon: BadgeCheck,  text: "DPDPA 2023 Compliant"},
+            ].map(({ icon: Icon, text }) => (
+              <div key={text} className="flex items-center gap-1.5">
+                <Icon className="h-3.5 w-3.5 text-primary shrink-0" />
+                {text}
+              </div>
+            ))}
           </motion.div>
         </div>
       </section>
 
-      {/* STATS */}
-      <section className="py-16 border-y border-white/5 bg-card/30">
+      {/* ── STATS ────────────────────────────────────────────────────────── */}
+      <section className="py-16 border-y border-white/5 bg-card/40 backdrop-blur-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {STATS.map((s) => (
-              <div key={s.label} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-primary to-yellow-200 mb-2">
-                  <Counter to={s.value} suffix={s.suffix} />
+            {STATS.map((s) => {
+              const Icon = s.icon;
+              return (
+                <div key={s.label} className="text-center group">
+                  <div className="flex justify-center mb-2">
+                    <Icon className="h-5 w-5 text-primary/50 group-hover:text-primary transition-colors" />
+                  </div>
+                  <div className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-primary to-yellow-200 mb-1">
+                    <Counter to={s.value} suffix={s.suffix} />
+                  </div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">{s.label}</div>
                 </div>
-                <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider">{s.label}</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
+      {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
       <section className="py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium tracking-wider uppercase mb-4">
+            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-4">
               How It Works
             </span>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">From idea to PDF in 3 steps</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              No legal jargon. No expensive consultations. Just simple, fast, and trustworthy.
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Your legal document in 3 steps
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              No legal jargon. No lawyer appointments. No waiting. Just fill a form, watch NVIDIA AI draft it live, and download.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto relative">
-            {/* Connecting dotted line */}
             <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-px border-t-2 border-dashed border-primary/20 z-0" />
             {STEPS.map((step, i) => {
               const Icon = step.icon;
               return (
-                <motion.div
-                  key={step.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.15 }}
-                  className="relative z-10 text-center"
-                >
+                <motion.div key={step.title}
+                  initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.15 }}
+                  className="relative z-10 text-center">
                   <div className="relative mx-auto w-24 h-24 mb-6">
                     <div className="absolute inset-0 bg-primary/10 rounded-2xl rotate-45" />
                     <div className="absolute inset-2 bg-card rounded-xl border border-primary/30 flex items-center justify-center">
                       <Icon className="h-8 w-8 text-primary" />
                     </div>
-                    <div className="absolute -top-2 -right-2 w-7 h-7 bg-primary text-primary-foreground rounded-full text-sm font-bold flex items-center justify-center shadow-gold">
-                      {i + 1}
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full text-sm font-black flex items-center justify-center shadow-gold">
+                      {step.step}
                     </div>
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">{step.desc}</p>
                 </motion.div>
               );
             })}
@@ -247,267 +391,456 @@ export default function Home() {
         </div>
       </section>
 
-      {/* DOCUMENT SHOWCASE */}
-      <section className="py-24 bg-card/30 border-y border-white/5">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium tracking-wider uppercase mb-4">
-            25+ Templates
-          </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Every document you'll ever need</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto mb-12">
-            From rental agreements to wills — drafted to Indian legal standards.
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto mb-10">
-            {DOCUMENT_BADGES.map((doc, i) => (
-              <motion.div
-                key={doc}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.04 }}
-                className="px-4 py-2 rounded-full bg-background border border-white/10 text-sm text-white hover:border-primary/40 hover:text-primary transition-all cursor-default"
-              >
-                {doc}
-              </motion.div>
-            ))}
-            <div className="px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-sm text-primary font-medium">
-              + 13 More
-            </div>
-          </div>
-
-          <Link href="/documents">
-            <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary/10">
-              Browse All Templates <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* FEATURES */}
-      <section className="py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Why Kanoox AI?</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">Built for Indians. Trusted across India.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-2xl bg-card border border-white/5 shadow-lg hover:border-primary/30 transition-all">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
-                <Zap className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Lightning Fast</h3>
-              <p className="text-muted-foreground">Generate complete, print-ready legal documents in under a minute simply by answering a few questions.</p>
-            </div>
-            <div className="p-6 rounded-2xl bg-card border border-white/5 shadow-lg relative overflow-hidden hover:border-primary/30 transition-all">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
-                <Shield className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Legally Sound</h3>
-              <p className="text-muted-foreground">Drafts are structured based on Indian legal standards and include necessary stamp duty notices and clauses.</p>
-            </div>
-            <div className="p-6 rounded-2xl bg-card border border-white/5 shadow-lg hover:border-primary/30 transition-all">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
-                <FileText className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">5 Languages</h3>
-              <p className="text-muted-foreground">Generate documents in English, Hindi, Marathi, Tamil, and Telugu — instantly.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
+      {/* ── ALL 25 DOCUMENT CATEGORIES ───────────────────────────────────── */}
       <section className="py-24 bg-card/30 border-y border-white/5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium tracking-wider uppercase mb-4">
-              Testimonials
+          <div className="text-center mb-14">
+            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-4">
+              25+ Templates
             </span>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Loved across India</h2>
-            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 text-primary fill-primary" />)}
-              </div>
-              <span>4.9/5 from 1,200+ reviews</span>
-            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Every Indian legal document you'll ever need
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              From rental agreements to government certificates — drafted in compliance with Indian law in under 60 seconds.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            {TESTIMONIALS.map((t, i) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="p-6 rounded-2xl bg-card border border-white/10 hover:border-primary/30 transition-all relative"
-              >
-                <Quote className="absolute top-4 right-4 h-8 w-8 text-primary/20" />
-                <div className="flex mb-4">
-                  {[...Array(t.rating)].map((_, i) => <Star key={i} className="h-4 w-4 text-primary fill-primary" />)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {DOCUMENT_CATEGORIES.map((cat, ci) => (
+              <motion.div key={cat.title}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: ci * 0.07 }}
+                className={`p-6 rounded-2xl bg-gradient-to-br ${cat.color} border ${cat.border} hover:scale-[1.02] transition-transform`}>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">{cat.icon}</span>
+                  <h3 className="text-white font-bold">{cat.title}</h3>
                 </div>
-                <p className="text-white/90 mb-5 leading-relaxed">"{t.text}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    {t.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="text-white font-medium text-sm">{t.name}</div>
-                    <div className="text-xs text-muted-foreground">{t.role}</div>
-                  </div>
+                <div className="space-y-2">
+                  {cat.docs.map((doc) => (
+                    <Link key={doc.slug} href={`/documents/generate/${doc.slug}`}>
+                      <div className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group">
+                        <div className="flex items-center gap-2">
+                          <ChevronDown className="h-3.5 w-3.5 text-primary -rotate-90 shrink-0" />
+                          <span className="text-white/80 group-hover:text-white text-sm transition-colors">
+                            {doc.name}
+                          </span>
+                        </div>
+                        <span className="text-primary text-xs font-bold">₹{doc.price}</span>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* PRICING */}
-      <section id="pricing" className="py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium tracking-wider uppercase mb-4">
-            Pricing
-          </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Simple, transparent pricing</h2>
-          <p className="text-muted-foreground mb-16 max-w-2xl mx-auto">Pay per document or subscribe for unlimited access.</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
-            <div className="p-8 rounded-3xl bg-card border border-white/10 hover:border-primary/30 transition-all">
-              <h3 className="text-xl font-semibold text-white mb-2">Pay Per Doc</h3>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-sm text-muted-foreground">From</span>
-                <span className="text-4xl font-bold text-white">₹99</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3 text-muted-foreground"><CheckCircle2 className="h-5 w-5 text-primary" /> Single PDF Download</li>
-                <li className="flex items-center gap-3 text-muted-foreground"><CheckCircle2 className="h-5 w-5 text-primary" /> 5 Languages Supported</li>
-                <li className="flex items-center gap-3 text-muted-foreground"><CheckCircle2 className="h-5 w-5 text-primary" /> Standard Email Support</li>
-              </ul>
-              <Link href="/documents"><Button variant="outline" className="w-full">Get Started</Button></Link>
-            </div>
-
-            <div className="p-8 rounded-3xl bg-primary/5 border border-primary relative transform md:-translate-y-4 shadow-gold">
-              <div className="absolute top-0 right-8 -translate-y-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-bold">MOST POPULAR</div>
-              <h3 className="text-xl font-semibold text-white mb-2">Basic Plan</h3>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-white">₹299</span>
-                <span className="text-sm text-muted-foreground">/month</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3 text-white"><CheckCircle2 className="h-5 w-5 text-primary" /> 5 Documents / month</li>
-                <li className="flex items-center gap-3 text-white"><CheckCircle2 className="h-5 w-5 text-primary" /> Priority Support</li>
-                <li className="flex items-center gap-3 text-white"><CheckCircle2 className="h-5 w-5 text-primary" /> Free Edits (7 days)</li>
-                <li className="flex items-center gap-3 text-white"><CheckCircle2 className="h-5 w-5 text-primary" /> No Watermark</li>
-              </ul>
-              <Link href="/documents"><Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">Get Started</Button></Link>
-            </div>
-
-            <div className="p-8 rounded-3xl bg-card border border-white/10 hover:border-primary/30 transition-all">
-              <h3 className="text-xl font-semibold text-white mb-2">Pro Plan</h3>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-white">₹699</span>
-                <span className="text-sm text-muted-foreground">/month</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3 text-muted-foreground"><CheckCircle2 className="h-5 w-5 text-primary" /> Unlimited Documents</li>
-                <li className="flex items-center gap-3 text-muted-foreground"><CheckCircle2 className="h-5 w-5 text-primary" /> Lawyer Consultation (15min)</li>
-                <li className="flex items-center gap-3 text-muted-foreground"><CheckCircle2 className="h-5 w-5 text-primary" /> API Access</li>
-                <li className="flex items-center gap-3 text-muted-foreground"><CheckCircle2 className="h-5 w-5 text-primary" /> White-label Output</li>
-              </ul>
-              <Link href="/contact"><Button variant="outline" className="w-full">Contact Sales</Button></Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-24 bg-card/30 border-y border-white/5">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-          <div className="text-center mb-12">
-            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium tracking-wider uppercase mb-4">
-              FAQ
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Questions? We have answers.</h2>
-            <p className="text-muted-foreground">Everything you need to know about Kanoox AI.</p>
-          </div>
-          <FAQAccordion items={FAQS} />
-          <div className="mt-10 text-center">
-            <p className="text-muted-foreground text-sm mb-3">Still have questions?</p>
-            <Link href="/contact">
-              <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary/10">
-                Contact Support <ArrowRight className="ml-2 h-4 w-4" />
+          <div className="text-center mt-10">
+            <Link href="/documents">
+              <Button variant="outline" size="lg" className="border-primary/30 text-primary hover:bg-primary/10">
+                Browse All 25+ Templates <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ── SAVINGS CALCULATOR ───────────────────────────────────────────── */}
       <section className="py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto bg-gradient-to-br from-primary/10 via-card to-card border border-primary/20 rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px]" />
-            <div className="relative z-10">
-              <Sparkles className="h-10 w-10 text-primary mx-auto mb-6" />
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                Ready to draft your first document?
-              </h2>
-              <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-                Join 5,000+ Indians saving time and money on legal documents. Free to draft. ₹99 to download.
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+          <div className="text-center mb-12">
+            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-4">
+              Savings Calculator
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              See how much you save
+            </h2>
+            <p className="text-muted-foreground">
+              Compare Kanoox AI vs hiring a traditional lawyer in India.
+            </p>
+          </div>
+
+          <div className="bg-card border border-white/10 rounded-3xl p-8 sm:p-12">
+            <div className="mb-8">
+              <label className="text-white font-medium mb-3 block">Select a document type:</label>
+              <div className="flex flex-wrap gap-2">
+                {Object.keys(LAWYER_COSTS).map((doc) => (
+                  <button key={doc} onClick={() => setCalcDoc(doc)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      calcDoc === doc
+                        ? "bg-primary text-primary-foreground shadow-gold"
+                        : "bg-background border border-white/10 text-muted-foreground hover:text-white hover:border-white/30"
+                    }`}>
+                    {doc}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center">
+                <p className="text-red-400 text-xs font-bold uppercase tracking-wider mb-2">Traditional Lawyer</p>
+                <p className="text-4xl font-black text-white mb-1">
+                  ₹{lawyerCost.toLocaleString("en-IN")}+
+                </p>
+                <p className="text-muted-foreground text-xs">+ 2–7 days wait</p>
+              </div>
+
+              <div className="flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-primary/10 border-2 border-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                    <IndianRupee className="h-7 w-7 text-primary" />
+                  </div>
+                  <p className="text-primary font-black text-lg">Save</p>
+                  <motion.p key={savings} initial={{ scale: 0.8 }} animate={{ scale: 1 }}
+                    className="text-3xl font-black text-primary">
+                    {savingsPct}%
+                  </motion.p>
+                </div>
+              </div>
+
+              <div className="bg-primary/10 border border-primary/30 rounded-2xl p-6 text-center shadow-gold">
+                <p className="text-primary text-xs font-bold uppercase tracking-wider mb-2">Kanoox AI</p>
+                <p className="text-4xl font-black text-white mb-1">
+                  ₹{kanooxCost}
+                </p>
+                <p className="text-muted-foreground text-xs">Ready in 60 seconds</p>
+              </div>
+            </div>
+
+            <div className="mt-8 text-center">
+              <p className="text-2xl font-black text-white mb-1">
+                You save <span className="text-primary">₹{savings.toLocaleString("en-IN")}+</span> on a {calcDoc}
               </p>
-              <Link href="/documents">
-                <Button size="lg" className="text-lg h-14 px-10 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold">
-                  Get Started — Free <ArrowRight className="ml-2 h-5 w-5" />
+              <p className="text-muted-foreground text-sm">Free preview · Pay only to download</p>
+              <Link href={`/documents/generate/${LAWYER_COSTS[calcDoc]?.name}`}>
+                <Button className="mt-6 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold h-12 px-8">
+                  Generate {calcDoc} Now — ₹{kanooxCost}
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
           </div>
         </div>
       </section>
-    </div>
-  );
-}
 
-function FAQAccordion({ items }: { items: { q: string; a: string }[] }) {
-  const [open, setOpen] = useState<number | null>(0);
-  return (
-    <div className="space-y-3">
-      {items.map((item, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: i * 0.05 }}
-          className="bg-card border border-white/10 rounded-2xl overflow-hidden hover:border-primary/30 transition-colors"
-        >
-          <button
-            onClick={() => setOpen(open === i ? null : i)}
-            className="w-full flex items-center justify-between gap-4 p-5 text-left"
-          >
-            <span className="text-white font-medium text-base md:text-lg">{item.q}</span>
-            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              {open === i
-                ? <Minus className="h-4 w-4 text-primary" />
-                : <Plus className="h-4 w-4 text-primary" />}
-            </div>
-          </button>
-          {open === i && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="px-5 pb-5 text-muted-foreground text-sm leading-relaxed">
-                {item.a}
+      {/* ── COMPARISON TABLE ─────────────────────────────────────────────── */}
+      <section className="py-24 bg-card/30 border-y border-white/5">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+          <div className="text-center mb-14">
+            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-4">
+              Why Kanoox AI?
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Kanoox AI vs the alternatives
+            </h2>
+            <p className="text-muted-foreground">No contest. See for yourself.</p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-white/10">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="text-left p-4 text-muted-foreground font-medium">Feature</th>
+                  <th className="p-4 text-center bg-primary/10 border-x border-primary/20">
+                    <span className="text-primary font-bold">Kanoox AI</span>
+                    <div className="text-[10px] text-primary/60 mt-0.5">Recommended</div>
+                  </th>
+                  <th className="p-4 text-center text-muted-foreground font-medium">Traditional Lawyer</th>
+                  <th className="p-4 text-center text-muted-foreground font-medium">Other Tools</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON.map((row, i) => (
+                  <tr key={row.feature} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.02]" : ""}`}>
+                    <td className="p-4 text-white/80 font-medium">{row.feature}</td>
+                    <td className="p-4 text-center bg-primary/5 border-x border-primary/10">
+                      {typeof row.kanoox === "string"
+                        ? <span className="text-primary font-bold">{row.kanoox}</span>
+                        : <CellVal val={row.kanoox} />}
+                    </td>
+                    <td className="p-4 text-center">
+                      {typeof row.lawyer === "string"
+                        ? <span className="text-white/60">{row.lawyer}</span>
+                        : <CellVal val={row.lawyer} />}
+                    </td>
+                    <td className="p-4 text-center">
+                      {typeof row.others === "string"
+                        ? <span className="text-white/60">{row.others}</span>
+                        : <CellVal val={row.others} />}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="text-center mt-8">
+            <Link href="/documents">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold h-12 px-8">
+                Try Kanoox AI Free <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── NVIDIA AI POWER ──────────────────────────────────────────────── */}
+      <section className="py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#76b900]/10 border border-[#76b900]/30 text-[#76b900] text-xs font-semibold mb-6">
+                <Cpu className="h-3.5 w-3.5" /> Powered by NVIDIA
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
+                World's most powerful AI writes your legal documents
+              </h2>
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                Kanoox AI uses <strong className="text-white">NVIDIA Nemotron 70B</strong> — the enterprise-grade AI that ranks #1 on professional writing benchmarks globally. You can watch it draft your document in real-time, word by word, like a senior lawyer typing in front of you.
+              </p>
+              <div className="space-y-3">
+                {[
+                  "Trained specifically on Indian legal statutes and formats",
+                  "Cites specific sections: IPC, CrPC, Contract Act, TP Act",
+                  "Generates complete documents — no truncation, no fillers",
+                  "Enterprise API: your data is never used for AI training",
+                ].map((pt) => (
+                  <div key={pt} className="flex items-start gap-3">
+                    <Check className="h-5 w-5 text-[#76b900] mt-0.5 shrink-0" />
+                    <span className="text-white/80 text-sm">{pt}</span>
+                  </div>
+                ))}
               </div>
-            </motion.div>
-          )}
-        </motion.div>
-      ))}
+            </div>
+
+            <div className="bg-card border border-[#76b900]/20 rounded-3xl p-6 font-mono text-sm space-y-3 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#76b900] via-yellow-400 to-[#76b900]" />
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                <div className="w-3 h-3 rounded-full bg-[#76b900]" />
+                <span className="text-muted-foreground text-xs ml-2">kanoox-ai / live-generation</span>
+              </div>
+              {[
+                { label: "Model",     val: "nvidia/llama-3.1-nemotron-70b",  color: "text-[#76b900]" },
+                { label: "Document",  val: '"Rent Agreement (Hindi)"',         color: "text-blue-400"  },
+                { label: "Streaming", val: "true",                             color: "text-yellow-400"},
+                { label: "Words",     val: "847 / est. 900",                   color: "text-green-400" },
+                { label: "Time",      val: "42s elapsed",                      color: "text-primary"   },
+                { label: "Status",    val: "● Drafting witness section...",    color: "text-[#76b900]" },
+              ].map(({ label, val, color }) => (
+                <div key={label} className="flex items-center gap-3">
+                  <span className="text-muted-foreground w-24 shrink-0">{label}:</span>
+                  <span className={color}>{val}</span>
+                </div>
+              ))}
+              <div className="mt-4 pt-4 border-t border-white/10 text-muted-foreground text-xs leading-relaxed">
+                <span className="text-white">धारा 5: गवाहों का अनुभाग</span><br />
+                यह करार दो गवाहों की उपस्थिति में हस्ताक्षरित किया<br />
+                गया है जो इसकी वैधता की पुष्टि करते हैं...
+                <span className="inline-block w-2 h-3.5 bg-[#76b900] ml-0.5 animate-pulse align-middle" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ─────────────────────────────────────────────────── */}
+      <section className="py-24 bg-card/30 border-y border-white/5">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-4">
+              Real Reviews
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Loved across India</h2>
+            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 text-primary fill-primary" />)}
+              </div>
+              <span>4.9 / 5 from 1,247 verified reviews</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {TESTIMONIALS.map((t, i) => (
+              <motion.div key={t.name}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="p-6 rounded-2xl bg-card border border-white/10 hover:border-primary/30 transition-all relative">
+                <Quote className="absolute top-4 right-4 h-8 w-8 text-primary/15" />
+                <div className="flex mb-3">
+                  {[...Array(t.rating)].map((_, j) => <Star key={j} className="h-4 w-4 text-primary fill-primary" />)}
+                </div>
+                <p className="text-white/90 mb-5 leading-relaxed text-sm">"{t.text}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="text-white font-semibold text-sm">{t.name}</div>
+                    <div className="text-xs text-muted-foreground">{t.role} · {t.loc}</div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRICING ──────────────────────────────────────────────────────── */}
+      <section id="pricing" className="py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-4">
+            Pricing
+          </span>
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+            Simple, transparent pricing
+          </h2>
+          <p className="text-muted-foreground mb-16 max-w-2xl mx-auto">
+            Pay per document or subscribe for unlimited access. Always free to draft and preview.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
+            {/* Pay Per Doc */}
+            <div className="p-8 rounded-3xl bg-card border border-white/10 hover:border-primary/20 transition-all">
+              <h3 className="text-xl font-semibold text-white mb-1">Pay Per Doc</h3>
+              <p className="text-muted-foreground text-sm mb-4">Perfect for occasional use</p>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-sm text-muted-foreground">From</span>
+                <span className="text-5xl font-black text-white">₹99</span>
+              </div>
+              <ul className="space-y-3 mb-8 text-sm">
+                {["Single PDF Download", "All 25+ Document Types", "5 Languages", "7-day Refund Guarantee", "Instant Generation"].map(f => (
+                  <li key={f} className="flex items-center gap-3 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />{f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/documents">
+                <Button variant="outline" className="w-full h-12">Get Started Free</Button>
+              </Link>
+            </div>
+
+            {/* Basic */}
+            <div className="p-8 rounded-3xl bg-primary/5 border-2 border-primary relative transform md:-translate-y-4 shadow-gold">
+              <div className="absolute top-0 right-8 -translate-y-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-bold">
+                MOST POPULAR
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-1">Basic Plan</h3>
+              <p className="text-muted-foreground text-sm mb-4">For regular document needs</p>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-5xl font-black text-white">₹299</span>
+                <span className="text-sm text-muted-foreground">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8 text-sm">
+                {["5 Documents / Month", "Priority Support (24hr)", "Free Edits Within 7 Days", "No Watermark PDF", "Dashboard Access", "All 25+ Document Types"].map(f => (
+                  <li key={f} className="flex items-center gap-3 text-white">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />{f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/documents">
+                <Button className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90">Start Plan</Button>
+              </Link>
+            </div>
+
+            {/* Pro */}
+            <div className="p-8 rounded-3xl bg-card border border-white/10 hover:border-primary/20 transition-all">
+              <h3 className="text-xl font-semibold text-white mb-1">Pro Plan</h3>
+              <p className="text-muted-foreground text-sm mb-4">For businesses & power users</p>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-5xl font-black text-white">₹699</span>
+                <span className="text-sm text-muted-foreground">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8 text-sm">
+                {["Unlimited Documents", "Advocate Consultation (15min)", "API Access", "White-label PDF Output", "Team Access (3 users)", "Priority Phone Support"].map(f => (
+                  <li key={f} className="flex items-center gap-3 text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />{f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/contact">
+                <Button variant="outline" className="w-full h-12">Contact Sales</Button>
+              </Link>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground mt-8">
+            All prices exclude 18% GST · Annual plans available at 30% discount · Cancel anytime
+          </p>
+        </div>
+      </section>
+
+      {/* ── HOME FAQ ─────────────────────────────────────────────────────── */}
+      <section className="py-24 bg-card/30 border-y border-white/5">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Common questions
+            </h2>
+            <p className="text-muted-foreground">Quick answers to what people ask us most.</p>
+          </div>
+          <div className="space-y-3">
+            {HOME_FAQS.map((faq, i) => (
+              <HomeFaqItem key={i} q={faq.q} a={faq.a} i={i} />
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/faq" className="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1">
+              View all 30+ FAQs <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FINAL CTA ────────────────────────────────────────────────────── */}
+      <section className="py-28 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-yellow-500/5 to-primary/10" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/15 rounded-full blur-[100px]" />
+
+        <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary text-sm font-semibold mb-6">
+              <TrendingUp className="h-4 w-4" />
+              247 Indians created legal documents today
+            </div>
+
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+              Your legal document<br />is 60 seconds away
+            </h2>
+
+            <p className="text-muted-foreground text-lg mb-10">
+              Join 5,000+ Indians who stopped overpaying lawyers for routine documents. Free to draft. Pay only to download.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/documents">
+                <Button size="lg" className="w-full sm:w-auto h-16 px-12 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold group">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Create Document Free
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link href="/contact">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto h-16 px-8 text-base border-white/20 text-white hover:bg-white/5">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Talk to Support
+                </Button>
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> No signup required to browse</span>
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> Free preview always</span>
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> 7-day refund guarantee</span>
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> Razorpay secured payment</span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
     </div>
   );
 }

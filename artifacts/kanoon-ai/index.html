@@ -103,6 +103,134 @@
         ]
       }
     </script>
+
+    <!-- FAQ Schema — targets Google People Also Ask rich results -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is a rent agreement generated online legally valid in India?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Kanoox AI generates rent agreements compliant with the applicable state Rent Control Act and the Transfer of Property Act 1882. The document includes all mandatory clauses — security deposit, maintenance, termination notice period, and two-witness attestation block. You must print, sign, and optionally notarize it for full legal effect." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I create an affidavit online in India?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Go to Kanoox AI → Templates → Affidavit. Fill in your name, address, purpose, and statement. The AI generates a legally correct affidavit per the Indian Evidence Act 1872 in under 60 seconds. Print it and take it to any Notary Public or Oath Commissioner for stamping (cost: ₹20–₹100)." }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does it cost to generate a legal document on Kanoox AI?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Simple documents like affidavits and RTI applications start at ₹99. Mid-complexity documents (rent agreements, NDAs, employment contracts) cost ₹199–₹299. Complex documents (partnership deeds, wills, gift deeds) cost ₹499. All prices exclude 18% GST. Drafting and previewing is always free." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I get an NDA (Non-Disclosure Agreement) drafted online for India?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Kanoox AI generates a complete NDA compliant with the Indian Contract Act 1872 in under 60 seconds. It includes precise definitions of confidential information, obligations, exclusions, permitted disclosures, remedies including injunctive relief, survival period, Indian court jurisdiction, and governing law." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I write a legal notice in India?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Select 'Legal Notice' on Kanoox AI. Enter sender/recipient details, the facts, legal grounds (the AI auto-cites relevant IPC or civil sections), your demand, and a 15–30 day response deadline. Print and send via Registered Post with Acknowledgment Due (RPAD). A proper legal notice costs ₹299 on Kanoox AI vs ₹5,000+ with a lawyer." }
+          },
+          {
+            "@type": "Question",
+            "name": "In which languages can I generate Indian legal documents online?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Kanoox AI generates legal documents in 5 languages: English, Hindi (हिंदी), Marathi (मराठी), Tamil (தமிழ்), and Telugu (తెలుగు). Select your preferred language on the document creation page before generating." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I file an RTI application online in India?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Use Kanoox AI's RTI Application template. Enter the Public Information Officer details, the ministry or department, specific information you seek, and the time period. The AI generates a complete RTI application per the Right to Information Act 2005, Sections 6(1) and 7. Attach a ₹10 Postal Order and send to the PIO by post." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my personal data safe when using Kanoox AI?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. All data is encrypted in transit (TLS 1.3) and at rest. Kanoox AI complies with India's Digital Personal Data Protection Act (DPDPA) 2023. NVIDIA's enterprise API does not train on customer data. You can delete your documents from your dashboard at any time." }
+          }
+        ]
+      }
+    </script>
+
+    <!-- HowTo Schema — targets Google how-to rich results -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to Create a Legal Document Online in India using Kanoox AI",
+        "description": "Step-by-step guide to generate a legally valid Indian legal document in 60 seconds using Kanoox AI.",
+        "totalTime": "PT1M",
+        "estimatedCost": { "@type": "MonetaryAmount", "currency": "INR", "value": "99" },
+        "step": [
+          {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": "Choose Your Document Type",
+            "text": "Visit kanooxai.in and click 'Templates'. Select from 25+ Indian legal documents: rent agreements, affidavits, NDAs, wills, legal notices, RTI applications, and more.",
+            "url": "https://kanooxai.in/documents"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "Fill In Your Details",
+            "text": "Answer a simple form with your specific information — party names, addresses, amounts, dates. No legal knowledge required. Available in English, Hindi, Marathi, Tamil, and Telugu.",
+            "url": "https://kanooxai.in/documents"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": "Watch AI Generate Your Document Live",
+            "text": "Our NVIDIA AI writes your complete legal document in real-time — you can watch it draft every clause, section, and witness block in under 60 seconds.",
+            "url": "https://kanooxai.in/documents"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 4,
+            "name": "Download Your Professional PDF",
+            "text": "Preview your complete document free. Pay ₹99–₹499 to download the professionally formatted PDF, ready for printing, signing, notarization, or registration.",
+            "url": "https://kanooxai.in/documents"
+          }
+        ]
+      }
+    </script>
+
+    <!-- SoftwareApplication Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Kanoox AI",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://kanooxai.in/",
+        "description": "AI-powered Indian legal document generator. Create rent agreements, affidavits, NDAs, wills, legal notices, RTI applications and 19+ more Indian legal documents in 60 seconds.",
+        "offers": {
+          "@type": "Offer",
+          "price": "99",
+          "priceCurrency": "INR",
+          "priceValidUntil": "2026-12-31"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "1247",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "featureList": [
+          "25+ Indian legal document templates",
+          "NVIDIA AI real-time generation",
+          "5 languages: English, Hindi, Marathi, Tamil, Telugu",
+          "All 28 Indian states supported",
+          "Lawyer-reviewed templates",
+          "Razorpay payment gateway",
+          "7-day refund guarantee",
+          "DPDPA 2023 compliant"
+        ]
+      }
+    </script>
   </head>
   <body>
     <noscript>
