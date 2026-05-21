@@ -2,51 +2,79 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
-  <url>
-    <loc>https://kanooxai.in/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://kanooxai.in/" />
-    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://kanooxai.in/?lang=hi" />
-  </url>
-
-  <url>
-    <loc>https://kanooxai.in/documents</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-  </url>
-
-  <!-- Top 25 document templates - high SEO value -->
-  <url><loc>https://kanooxai.in/documents/generate/rent-agreement</loc><priority>0.9</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/leave-license</loc><priority>0.9</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/affidavit</loc><priority>0.9</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/nda</loc><priority>0.9</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/legal-notice</loc><priority>0.9</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/will</loc><priority>0.9</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/rti</loc><priority>0.9</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/fir-draft</loc><priority>0.9</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/partnership-deed</loc><priority>0.9</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/mou</loc><priority>0.85</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/gift-deed</loc><priority>0.85</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/divorce-petition</loc><priority>0.85</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/business-contract</loc><priority>0.85</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/noc-letter</loc><priority>0.8</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/eviction-notice</loc><priority>0.8</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/invoice</loc><priority>0.8</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/complaint-letter</loc><priority>0.8</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/offer-letter</loc><priority>0.8</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/experience-cert</loc><priority>0.8</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/emp-contract</loc><priority>0.8</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/termination-letter</loc><priority>0.75</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/income-cert</loc><priority>0.75</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/caste-cert</loc><priority>0.75</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/domicile-cert</loc><priority>0.75</priority></url>
-  <url><loc>https://kanooxai.in/documents/generate/ration-card</loc><priority>0.75</priority></url>
-
-  <url><loc>https://kanooxai.in/faq</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <!-- Core pages -->
+  <url><loc>https://kanooxai.in/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://kanooxai.in/documents</loc><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://kanooxai.in/faq</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://kanooxai.in/contact</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://kanooxai.in/privacy</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
-  <url><loc>https://kanooxai.in/terms</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
-  <url><loc>https://kanooxai.in/refund</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://kanooxai.in/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://kanooxai.in/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://kanooxai.in/refund</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+
+  <!-- Document type landing pages (national) -->
+  <url><loc>https://kanooxai.in/legal/rent-agreement</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://kanooxai.in/legal/nda</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://kanooxai.in/legal/affidavit</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://kanooxai.in/legal/legal-notice</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://kanooxai.in/legal/offer-letter</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://kanooxai.in/legal/partnership-deed</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://kanooxai.in/legal/will</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://kanooxai.in/legal/gift-deed</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://kanooxai.in/legal/rti</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://kanooxai.in/legal/emp-contract</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kanooxai.in/legal/mou</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kanooxai.in/legal/leave-license</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kanooxai.in/legal/business-contract</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kanooxai.in/legal/invoice</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kanooxai.in/legal/fir-draft</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://kanooxai.in/legal/complaint-letter</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://kanooxai.in/legal/termination-letter</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://kanooxai.in/legal/experience-cert</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kanooxai.in/legal/noc-letter</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kanooxai.in/legal/eviction-notice</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kanooxai.in/legal/divorce-petition</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kanooxai.in/legal/income-cert</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://kanooxai.in/legal/caste-cert</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://kanooxai.in/legal/domicile-cert</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://kanooxai.in/legal/ration-card</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
+
+  <!-- Programmatic SEO: Rent Agreement by city -->
+  <url><loc>https://kanooxai.in/legal/rent-agreement/mumbai</loc><changefreq>monthly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/delhi</loc><changefreq>monthly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/bengaluru</loc><changefreq>monthly</changefreq><priority>0.87</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/hyderabad</loc><changefreq>monthly</changefreq><priority>0.86</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/chennai</loc><changefreq>monthly</changefreq><priority>0.86</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/pune</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/ahmedabad</loc><changefreq>monthly</changefreq><priority>0.84</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/kolkata</loc><changefreq>monthly</changefreq><priority>0.84</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/jaipur</loc><changefreq>monthly</changefreq><priority>0.83</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/lucknow</loc><changefreq>monthly</changefreq><priority>0.82</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/chandigarh</loc><changefreq>monthly</changefreq><priority>0.82</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/kochi</loc><changefreq>monthly</changefreq><priority>0.81</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/nagpur</loc><changefreq>monthly</changefreq><priority>0.80</priority></url>
+  <url><loc>https://kanooxai.in/legal/rent-agreement/indore</loc><changefreq>monthly</changefreq><priority>0.80</priority></url>
+
+  <!-- Programmatic SEO: NDA by city -->
+  <url><loc>https://kanooxai.in/legal/nda/mumbai</loc><changefreq>monthly</changefreq><priority>0.82</priority></url>
+  <url><loc>https://kanooxai.in/legal/nda/delhi</loc><changefreq>monthly</changefreq><priority>0.82</priority></url>
+  <url><loc>https://kanooxai.in/legal/nda/bengaluru</loc><changefreq>monthly</changefreq><priority>0.81</priority></url>
+  <url><loc>https://kanooxai.in/legal/nda/hyderabad</loc><changefreq>monthly</changefreq><priority>0.80</priority></url>
+  <url><loc>https://kanooxai.in/legal/nda/pune</loc><changefreq>monthly</changefreq><priority>0.79</priority></url>
+  <url><loc>https://kanooxai.in/legal/nda/chennai</loc><changefreq>monthly</changefreq><priority>0.79</priority></url>
+
+  <!-- Programmatic SEO: Affidavit by city -->
+  <url><loc>https://kanooxai.in/legal/affidavit/mumbai</loc><changefreq>monthly</changefreq><priority>0.82</priority></url>
+  <url><loc>https://kanooxai.in/legal/affidavit/delhi</loc><changefreq>monthly</changefreq><priority>0.82</priority></url>
+  <url><loc>https://kanooxai.in/legal/affidavit/bengaluru</loc><changefreq>monthly</changefreq><priority>0.80</priority></url>
+  <url><loc>https://kanooxai.in/legal/affidavit/hyderabad</loc><changefreq>monthly</changefreq><priority>0.79</priority></url>
+  <url><loc>https://kanooxai.in/legal/affidavit/chennai</loc><changefreq>monthly</changefreq><priority>0.79</priority></url>
+  <url><loc>https://kanooxai.in/legal/affidavit/pune</loc><changefreq>monthly</changefreq><priority>0.78</priority></url>
+
+  <!-- Programmatic SEO: Legal Notice by city -->
+  <url><loc>https://kanooxai.in/legal/legal-notice/mumbai</loc><changefreq>monthly</changefreq><priority>0.82</priority></url>
+  <url><loc>https://kanooxai.in/legal/legal-notice/delhi</loc><changefreq>monthly</changefreq><priority>0.82</priority></url>
+  <url><loc>https://kanooxai.in/legal/legal-notice/bengaluru</loc><changefreq>monthly</changefreq><priority>0.80</priority></url>
+  <url><loc>https://kanooxai.in/legal/legal-notice/hyderabad</loc><changefreq>monthly</changefreq><priority>0.79</priority></url>
+  <url><loc>https://kanooxai.in/legal/legal-notice/chennai</loc><changefreq>monthly</changefreq><priority>0.79</priority></url>
 
 </urlset>

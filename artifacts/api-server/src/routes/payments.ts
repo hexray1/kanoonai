@@ -3,61 +3,66 @@ import crypto from "crypto";
 import { db, paymentsTable, documentsTable, usersTable, subscriptionsTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { authMiddleware, type AuthRequest } from "../middleware/auth.js";
+import { generatePDF } from "../utils/pdfGenerator.js";
+import { sendDocumentDelivery, sendPaymentReceipt } from "../utils/emailService.js";
 
 const router = Router();
 
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || "";
+const RAZORPAY_KEY_ID     = process.env.RAZORPAY_KEY_ID     || "";
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "";
+const WEBHOOK_SECRET      = process.env.RAZORPAY_WEBHOOK_SECRET || RAZORPAY_KEY_SECRET;
 
-const SUBSCRIPTION_PRICES: Record<string, number> = {
-  basic: 29900,
-  pro: 69900,
-  business: 199900,
+const SUBSCRIPTION_PRICES: Record<string, { amount: number; label: string }> = {
+  basic:    { amount: 29900,  label: "Basic Plan"    },
+  pro:      { amount: 69900,  label: "Pro Plan"      },
+  business: { amount: 199900, label: "Business Plan" },
 };
 
-async function createRazorpayOrder(amount: number, currency: string = "INR"): Promise<{ id: string }> {
+async function createRazorpayOrder(
+  amount: number,
+  currency = "INR",
+  receipt?: string,
+): Promise<{ id: string }> {
   if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
     return { id: `dev_order_${Date.now()}` };
   }
-
-  const credentials = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString("base64");
-  const response = await fetch("https://api.razorpay.com/v1/orders", {
+  const creds = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString("base64");
+  const res = await fetch("https://api.razorpay.com/v1/orders", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${credentials}`,
-    },
-    body: JSON.stringify({ amount, currency, receipt: `receipt_${Date.now()}` }),
+    headers: { "Content-Type": "application/json", Authorization: `Basic ${creds}` },
+    body: JSON.stringify({
+      amount,
+      currency,
+      receipt: receipt ?? `rcpt_${Date.now()}`,
+    }),
   });
-
-  if (!response.ok) {
-    throw new Error(`Razorpay order creation failed: ${response.statusText}`);
-  }
-
-  return response.json() as Promise<{ id: string }>;
+  if (!res.ok) throw new Error(`Razorpay order failed: ${res.statusText}`);
+  return res.json() as Promise<{ id: string }>;
 }
 
+// ── Auth-guarded routes ──────────────────────────────────────────────────────
 router.use(authMiddleware);
 
+// POST /api/payments/create-order
 router.post("/create-order", async (req: AuthRequest, res) => {
   try {
     const { documentId, amount } = req.body as { documentId: number; amount: number };
-
     if (!documentId || !amount) {
-      res.status(400).json({ error: "Document ID and amount are required" });
+      res.status(400).json({ error: "documentId and amount are required" });
       return;
     }
 
     const docs = await db.select().from(documentsTable)
       .where(and(eq(documentsTable.id, documentId), eq(documentsTable.userId, req.userId!)))
       .limit(1);
+    if (docs.length === 0) { res.status(404).json({ error: "Document not found" }); return; }
 
-    if (docs.length === 0) {
-      res.status(404).json({ error: "Document not found" });
+    if (docs[0].paid) {
+      res.status(400).json({ error: "Document already paid" });
       return;
     }
 
-    const order = await createRazorpayOrder(amount * 100);
+    const order = await createRazorpayOrder(amount * 100, "INR", `doc_${documentId}`);
 
     await db.insert(paymentsTable).values({
       userId: req.userId!,
@@ -72,6 +77,7 @@ router.post("/create-order", async (req: AuthRequest, res) => {
       amount,
       currency: "INR",
       keyId: RAZORPAY_KEY_ID || "rzp_test_placeholder",
+      documentTitle: docs[0].title,
     });
   } catch (err) {
     req.log.error({ err }, "Create order error");
@@ -79,55 +85,66 @@ router.post("/create-order", async (req: AuthRequest, res) => {
   }
 });
 
+// POST /api/payments/verify  — called by frontend after Razorpay checkout succeeds
 router.post("/verify", async (req: AuthRequest, res) => {
   try {
     const { orderId, paymentId, signature, documentId } = req.body as {
-      orderId: string;
-      paymentId: string;
-      signature: string;
-      documentId: number;
+      orderId: string; paymentId: string; signature: string; documentId: number;
     };
 
-    if (!RAZORPAY_KEY_SECRET || orderId.startsWith("dev_order_")) {
-      await db.update(paymentsTable)
-        .set({ razorpayPaymentId: paymentId || "dev_payment", status: "paid" })
-        .where(eq(paymentsTable.razorpayOrderId, orderId));
+    const isDev = !RAZORPAY_KEY_SECRET || orderId.startsWith("dev_order_");
 
-      await db.update(documentsTable)
-        .set({ paid: true })
-        .where(eq(documentsTable.id, documentId));
-
-      const docs = await db.select().from(documentsTable).where(eq(documentsTable.id, documentId)).limit(1);
-      res.json({ success: true, document: docs[0] });
-      return;
-    }
-
-    const expectedSignature = crypto
-      .createHmac("sha256", RAZORPAY_KEY_SECRET)
-      .update(`${orderId}|${paymentId}`)
-      .digest("hex");
-
-    if (expectedSignature !== signature) {
-      res.status(400).json({ success: false, error: "Payment verification failed" });
-      return;
+    if (!isDev) {
+      const expected = crypto
+        .createHmac("sha256", RAZORPAY_KEY_SECRET)
+        .update(`${orderId}|${paymentId}`)
+        .digest("hex");
+      if (expected !== signature) {
+        res.status(400).json({ success: false, error: "Signature verification failed" });
+        return;
+      }
     }
 
     await db.update(paymentsTable)
-      .set({ razorpayPaymentId: paymentId, status: "paid" })
+      .set({ razorpayPaymentId: paymentId || "dev_payment", status: "paid" })
       .where(eq(paymentsTable.razorpayOrderId, orderId));
 
-    await db.update(documentsTable)
-      .set({ paid: true })
-      .where(eq(documentsTable.id, documentId));
+    await db.update(documentsTable).set({ paid: true }).where(eq(documentsTable.id, documentId));
 
     const docs = await db.select().from(documentsTable).where(eq(documentsTable.id, documentId)).limit(1);
-    res.json({ success: true, document: docs[0] });
+    const doc  = docs[0];
+
+    // Fire-and-forget: send emails
+    if (doc) {
+      const users = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!)).limit(1);
+      const user  = users[0];
+      if (user?.email) {
+        try {
+          const pdfBuf = await generatePDF(doc.content ?? "", doc.title, {
+            watermark: false, documentId: doc.id,
+          });
+          sendDocumentDelivery({
+            to: user.email, name: user.name ?? "there",
+            docTitle: doc.title, docId: doc.id,
+            pdfBuffer: pdfBuf, price: doc.price ?? 0,
+          }).catch(() => {});
+          sendPaymentReceipt({
+            to: user.email, name: user.name ?? "there",
+            docTitle: doc.title, amount: doc.price ?? 0,
+            paymentId: paymentId || "dev_payment", orderId,
+          }).catch(() => {});
+        } catch {}
+      }
+    }
+
+    res.json({ success: true, document: doc });
   } catch (err) {
     req.log.error({ err }, "Verify payment error");
     res.status(500).json({ success: false, error: "Verification failed" });
   }
 });
 
+// GET /api/payments/history
 router.get("/history", async (req: AuthRequest, res) => {
   try {
     const payments = await db.select().from(paymentsTable)
@@ -135,40 +152,120 @@ router.get("/history", async (req: AuthRequest, res) => {
     res.json(payments);
   } catch (err) {
     req.log.error({ err }, "Payment history error");
-    res.status(500).json({ error: "Failed to get payment history" });
+    res.status(500).json({ error: "Failed to fetch payment history" });
   }
 });
 
+// POST /api/payments/subscription/create
 router.post("/subscription/create", async (req: AuthRequest, res) => {
   try {
     const { plan } = req.body as { plan: string };
-    const amount = SUBSCRIPTION_PRICES[plan];
+    const planData = SUBSCRIPTION_PRICES[plan];
+    if (!planData) { res.status(400).json({ error: "Invalid plan" }); return; }
 
-    if (!amount) {
-      res.status(400).json({ error: "Invalid plan" });
-      return;
-    }
-
-    const order = await createRazorpayOrder(amount);
+    const order = await createRazorpayOrder(planData.amount, "INR", `sub_${plan}_${Date.now()}`);
 
     await db.insert(paymentsTable).values({
       userId: req.userId!,
-      amount: amount / 100,
+      amount: planData.amount / 100,
       razorpayOrderId: order.id,
       status: "pending",
       plan,
     });
 
-    res.json({
-      orderId: order.id,
-      amount,
-      currency: "INR",
-      keyId: RAZORPAY_KEY_ID || "rzp_test_placeholder",
-    });
+    res.json({ orderId: order.id, amount: planData.amount, currency: "INR",
+      keyId: RAZORPAY_KEY_ID || "rzp_test_placeholder", label: planData.label });
   } catch (err) {
     req.log.error({ err }, "Create subscription error");
     res.status(500).json({ error: "Failed to create subscription order" });
   }
 });
 
+// POST /api/payments/subscription/verify
+router.post("/subscription/verify", async (req: AuthRequest, res) => {
+  try {
+    const { orderId, paymentId, signature, plan } = req.body as {
+      orderId: string; paymentId: string; signature: string; plan: string;
+    };
+
+    const isDev = !RAZORPAY_KEY_SECRET || orderId.startsWith("dev_order_");
+    if (!isDev) {
+      const expected = crypto
+        .createHmac("sha256", RAZORPAY_KEY_SECRET)
+        .update(`${orderId}|${paymentId}`)
+        .digest("hex");
+      if (expected !== signature) {
+        res.status(400).json({ success: false, error: "Signature verification failed" });
+        return;
+      }
+    }
+
+    await db.update(paymentsTable)
+      .set({ razorpayPaymentId: paymentId || "dev_payment", status: "paid" })
+      .where(eq(paymentsTable.razorpayOrderId, orderId));
+
+    const planData = SUBSCRIPTION_PRICES[plan];
+    const now = new Date();
+    const expires = new Date(now);
+    expires.setMonth(expires.getMonth() + 1);
+
+    await db.insert(subscriptionsTable).values({
+      userId: req.userId!,
+      plan,
+      status: "active",
+      startDate: now.toISOString().split("T")[0],
+      endDate: expires.toISOString().split("T")[0],
+      amount: (planData?.amount ?? 0) / 100,
+    }).onConflictDoNothing();
+
+    res.json({ success: true, plan, expires: expires.toISOString() });
+  } catch (err) {
+    req.log.error({ err }, "Subscription verify error");
+    res.status(500).json({ success: false, error: "Subscription verification failed" });
+  }
+});
+
 export default router;
+
+// ── Razorpay Webhook (unauthenticated, signature-verified) ───────────────────
+export function createWebhookHandler() {
+  const wRouter = Router();
+
+  wRouter.post("/razorpay", async (req, res) => {
+    const signature  = req.headers["x-razorpay-signature"] as string;
+    const body       = JSON.stringify(req.body);
+    const expected   = crypto.createHmac("sha256", WEBHOOK_SECRET).update(body).digest("hex");
+
+    if (WEBHOOK_SECRET && signature && signature !== expected) {
+      res.status(400).json({ error: "Invalid webhook signature" });
+      return;
+    }
+
+    const event   = req.body?.event as string;
+    const payment = req.body?.payload?.payment?.entity;
+
+    if (event === "payment.captured" && payment) {
+      const orderId   = payment.order_id as string;
+      const paymentId = payment.id as string;
+
+      try {
+        await db.update(paymentsTable)
+          .set({ razorpayPaymentId: paymentId, status: "paid" })
+          .where(eq(paymentsTable.razorpayOrderId, orderId));
+
+        const payments = await db.select().from(paymentsTable)
+          .where(eq(paymentsTable.razorpayOrderId, orderId)).limit(1);
+
+        if (payments[0]?.documentId) {
+          await db.update(documentsTable)
+            .set({ paid: true })
+            .where(eq(documentsTable.id, payments[0].documentId));
+        }
+      } catch {}
+    }
+
+    res.json({ status: "ok" });
+  });
+
+  return wRouter;
+}

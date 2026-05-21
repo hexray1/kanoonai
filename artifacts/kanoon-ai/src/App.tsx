@@ -23,6 +23,7 @@ const Terms            = lazy(() => import("@/pages/Terms"));
 const RefundPolicy     = lazy(() => import("@/pages/RefundPolicy"));
 const Contact          = lazy(() => import("@/pages/Contact"));
 const FAQ              = lazy(() => import("@/pages/FAQ"));
+const DocumentPage     = lazy(() => import("@/pages/seo/DocumentPage"));
 const NotFound         = lazy(() => import("@/pages/not-found"));
 
 const queryClient = new QueryClient({
@@ -94,6 +95,9 @@ function Router() {
             <Route path="/refund" component={RefundPolicy} />
             <Route path="/contact" component={Contact} />
             <Route path="/faq" component={FAQ} />
+            {/* Programmatic SEO pages: /legal/:docSlug and /legal/:docSlug/:city */}
+            <Route path="/legal/:docSlug/:location" component={DocumentPage} />
+            <Route path="/legal/:docSlug" component={DocumentPage} />
             <Route component={NotFound} />
           </Switch>
         </Suspense>

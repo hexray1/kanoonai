@@ -4,15 +4,17 @@ Disallow: /admin
 Disallow: /dashboard
 Disallow: /auth/
 Disallow: /api/
+Disallow: /documents/*/download
 
 # Search engines
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
 
-# AI training crawlers (allow for visibility)
+# AI training crawlers — allow for brand visibility
 User-agent: GPTBot
 Allow: /
 
