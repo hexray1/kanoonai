@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
   Shield, Zap, FileText, CheckCircle2, ArrowRight, XCircle,
   Bot, Download, Star, Quote, Users, Award, Lock, Sparkles,
   Clock, Check, TrendingUp, ChevronDown, Globe, Cpu,
-  MessageCircle, Phone, BadgeCheck, IndianRupee,
+  MessageCircle, BadgeCheck, IndianRupee, Scale, Gavel,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -31,6 +31,201 @@ function Counter({ to, suffix = "", prefix = "", duration = 2 }: {
     return () => clearInterval(id);
   }, [inView, to, duration]);
   return <span ref={ref}>{prefix}{val.toLocaleString("en-IN")}{suffix}</span>;
+}
+
+// ── Animated Document Typing Preview ──────────────────────────────────────
+const DOC_PREVIEWS = [
+  {
+    type: "RENT AGREEMENT",
+    color: "#4A90D9",
+    lines: [
+      "THIS DEED OF RENT AGREEMENT is made on this 22nd",
+      "day of May, 2026 at Mumbai, Maharashtra.",
+      "",
+      "BETWEEN",
+      "",
+      "Rajesh Kumar Sharma, S/o Late Mohan Sharma,",
+      "residing at 14B, Worli Sea Face, Mumbai - 400018",
+      "(hereinafter referred to as the \"LANDLORD\")",
+      "",
+      "AND",
+      "",
+      "Priya Patel, D/o Suresh Patel, residing at",
+      "42, Koregaon Park, Pune - 411001",
+      "(hereinafter referred to as the \"TENANT\")",
+      "",
+      "1. TERM OF TENANCY",
+      "1.1 The Landlord hereby lets out the premises",
+      "    for a period of 11 (Eleven) months commencing",
+      "    from 01st June, 2026 to 30th April, 2027.",
+      "",
+      "2. RENT AND DEPOSIT",
+      "2.1 Monthly Rent: ₹35,000/- (Rupees Thirty-Five",
+      "    Thousand Only) payable by the 5th of each month.",
+      "2.2 Security Deposit: ₹1,05,000/- (Rupees One Lakh",
+      "    Five Thousand Only) — refundable on vacation.",
+    ],
+  },
+  {
+    type: "NON-DISCLOSURE AGREEMENT",
+    color: "#9B59B6",
+    lines: [
+      "NON-DISCLOSURE AGREEMENT",
+      "",
+      "This Agreement is entered into as of 22nd May, 2026",
+      "between the following parties:",
+      "",
+      "DISCLOSING PARTY:",
+      "TechVentures Pvt. Ltd., CIN: U72900MH2021PTC123456",
+      "Registered at: 501, Raheja Towers, BKC, Mumbai",
+      "",
+      "RECEIVING PARTY:",
+      "DataSoft Solutions LLP, LLPIN: AAB-1234",
+      "Registered at: 201, HSR Layout, Bengaluru",
+      "",
+      "1. CONFIDENTIAL INFORMATION",
+      "   Means any non-public information disclosed by",
+      "   the Disclosing Party including but not limited",
+      "   to: technical data, trade secrets, business",
+      "   plans, financial projections, source code,",
+      "   customer lists, and pricing information.",
+      "",
+      "2. OBLIGATIONS",
+      "2.1 The Receiving Party shall hold the Confidential",
+      "    Information in strict confidence and shall not",
+      "    disclose, copy, or use such information for",
+      "    any purpose other than the Permitted Purpose.",
+    ],
+  },
+  {
+    type: "LEGAL NOTICE",
+    color: "#E67E22",
+    lines: [
+      "ADVOCATE VIKRAM SINGH & ASSOCIATES",
+      "Enrollment No. DL/2015/1234 | Bar Council of Delhi",
+      "23, Lawyers' Chambers, Patiala House Courts, New Delhi",
+      "",
+      "Date: 22nd May, 2026   Ref: VS/LN/2026/0847",
+      "",
+      "BY REGISTERED POST A.D.",
+      "",
+      "TO,",
+      "Mr. Rohit Agarwal,",
+      "456, DLF Phase II, Gurugram, Haryana - 122002",
+      "",
+      "SUBJECT: LEGAL NOTICE UNDER SECTION 138 OF THE",
+      "NEGOTIABLE INSTRUMENTS ACT, 1881",
+      "",
+      "Under the instructions from and on behalf of",
+      "my client, M/s Global Tech Solutions, I hereby",
+      "serve upon you the following Legal Notice:",
+      "",
+      "1. That my client entered into a services agreement",
+      "   dated 01st March, 2026 with you for provision",
+      "   of software development services worth",
+      "   ₹8,50,000/- (Rupees Eight Lakhs Fifty Thousand).",
+    ],
+  },
+];
+
+function DocumentTypingPreview() {
+  const [docIdx, setDocIdx] = useState(0);
+  const [lineIdx, setLineIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [displayedLines, setDisplayedLines] = useState<string[]>([]);
+  const [currentLine, setCurrentLine] = useState("");
+  const [stage, setStage] = useState<"typing" | "pause" | "fading">("typing");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const doc = DOC_PREVIEWS[docIdx];
+  const TYPING_SPEED = 28;
+
+  useEffect(() => {
+    // Reset when doc changes
+    setLineIdx(0); setCharIdx(0); setDisplayedLines([]); setCurrentLine(""); setStage("typing");
+  }, [docIdx]);
+
+  useEffect(() => {
+    if (stage === "pause") {
+      const t = setTimeout(() => { setStage("fading"); }, 2200);
+      return () => clearTimeout(t);
+    }
+    if (stage === "fading") {
+      const t = setTimeout(() => {
+        setDocIdx((i) => (i + 1) % DOC_PREVIEWS.length);
+      }, 700);
+      return () => clearTimeout(t);
+    }
+    if (stage !== "typing") return;
+
+    const lines = doc.lines;
+    if (lineIdx >= lines.length) { setStage("pause"); return; }
+    const line = lines[lineIdx];
+
+    if (charIdx < line.length) {
+      const t = setTimeout(() => {
+        setCurrentLine(line.slice(0, charIdx + 1));
+        setCharIdx(c => c + 1);
+      }, line === "" ? 1 : TYPING_SPEED);
+      return () => clearTimeout(t);
+    } else {
+      // Line complete — move to next
+      const t = setTimeout(() => {
+        setDisplayedLines(prev => [...prev, line]);
+        setCurrentLine("");
+        setLineIdx(l => l + 1);
+        setCharIdx(0);
+        if (containerRef.current) {
+          containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        }
+      }, line === "" ? 10 : 60);
+      return () => clearTimeout(t);
+    }
+  }, [stage, lineIdx, charIdx, doc]);
+
+  return (
+    <div className={`relative rounded-2xl border overflow-hidden shadow-2xl transition-opacity duration-700 ${stage === "fading" ? "opacity-0" : "opacity-100"}`}
+      style={{ borderColor: `${doc.color}30`, background: "#0D1117" }}>
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: `${doc.color}20`, background: `${doc.color}08` }}>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+          </div>
+          <span className="text-xs font-mono ml-2" style={{ color: `${doc.color}` }}>{doc.type}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+          <span className="text-[10px] text-green-400 font-medium">NVIDIA AI drafting…</span>
+        </div>
+      </div>
+
+      {/* Document content */}
+      <div ref={containerRef} className="p-5 h-[280px] overflow-hidden font-mono text-[11px] leading-[1.7]">
+        {displayedLines.map((line, i) => (
+          <div key={i} className={line === "" ? "h-3" : "text-gray-300 whitespace-pre"}>{line}</div>
+        ))}
+        {stage === "typing" && (
+          <div className="text-gray-200 whitespace-pre">
+            {currentLine}
+            <span className="inline-block w-[6px] h-[13px] ml-px animate-pulse align-middle" style={{ background: doc.color }} />
+          </div>
+        )}
+      </div>
+
+      {/* Bottom status bar */}
+      <div className="flex items-center justify-between px-4 py-2 border-t text-[10px]" style={{ borderColor: `${doc.color}15`, background: `${doc.color}05` }}>
+        <span className="font-mono" style={{ color: `${doc.color}99` }}>
+          {displayedLines.length}/{doc.lines.length} lines · {displayedLines.join(" ").split(/\s+/).filter(Boolean).length} words
+        </span>
+        <span className="text-gray-600 flex items-center gap-1">
+          <Zap className="h-2.5 w-2.5" />Nemotron 70B
+        </span>
+      </div>
+    </div>
+  );
 }
 
 // ── Live Activity Ticker ───────────────────────────────────────────────────
@@ -257,73 +452,142 @@ export default function Home() {
     <div className="flex flex-col min-h-screen overflow-x-hidden">
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
+      <section className="relative pt-16 pb-24 overflow-hidden">
+        {/* Background */}
         <div className="absolute inset-0 z-0">
           <img src={`${import.meta.env.BASE_URL}images/hero-bg.png`} alt="India legal document AI"
-            className="w-full h-full object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/90 to-background" />
+            className="w-full h-full object-cover opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
         </div>
-        <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-0 left-0 w-[600px] h-[500px] bg-primary/8 rounded-full blur-[140px] pointer-events-none -translate-x-1/4" />
+        <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-blue-500/6 rounded-full blur-[120px] pointer-events-none translate-x-1/4" />
 
-        <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-            className="mb-8">
-            <LiveTicker />
-          </motion.div>
+        <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[580px]">
 
-          <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight text-white mb-6 leading-[1.05] max-w-5xl mx-auto">
-            India's #1 AI Legal<br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-300 to-primary">
-              {" "}Document Generator
-            </span>
-          </motion.h1>
+            {/* Left column — text */}
+            <div className="text-left max-w-xl">
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}
+                className="mb-6">
+                <LiveTicker />
+              </motion.div>
 
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground mb-4 max-w-2xl mx-auto">
-            {t(
-              "Draft rent agreements, NDAs, affidavits, wills & 22 more Indian legal documents instantly with NVIDIA AI. Legally sound. From ₹99.",
-              "NVIDIA AI से किराया अनुबंध, NDA, हलफनामे, वसीयत और 22+ भारतीय कानूनी दस्तावेज़ तुरंत बनाएं। कानूनी रूप से सही। ₹99 से।"
-            )}
-          </motion.p>
+              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }}
+                className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-5 leading-[1.06]">
+                India's #1 AI<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-300 to-primary">
+                  Legal Document
+                </span>
+                <br />Generator
+              </motion.h1>
 
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="text-sm text-primary font-medium mb-10">
-            ✦ Free to draft & preview · Pay only to download PDF ✦
-          </motion.p>
+              <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.16 }}
+                className="text-base md:text-lg text-muted-foreground mb-3 leading-relaxed">
+                {t(
+                  "Rent agreements, NDAs, affidavits, wills & 22 more legal documents — drafted live by NVIDIA AI in 60 seconds. India-specific. From ₹99.",
+                  "NVIDIA AI से 25+ भारतीय कानूनी दस्तावेज़ 60 सेकंड में। किराया अनुबंध, NDA, हलफनामे, वसीयत। सिर्फ ₹99 से।"
+                )}
+              </motion.p>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.35 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-            <Link href="/documents">
-              <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-10 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold group font-bold">
-                {t("Create Document Now", "अभी दस्तावेज़ बनाएँ")}
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline"
-              className="w-full sm:w-auto text-lg h-14 px-8 border-white/20 text-white hover:bg-white/5"
-              onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>
-              {t("View Pricing", "मूल्य देखें")}
-            </Button>
-          </motion.div>
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.24 }}
+                className="text-sm text-primary font-semibold mb-8">
+                ✦ Free to draft & preview · Pay only to download PDF ✦
+              </motion.p>
 
-          {/* Trust row */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-muted-foreground">
-            {[
-              { icon: Lock,        text: "SSL Encrypted"       },
-              { icon: Shield,      text: "Razorpay Verified"   },
-              { icon: Award,       text: "Lawyer-Reviewed"     },
-              { icon: Users,       text: "5,000+ Customers"    },
-              { icon: Cpu,         text: "NVIDIA AI"           },
-              { icon: BadgeCheck,  text: "DPDPA 2023 Compliant"},
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5">
-                <Icon className="h-3.5 w-3.5 text-primary shrink-0" />
-                {text}
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
+                className="flex flex-col sm:flex-row gap-3 mb-10">
+                <Link href="/documents">
+                  <Button size="lg" className="w-full sm:w-auto text-base h-13 px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold group font-bold">
+                    {t("Create Document Now", "अभी दस्तावेज़ बनाएँ")}
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </Link>
+                <Button size="lg" variant="outline"
+                  className="w-full sm:w-auto text-base h-13 px-6 border-white/20 text-white hover:bg-white/5"
+                  onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>
+                  {t("See Pricing", "मूल्य देखें")}
+                </Button>
+              </motion.div>
+
+              {/* Quick doc links */}
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.42 }}
+                className="mb-8">
+                <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-medium">Popular right now →</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { name: "Rent Agreement", slug: "rent-agreement", price: "₹199" },
+                    { name: "NDA",            slug: "nda",            price: "₹299" },
+                    { name: "Legal Notice",   slug: "legal-notice",   price: "₹299" },
+                    { name: "Affidavit",      slug: "affidavit",      price: "₹199" },
+                  ].map(({ name, slug, price }) => (
+                    <Link key={slug} href={`/documents/generate/${slug}`}>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white hover:border-primary/40 hover:bg-primary/5 text-xs font-medium transition-all cursor-pointer">
+                        {name} <span className="text-primary font-bold">{price}</span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Trust badges */}
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                className="flex flex-wrap gap-x-5 gap-y-2 text-[11px] text-muted-foreground/70">
+                {[
+                  { icon: Lock,       text: "SSL Encrypted"        },
+                  { icon: Shield,     text: "Razorpay Secured"      },
+                  { icon: Award,      text: "Lawyer-Reviewed"       },
+                  { icon: Cpu,        text: "NVIDIA Nemotron 70B"   },
+                  { icon: BadgeCheck, text: "DPDPA 2023 Compliant"  },
+                ].map(({ icon: Icon, text }) => (
+                  <div key={text} className="flex items-center gap-1">
+                    <Icon className="h-3 w-3 text-primary/70 shrink-0" />
+                    {text}
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Right column — animated document preview */}
+            <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.65, delay: 0.2 }}
+              className="hidden lg:block">
+              <div className="relative">
+                {/* Glow effect */}
+                <div className="absolute -inset-4 bg-primary/5 rounded-3xl blur-2xl" />
+                <div className="relative">
+                  <DocumentTypingPreview />
+                  {/* Floating badge */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.8, duration: 0.4 }}
+                    className="absolute -bottom-4 -left-6 bg-card border border-green-500/30 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl">
+                    <div className="h-9 w-9 bg-green-500/10 rounded-xl flex items-center justify-center">
+                      <CheckCircle2 className="h-5 w-5 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-white text-xs font-bold">Document Ready</p>
+                      <p className="text-[10px] text-muted-foreground">42 sec · NVIDIA AI</p>
+                    </div>
+                  </motion.div>
+                  {/* Floating users badge */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.0, duration: 0.4 }}
+                    className="absolute -top-4 -right-5 bg-card border border-primary/30 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl">
+                    <div className="flex -space-x-2">
+                      {["R", "P", "A", "V"].map((l, i) => (
+                        <div key={i} className="h-7 w-7 rounded-full bg-primary/10 border-2 border-card flex items-center justify-center text-[10px] font-bold text-primary">{l}</div>
+                      ))}
+                    </div>
+                    <div>
+                      <p className="text-white text-xs font-bold">5,000+ users</p>
+                      <p className="text-[10px] text-muted-foreground">247 docs today</p>
+                    </div>
+                  </motion.div>
+                </div>
               </div>
-            ))}
-          </motion.div>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 

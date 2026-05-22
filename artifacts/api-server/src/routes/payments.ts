@@ -5,6 +5,7 @@ import { eq, and } from "drizzle-orm";
 import { authMiddleware, type AuthRequest } from "../middleware/auth.js";
 import { generatePDF } from "../utils/pdfGenerator.js";
 import { sendDocumentDelivery, sendPaymentReceipt } from "../utils/emailService.js";
+import { DOCUMENT_PRICES } from "../utils/aiGenerator.js";
 
 const router = Router();
 
@@ -19,7 +20,7 @@ const SUBSCRIPTION_PRICES: Record<string, { amount: number; label: string }> = {
 };
 
 async function createRazorpayOrder(
-  amount: number,
+  amountPaise: number,
   currency = "INR",
   receipt?: string,
 ): Promise<{ id: string }> {
@@ -31,12 +32,15 @@ async function createRazorpayOrder(
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Basic ${creds}` },
     body: JSON.stringify({
-      amount,
+      amount: amountPaise,
       currency,
       receipt: receipt ?? `rcpt_${Date.now()}`,
     }),
   });
-  if (!res.ok) throw new Error(`Razorpay order failed: ${res.statusText}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Razorpay order failed: ${res.statusText} — ${body}`);
+  }
   return res.json() as Promise<{ id: string }>;
 }
 
@@ -44,40 +48,72 @@ async function createRazorpayOrder(
 router.use(authMiddleware);
 
 // POST /api/payments/create-order
+// Security: amount is looked up SERVER-SIDE from document record — client amount ignored.
 router.post("/create-order", async (req: AuthRequest, res) => {
   try {
-    const { documentId, amount } = req.body as { documentId: number; amount: number };
-    if (!documentId || !amount) {
-      res.status(400).json({ error: "documentId and amount are required" });
+    const { documentId } = req.body as { documentId: number };
+    if (!documentId) {
+      res.status(400).json({ error: "documentId is required" });
       return;
     }
 
-    const docs = await db.select().from(documentsTable)
+    const docs = await db
+      .select()
+      .from(documentsTable)
       .where(and(eq(documentsTable.id, documentId), eq(documentsTable.userId, req.userId!)))
       .limit(1);
-    if (docs.length === 0) { res.status(404).json({ error: "Document not found" }); return; }
 
-    if (docs[0].paid) {
+    if (docs.length === 0) {
+      res.status(404).json({ error: "Document not found" });
+      return;
+    }
+
+    const doc = docs[0];
+    if (doc.paid) {
       res.status(400).json({ error: "Document already paid" });
       return;
     }
 
-    const order = await createRazorpayOrder(amount * 100, "INR", `doc_${documentId}`);
+    // Server-authoritative price — never trust client
+    const basePrice = doc.price ?? DOCUMENT_PRICES[doc.type] ?? 99;
+    const gst       = Math.round(basePrice * 0.18);
+    const total     = basePrice + gst;
+    const totalPaise = total * 100;
 
-    await db.insert(paymentsTable).values({
-      userId: req.userId!,
-      documentId,
-      amount,
-      razorpayOrderId: order.id,
-      status: "pending",
-    });
+    const order = await createRazorpayOrder(totalPaise, "INR", `doc_${documentId}`);
+
+    // Check for existing pending payment to avoid duplicates
+    const existing = await db
+      .select()
+      .from(paymentsTable)
+      .where(and(eq(paymentsTable.documentId, documentId), eq(paymentsTable.status, "pending")))
+      .limit(1);
+
+    if (existing.length === 0) {
+      await db.insert(paymentsTable).values({
+        userId:          req.userId!,
+        documentId,
+        amount:          total,
+        razorpayOrderId: order.id,
+        status:          "pending",
+      });
+    } else {
+      await db
+        .update(paymentsTable)
+        .set({ razorpayOrderId: order.id, amount: total })
+        .where(eq(paymentsTable.id, existing[0].id));
+    }
 
     res.json({
-      orderId: order.id,
-      amount,
-      currency: "INR",
-      keyId: RAZORPAY_KEY_ID || "rzp_test_placeholder",
-      documentTitle: docs[0].title,
+      orderId:       order.id,
+      amount:        total,
+      amountPaise:   totalPaise,
+      currency:      "INR",
+      keyId:         RAZORPAY_KEY_ID || "rzp_test_placeholder",
+      documentTitle: doc.title,
+      basePrice,
+      gst,
+      total,
     });
   } catch (err) {
     req.log.error({ err }, "Create order error");
@@ -85,55 +121,105 @@ router.post("/create-order", async (req: AuthRequest, res) => {
   }
 });
 
-// POST /api/payments/verify  — called by frontend after Razorpay checkout succeeds
+// POST /api/payments/verify — called by frontend after Razorpay succeeds
 router.post("/verify", async (req: AuthRequest, res) => {
   try {
     const { orderId, paymentId, signature, documentId } = req.body as {
       orderId: string; paymentId: string; signature: string; documentId: number;
     };
 
-    const isDev = !RAZORPAY_KEY_SECRET || orderId.startsWith("dev_order_");
+    if (!orderId || !paymentId || !documentId) {
+      res.status(400).json({ success: false, error: "Missing required fields" });
+      return;
+    }
 
+    // Idempotency: if document already paid, return success immediately
+    const existingDocs = await db
+      .select()
+      .from(documentsTable)
+      .where(and(eq(documentsTable.id, documentId), eq(documentsTable.userId, req.userId!)))
+      .limit(1);
+
+    if (existingDocs.length === 0) {
+      res.status(404).json({ success: false, error: "Document not found" });
+      return;
+    }
+
+    if (existingDocs[0].paid) {
+      res.json({ success: true, document: existingDocs[0], alreadyPaid: true });
+      return;
+    }
+
+    // Signature verification (skip only in real dev mode, never in production)
+    const isDev = !RAZORPAY_KEY_SECRET || orderId.startsWith("dev_order_");
     if (!isDev) {
       const expected = crypto
         .createHmac("sha256", RAZORPAY_KEY_SECRET)
         .update(`${orderId}|${paymentId}`)
         .digest("hex");
       if (expected !== signature) {
+        req.log.warn({ orderId, paymentId }, "Payment signature mismatch");
         res.status(400).json({ success: false, error: "Signature verification failed" });
         return;
       }
     }
 
-    await db.update(paymentsTable)
+    // Update payment record
+    await db
+      .update(paymentsTable)
       .set({ razorpayPaymentId: paymentId || "dev_payment", status: "paid" })
       .where(eq(paymentsTable.razorpayOrderId, orderId));
 
+    // Mark document as paid
     await db.update(documentsTable).set({ paid: true }).where(eq(documentsTable.id, documentId));
 
-    const docs = await db.select().from(documentsTable).where(eq(documentsTable.id, documentId)).limit(1);
-    const doc  = docs[0];
+    // Fetch updated document
+    const docs = await db
+      .select()
+      .from(documentsTable)
+      .where(eq(documentsTable.id, documentId))
+      .limit(1);
+    const doc = docs[0];
 
-    // Fire-and-forget: send emails
-    if (doc) {
-      const users = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!)).limit(1);
-      const user  = users[0];
+    // Fire-and-forget: generate PDF and send emails
+    if (doc?.content) {
+      const users = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.id, req.userId!))
+        .limit(1);
+      const user = users[0];
+
       if (user?.email) {
-        try {
-          const pdfBuf = await generatePDF(doc.content ?? "", doc.title, {
-            watermark: false, documentId: doc.id,
-          });
-          sendDocumentDelivery({
-            to: user.email, name: user.name ?? "there",
-            docTitle: doc.title, docId: doc.id,
-            pdfBuffer: pdfBuf, price: doc.price ?? 0,
-          }).catch(() => {});
-          sendPaymentReceipt({
-            to: user.email, name: user.name ?? "there",
-            docTitle: doc.title, amount: doc.price ?? 0,
-            paymentId: paymentId || "dev_payment", orderId,
-          }).catch(() => {});
-        } catch {}
+        Promise.resolve().then(async () => {
+          try {
+            const pdfBuf = await generatePDF(doc.content ?? "", doc.title, {
+              watermark: false,
+              documentId: doc.id,
+            });
+            await Promise.allSettled([
+              sendDocumentDelivery({
+                to: user.email!,
+                name: user.name ?? "there",
+                docTitle: doc.title,
+                docId: doc.id,
+                pdfBuffer: pdfBuf,
+                price: doc.price ?? 0,
+              }),
+              sendPaymentReceipt({
+                to: user.email!,
+                name: user.name ?? "there",
+                docTitle: doc.title,
+                amount: doc.price ?? 0,
+                paymentId: paymentId || "dev_payment",
+                orderId,
+              }),
+            ]);
+          } catch (emailErr) {
+            // Email errors never fail the payment response
+            req.log.warn({ emailErr }, "Email delivery failed after payment");
+          }
+        });
       }
     }
 
@@ -147,7 +233,9 @@ router.post("/verify", async (req: AuthRequest, res) => {
 // GET /api/payments/history
 router.get("/history", async (req: AuthRequest, res) => {
   try {
-    const payments = await db.select().from(paymentsTable)
+    const payments = await db
+      .select()
+      .from(paymentsTable)
       .where(eq(paymentsTable.userId, req.userId!));
     res.json(payments);
   } catch (err) {
@@ -161,20 +249,30 @@ router.post("/subscription/create", async (req: AuthRequest, res) => {
   try {
     const { plan } = req.body as { plan: string };
     const planData = SUBSCRIPTION_PRICES[plan];
-    if (!planData) { res.status(400).json({ error: "Invalid plan" }); return; }
+    if (!planData) {
+      res.status(400).json({ error: "Invalid plan" });
+      return;
+    }
 
-    const order = await createRazorpayOrder(planData.amount, "INR", `sub_${plan}_${Date.now()}`);
+    const order = await createRazorpayOrder(
+      planData.amount, "INR", `sub_${plan}_${Date.now()}`
+    );
 
     await db.insert(paymentsTable).values({
-      userId: req.userId!,
-      amount: planData.amount / 100,
+      userId:          req.userId!,
+      amount:          planData.amount / 100,
       razorpayOrderId: order.id,
-      status: "pending",
+      status:          "pending",
       plan,
     });
 
-    res.json({ orderId: order.id, amount: planData.amount, currency: "INR",
-      keyId: RAZORPAY_KEY_ID || "rzp_test_placeholder", label: planData.label });
+    res.json({
+      orderId:  order.id,
+      amount:   planData.amount,
+      currency: "INR",
+      keyId:    RAZORPAY_KEY_ID || "rzp_test_placeholder",
+      label:    planData.label,
+    });
   } catch (err) {
     req.log.error({ err }, "Create subscription error");
     res.status(500).json({ error: "Failed to create subscription order" });
@@ -200,23 +298,26 @@ router.post("/subscription/verify", async (req: AuthRequest, res) => {
       }
     }
 
-    await db.update(paymentsTable)
+    await db
+      .update(paymentsTable)
       .set({ razorpayPaymentId: paymentId || "dev_payment", status: "paid" })
       .where(eq(paymentsTable.razorpayOrderId, orderId));
 
     const planData = SUBSCRIPTION_PRICES[plan];
-    const now = new Date();
-    const expires = new Date(now);
+    const now      = new Date();
+    const expires  = new Date(now);
     expires.setMonth(expires.getMonth() + 1);
 
     await db.insert(subscriptionsTable).values({
-      userId: req.userId!,
+      userId:    req.userId!,
       plan,
-      status: "active",
+      status:    "active",
       startDate: now.toISOString().split("T")[0],
-      endDate: expires.toISOString().split("T")[0],
-      amount: (planData?.amount ?? 0) / 100,
+      endDate:   expires.toISOString().split("T")[0],
+      amount:    (planData?.amount ?? 0) / 100,
     }).onConflictDoNothing();
+
+    await db.update(usersTable).set({ plan }).where(eq(usersTable.id, req.userId!));
 
     res.json({ success: true, plan, expires: expires.toISOString() });
   } catch (err) {
@@ -227,14 +328,17 @@ router.post("/subscription/verify", async (req: AuthRequest, res) => {
 
 export default router;
 
-// ── Razorpay Webhook (unauthenticated, signature-verified) ───────────────────
+// ── Webhook (unauthenticated, signature-verified) ─────────────────────────────
 export function createWebhookHandler() {
   const wRouter = Router();
 
   wRouter.post("/razorpay", async (req, res) => {
-    const signature  = req.headers["x-razorpay-signature"] as string;
-    const body       = JSON.stringify(req.body);
-    const expected   = crypto.createHmac("sha256", WEBHOOK_SECRET).update(body).digest("hex");
+    const signature = req.headers["x-razorpay-signature"] as string;
+    const body      = JSON.stringify(req.body);
+    const expected  = crypto
+      .createHmac("sha256", WEBHOOK_SECRET)
+      .update(body)
+      .digest("hex");
 
     if (WEBHOOK_SECRET && signature && signature !== expected) {
       res.status(400).json({ error: "Invalid webhook signature" });
@@ -249,19 +353,26 @@ export function createWebhookHandler() {
       const paymentId = payment.id as string;
 
       try {
-        await db.update(paymentsTable)
+        await db
+          .update(paymentsTable)
           .set({ razorpayPaymentId: paymentId, status: "paid" })
           .where(eq(paymentsTable.razorpayOrderId, orderId));
 
-        const payments = await db.select().from(paymentsTable)
-          .where(eq(paymentsTable.razorpayOrderId, orderId)).limit(1);
+        const payments = await db
+          .select()
+          .from(paymentsTable)
+          .where(eq(paymentsTable.razorpayOrderId, orderId))
+          .limit(1);
 
         if (payments[0]?.documentId) {
-          await db.update(documentsTable)
+          await db
+            .update(documentsTable)
             .set({ paid: true })
             .where(eq(documentsTable.id, payments[0].documentId));
         }
-      } catch {}
+      } catch (err) {
+        console.error("Webhook processing error:", err);
+      }
     }
 
     res.json({ status: "ok" });
