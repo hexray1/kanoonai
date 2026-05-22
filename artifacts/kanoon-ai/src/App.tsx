@@ -75,9 +75,9 @@ function Router() {
             <Route path="/login" component={Login} />
             <Route path="/auth/callback" component={AuthCallback} />
             <Route path="/documents" component={DocumentSelection} />
-            <Route path="/documents/generate/:type">
-              {() => <ProtectedRoute component={GenerateDocument} />}
-            </Route>
+            {/* Public — no login required before generation */}
+            <Route path="/documents/generate/:type" component={GenerateDocument} />
+            <Route path="/generate/:type" component={GenerateDocument} />
             <Route path="/documents/:id/preview">
               {() => <ProtectedRoute component={DocumentPreview} />}
             </Route>
