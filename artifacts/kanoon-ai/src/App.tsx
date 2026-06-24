@@ -10,6 +10,7 @@ import { FloatingSupport } from "@/components/layout/FloatingSupport";
 import { UrgencyBar } from "@/components/layout/UrgencyBar";
 import { ExitIntent } from "@/components/layout/ExitIntent";
 import { LiveActivityToast } from "@/components/layout/LiveActivityToast";
+import { StickyBottomCTA } from "@/components/layout/StickyBottomCTA";
 
 // Lazy-loaded routes — each loads only when visited (cuts initial bundle ~60%)
 const Home             = lazy(() => import("@/pages/Home"));
@@ -108,6 +109,7 @@ function Router() {
       </main>
       <Footer />
       <FloatingSupport />
+      <StickyBottomCTA />
       <ExitIntent />
       <LiveActivityToast />
     </div>

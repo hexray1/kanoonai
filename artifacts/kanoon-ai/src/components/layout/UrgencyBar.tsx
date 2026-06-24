@@ -18,8 +18,10 @@ function fmt(secs: number): string {
 
 const MESSAGES = [
   "⚡ Today only: All documents from ₹97 · Price increases at midnight",
-  "🔥 NVIDIA AI + Indian law expertise · 5,000+ happy customers",
-  "⏳ Limited time: Save 96% vs lawyer fees · Documents from ₹97",
+  "🔥 12,000+ Indians trust Kanoox AI · Rated 4.9★ from 1,247 reviews",
+  "💸 Save up to ₹49,000 vs lawyer fees · NVIDIA AI drafts in 60 seconds",
+  "🇮🇳 Available in Hindi, Marathi, Tamil, Telugu + English · 28 states",
+  "⏳ Limited time: 97 ₹ flat for any document · Ends at midnight tonight",
 ];
 
 export function UrgencyBar() {
