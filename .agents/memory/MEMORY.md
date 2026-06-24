@@ -1,0 +1,2 @@
+- [Kanoox AI Architecture](kanoox-architecture.md) — React+Vite+Tailwind frontend, Express+Node+Postgres+Drizzle backend, NVIDIA Nemotron 70B AI, Razorpay payments.
+- [Kanoox UI Conventions](kanoox-ui.md) — Dark bg + yellow/gold primary (#EAB308), no color changes. Auth: authFetch + zustand kanoon_auth store. BASE = BASE_URL.replace(/\/$/, "").

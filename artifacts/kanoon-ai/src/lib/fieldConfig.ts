@@ -180,6 +180,23 @@ export const FIELD_CONFIG: Record<string, FieldConfig> = {
   performance_note: { type: "text", emoji: "⭐", question: "Add a brief performance note (optional).", aiTip: "E.g., 'diligently', 'satisfactorily', 'with distinction'. Leave blank for a neutral certificate." },
   reason: { type: "text", emoji: "📋", question: "What is the reason?", aiTip: "Keep it brief and professional. For termination: 'performance', 'restructuring', 'mutual agreement'." },
 
+  // ── NOC Letter ──────────────────────────────────────────
+  issuer_name: {
+    type: "text", emoji: "✍️",
+    question: "Who is issuing this NOC? (Your full name / company name)",
+    aiTip: "The NOC is issued BY you — use your full legal name or registered company name.",
+  },
+  property_details: {
+    type: "text", emoji: "🏠",
+    question: "Describe the property for which this NOC is being issued.",
+    aiTip: "Include property address, type (flat/plot/shop), and any survey/plot numbers.",
+  },
+  vacate_by_date: {
+    type: "date", emoji: "📅",
+    question: "By what date must the tenant vacate the premises?",
+    aiTip: "This is the final date for the tenant to hand over possession. A minimum of 15–30 days notice is customary.",
+  },
+
   // ── Government ───────────────────────────────────────────
   father_name: { type: "text", emoji: "👨", question: "What is your father's full name?", aiTip: "As appears on official documents." },
   address: { type: "text", emoji: "📍", question: "What is your full residential address?", aiTip: "Complete address with house number, street, ward, district, and pin code." },

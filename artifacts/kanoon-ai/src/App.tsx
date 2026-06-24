@@ -7,6 +7,9 @@ import { useAuthStore } from "@/hooks/use-auth";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingSupport } from "@/components/layout/FloatingSupport";
+import { UrgencyBar } from "@/components/layout/UrgencyBar";
+import { ExitIntent } from "@/components/layout/ExitIntent";
+import { LiveActivityToast } from "@/components/layout/LiveActivityToast";
 
 // Lazy-loaded routes — each loads only when visited (cuts initial bundle ~60%)
 const Home             = lazy(() => import("@/pages/Home"));
@@ -67,6 +70,7 @@ function ProtectedRoute({ component: Component, adminOnly = false }: { component
 function Router() {
   return (
     <div className="flex flex-col min-h-screen">
+      <UrgencyBar />
       <Navbar />
       <main className="flex-1">
         <Suspense fallback={<PageLoader />}>
@@ -104,6 +108,8 @@ function Router() {
       </main>
       <Footer />
       <FloatingSupport />
+      <ExitIntent />
+      <LiveActivityToast />
     </div>
   );
 }
