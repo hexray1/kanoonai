@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { FileText } from "lucide-react";
-
+import { FileText, ArrowLeft, MessageCircle, Scale } from "lucide-react";
+import { Link } from "wouter";
 import { useSeo } from "@/hooks/use-seo";
 
 export default function Terms() {
@@ -9,14 +9,27 @@ export default function Terms() {
     description: "Read the Kanoox AI Terms of Service governing the use of our AI-powered legal document generation platform.",
   });
   return (
-    <div className="min-h-screen bg-background py-20 px-4">
+    <div className="min-h-screen bg-background py-16 px-4">
       <div className="max-w-3xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-3 mb-4">
-            <FileText className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-white">Terms of Service</h1>
+        {/* Back nav */}
+        <Link href="/">
+          <div className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-8 cursor-pointer group">
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Home
           </div>
-          <p className="text-muted-foreground mb-8 text-sm">Last updated: March 1, 2025 · Governed by Indian law</p>
+        </Link>
+
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Header */}
+          <div className="bg-card border border-white/10 rounded-2xl p-6 mb-8 flex items-start gap-4">
+            <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 shrink-0">
+              <Scale className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white mb-1">Terms of Service</h1>
+              <p className="text-muted-foreground text-sm">Last updated: March 1, 2025 · Governed by Indian Law (Mumbai Jurisdiction)</p>
+            </div>
+          </div>
 
           <div className="prose prose-invert max-w-none space-y-8 text-muted-foreground leading-relaxed">
             <section>
@@ -98,6 +111,26 @@ export default function Terms() {
               <h2 className="text-xl font-semibold text-white mb-3">10. Contact</h2>
               <p>For any questions about these Terms, contact us at <strong className="text-primary">legal@kanooxai.in</strong></p>
             </section>
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="mt-12 bg-card border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-white font-semibold mb-1">Questions about our Terms?</h3>
+              <p className="text-muted-foreground text-sm">Email <span className="text-primary">legal@kanooxai.in</span> — we respond within 2 business days.</p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Link href="/contact">
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors">
+                  <MessageCircle className="h-4 w-4" /> Contact Us
+                </button>
+              </Link>
+              <Link href="/documents">
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-card border border-white/15 text-muted-foreground rounded-xl text-sm font-medium hover:text-white transition-colors">
+                  <FileText className="h-4 w-4" /> Browse Templates
+                </button>
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>

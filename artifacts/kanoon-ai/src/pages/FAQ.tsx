@@ -239,18 +239,56 @@ export default function FAQ() {
             </motion.div>
           </AnimatePresence>
 
-          {/* CTA */}
-          <div className="mt-12 bg-card border border-white/10 rounded-2xl p-8 text-center">
-            <MessageCircle className="h-8 w-8 text-primary mx-auto mb-3" />
-            <h3 className="text-white font-semibold text-lg mb-2">Still have questions?</h3>
-            <p className="text-muted-foreground text-sm mb-5">
-              Our support team answers within 24 hours. WhatsApp available Mon–Sat, 10 AM – 6 PM IST.
-            </p>
-            <Link href="/contact">
-              <button className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors">
-                Contact Support
-              </button>
-            </Link>
+          {/* Bottom CTAs */}
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Contact support card */}
+            <div className="bg-card border border-white/10 rounded-2xl p-6 text-center flex flex-col items-center">
+              <div className="h-12 w-12 bg-primary/10 rounded-2xl border border-primary/20 flex items-center justify-center mb-4">
+                <MessageCircle className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-white font-semibold mb-2">Still have questions?</h3>
+              <p className="text-muted-foreground text-sm mb-5 max-w-xs mx-auto">
+                WhatsApp: Mon–Sat 10 AM – 6 PM IST · Email replies within 24 hours.
+              </p>
+              <div className="flex flex-col gap-2 w-full">
+                <a
+                  href="https://wa.me/919876543210"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 transition-colors text-sm"
+                >
+                  <MessageCircle className="h-4 w-4" /> Chat on WhatsApp
+                </a>
+                <Link href="/contact">
+                  <button className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-card border border-white/15 text-muted-foreground rounded-xl font-medium hover:text-white hover:border-white/30 transition-colors text-sm">
+                    Send us an email
+                  </button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Try it free card */}
+            <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-card border border-primary/20 rounded-2xl p-6 text-center flex flex-col items-center">
+              <div className="h-12 w-12 bg-primary/15 rounded-2xl border border-primary/30 flex items-center justify-center mb-4">
+                <HelpCircle className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-white font-semibold mb-2">Ready to get started?</h3>
+              <p className="text-muted-foreground text-sm mb-5 max-w-xs mx-auto">
+                Free to draft & preview. Pay only when you're ready to download your PDF.
+              </p>
+              <Link href="/documents">
+                <button className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors shadow-gold text-sm">
+                  Browse Templates Free →
+                </button>
+              </Link>
+              <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground">
+                <span>25+ documents</span>
+                <span>·</span>
+                <span>60 seconds avg</span>
+                <span>·</span>
+                <span>From ₹99</span>
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>

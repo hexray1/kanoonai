@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, ArrowLeft, MessageCircle, FileText } from "lucide-react";
 import { Link } from "wouter";
-
 import { useSeo } from "@/hooks/use-seo";
 
 export default function RefundPolicy() {
@@ -10,14 +9,27 @@ export default function RefundPolicy() {
     description: "Kanoox AI's refund policy for digital legal documents. 7-day satisfaction guarantee on most templates.",
   });
   return (
-    <div className="min-h-screen bg-background py-20 px-4">
+    <div className="min-h-screen bg-background py-16 px-4">
       <div className="max-w-3xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-3 mb-4">
-            <RotateCcw className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-white">Refund Policy</h1>
+        {/* Back nav */}
+        <Link href="/">
+          <div className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-8 cursor-pointer group">
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Home
           </div>
-          <p className="text-muted-foreground mb-8 text-sm">Last updated: March 1, 2025</p>
+        </Link>
+
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Header */}
+          <div className="bg-card border border-white/10 rounded-2xl p-6 mb-8 flex items-start gap-4">
+            <div className="h-12 w-12 bg-green-500/10 rounded-xl flex items-center justify-center border border-green-500/20 shrink-0">
+              <RotateCcw className="h-6 w-6 text-green-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white mb-1">Refund & Cancellation Policy</h1>
+              <p className="text-muted-foreground text-sm">Last updated: March 1, 2025 · 7-day money-back guarantee</p>
+            </div>
+          </div>
 
           <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-6 mb-8">
             <h2 className="text-xl font-bold text-green-400 mb-2">7-Day Money Back Guarantee</h2>
@@ -97,6 +109,26 @@ export default function RefundPolicy() {
               <p>For refund-related queries: <strong className="text-primary">refunds@kanooxai.in</strong></p>
               <p className="mt-1">We respond to all refund requests within 1 business day.</p>
             </section>
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="mt-12 bg-card border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-white font-semibold mb-1">Need to request a refund?</h3>
+              <p className="text-muted-foreground text-sm">Email <span className="text-primary">refunds@kanooxai.in</span> or message us on WhatsApp — resolved within 1 business day.</p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Link href="/contact">
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors">
+                  <MessageCircle className="h-4 w-4" /> Contact Us
+                </button>
+              </Link>
+              <Link href="/dashboard">
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-card border border-white/15 text-muted-foreground rounded-xl text-sm font-medium hover:text-white transition-colors">
+                  <FileText className="h-4 w-4" /> My Dashboard
+                </button>
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>
