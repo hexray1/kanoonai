@@ -221,7 +221,7 @@ function DocumentTypingPreview() {
           {displayedLines.length}/{doc.lines.length} lines · {displayedLines.join(" ").split(/\s+/).filter(Boolean).length} words
         </span>
         <span className="text-gray-600 flex items-center gap-1">
-          <Zap className="h-2.5 w-2.5" />Nemotron 70B
+          <Zap className="h-2.5 w-2.5" />Llama 3.3 70B
         </span>
       </div>
     </div>
@@ -536,7 +536,7 @@ export default function Home() {
                   { icon: Lock,       text: "SSL Encrypted"        },
                   { icon: Shield,     text: "Razorpay Secured"      },
                   { icon: Award,      text: "Lawyer-Reviewed"       },
-                  { icon: Cpu,        text: "NVIDIA Nemotron 70B"   },
+                  { icon: Cpu,        text: "Meta Llama 3.3 70B"    },
                   { icon: BadgeCheck, text: "DPDPA 2023 Compliant"  },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-1">
@@ -958,7 +958,7 @@ export default function Home() {
                 World's most powerful AI writes your legal documents
               </h2>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Kanoox AI uses <strong className="text-white">NVIDIA Nemotron 70B</strong> — the enterprise-grade AI that ranks #1 on professional writing benchmarks globally. You can watch it draft your document in real-time, word by word, like a senior lawyer typing in front of you.
+                Kanoox AI uses <strong className="text-white">Meta Llama 3.3 70B</strong> — served on NVIDIA's enterprise AI platform — one of the highest-ranked open models for professional, structured writing. You can watch it draft your document in real-time, word by word, like a senior lawyer typing in front of you.
               </p>
               <div className="space-y-3">
                 {[
@@ -984,7 +984,7 @@ export default function Home() {
                 <span className="text-muted-foreground text-xs ml-2">kanoox-ai / live-generation</span>
               </div>
               {[
-                { label: "Model",     val: "nvidia/llama-3.1-nemotron-70b",  color: "text-[#76b900]" },
+                { label: "Model",     val: "meta/llama-3.3-70b-instruct",   color: "text-[#76b900]" },
                 { label: "Document",  val: '"Rent Agreement (Hindi)"',         color: "text-blue-400"  },
                 { label: "Streaming", val: "true",                             color: "text-yellow-400"},
                 { label: "Words",     val: "847 / est. 900",                   color: "text-green-400" },

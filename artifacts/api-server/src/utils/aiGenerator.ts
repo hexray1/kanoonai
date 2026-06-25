@@ -10,7 +10,7 @@ const client = new OpenAI({
   timeout: 120_000,
 });
 
-export const NVIDIA_MODEL = "nvidia/llama-3.1-nemotron-70b-instruct";
+export const NVIDIA_MODEL = "meta/llama-3.3-70b-instruct";
 
 // ── System prompts per document type ─────────────────────────────────────────
 // Each prompt gives the AI a specific legal persona + mandatory clause list.

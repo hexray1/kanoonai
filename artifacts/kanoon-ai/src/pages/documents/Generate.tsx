@@ -40,7 +40,7 @@ const PENDING_KEY = "kanoox_pending_doc";
 const REDIRECT_KEY = "kanoon_redirect_after_login";
 
 const STREAM_STAGES = [
-  "Connecting to NVIDIA Nemotron 70B…",
+  "Connecting to Llama 3.3 70B…",
   "Analysing Indian legal requirements…",
   "Drafting parties & recitals…",
   "Writing clauses & provisions…",
@@ -765,7 +765,7 @@ export default function GenerateDocument() {
               <p className="text-white text-sm font-semibold">{docConfig.name}</p>
               <p className="text-[#76b900] text-xs flex items-center gap-1">
                 <span className="w-1.5 h-1.5 bg-[#76b900] rounded-full animate-pulse inline-block" />
-                NVIDIA Nemotron 70B generating…
+                Llama 3.3 70B generating…
               </p>
             </div>
           </div>
@@ -815,7 +815,7 @@ export default function GenerateDocument() {
                       transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                       className="w-14 h-14 border-4 border-[#76b900]/20 border-t-[#76b900] rounded-full mx-auto mb-4" />
                     <p className="text-white font-medium">{STREAM_STAGES[stageIdx]}</p>
-                    <p className="text-muted-foreground text-sm mt-1">Powered by NVIDIA Nemotron 70B</p>
+                    <p className="text-muted-foreground text-sm mt-1">Powered by Llama 3.3 70B via NVIDIA</p>
                   </div>
                 </div>
               )}

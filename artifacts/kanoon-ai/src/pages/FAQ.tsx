@@ -26,7 +26,7 @@ const CATEGORIES = [
       },
       {
         q: "Which AI model powers Kanoox AI?",
-        a: "Kanoox AI uses NVIDIA's Nemotron 70B — a world-class enterprise instruction model purpose-trained for professional, structured writing. It is one of the top-ranked models on major AI benchmarks. We generate documents in real-time, streaming the text to your screen as it's written, so you can watch your document come to life.",
+        a: "Kanoox AI uses Meta Llama 3.3 70B served on NVIDIA's enterprise AI platform — one of the highest-ranked large language models on professional writing benchmarks. We generate documents in real-time, streaming the text to your screen as it's written, so you can watch your document come to life.",
       },
     ],
   },
