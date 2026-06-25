@@ -1,3 +1,5 @@
 - [Kanoox AI Architecture](kanoox-architecture.md) — React+Vite+Tailwind frontend, Express+Node+Postgres+Drizzle backend, NVIDIA Nemotron 70B AI, Razorpay payments.
 - [Kanoox UI Conventions](kanoox-ui.md) — Dark bg + yellow/gold primary (#EAB308), no color changes. Auth: authFetch + zustand kanoon_auth store. BASE = BASE_URL.replace(/\/$/, "").
 - [Legal Pages Pattern](kanoox-legal-pages.md) — All legal pages (Privacy/Terms/Refund) use: back nav arrow → card header with icon → prose content → bottom CTA with Contact + action button.
+- [Kanoox Conversion Stack](kanoox-conversion.md) — All conversion elements: StickyBottomCTA (scroll >350px), ExitIntent (mouseleave top, Hindi copy, ₹97 + 10min countdown), UrgencyBar (5 messages, midnight countdown), LiveActivityToast (4s first, 14-20s cycle), StickyBottomCTA session key: "sticky_cta_dismissed".
+- [Kanoox Stats Canonical](kanoox-stats.md) — Always use: 47,000+ docs generated, 12,000+ customers, 28 states, <60s, 4.9★ from 1,247 reviews. Never use old 5,000+ or 12,000 for docs.

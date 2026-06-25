@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const NAV_LINKS = [
-  { href: "/documents", labelEn: "Templates", labelHi: "टेम्पलेट्स", icon: FileText },
-  { href: "/#pricing",  labelEn: "Pricing",   labelHi: "मूल्य",      icon: IndianRupee },
-  { href: "/faq",       labelEn: "FAQ",       labelHi: "प्रश्न",      icon: HelpCircle },
-  { href: "/contact",   labelEn: "Contact",   labelHi: "संपर्क",      icon: Phone },
+  { href: "/documents", labelEn: "Templates", labelHi: "टेम्पलेट्स", icon: FileText, badge: "Free" },
+  { href: "/#pricing",  labelEn: "Pricing",   labelHi: "मूल्य",      icon: IndianRupee, badge: null },
+  { href: "/faq",       labelEn: "FAQ",       labelHi: "प्रश्न",      icon: HelpCircle, badge: null },
+  { href: "/contact",   labelEn: "Contact",   labelHi: "संपर्क",      icon: Phone, badge: null },
 ];
 
 export function Navbar() {
@@ -90,13 +90,18 @@ export function Navbar() {
               <button
                 key={link.href}
                 onClick={() => handleNavClick(link.href)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   isActive(link.href)
                     ? "text-primary bg-primary/10"
                     : "text-muted-foreground hover:text-white hover:bg-white/5"
                 }`}
               >
                 {language === "en" ? link.labelEn : link.labelHi}
+                {link.badge && (
+                  <span className="absolute -top-1 -right-1 text-[9px] font-black px-1.5 py-0.5 bg-green-500 text-white rounded-full leading-none">
+                    {link.badge}
+                  </span>
+                )}
               </button>
             ))}
           </div>

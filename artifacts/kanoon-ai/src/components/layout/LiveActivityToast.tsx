@@ -41,23 +41,23 @@ export function LiveActivityToast() {
   }, []);
 
   useEffect(() => {
-    // Initial delay before first notification
+    // Show first notification quickly to establish social proof
     const init = setTimeout(() => {
       show(EVENTS[0]);
-    }, 8000);
+    }, 4000);
     return () => clearTimeout(init);
   }, []);
 
   useEffect(() => {
     if (dismissed) return;
-    // Cycle through events every 20-35 seconds
+    // Cycle every 14-20 seconds — frequent enough to feel live
     const interval = setInterval(() => {
       setIdx(i => {
         const next = (i + 1) % EVENTS.length;
         show(EVENTS[next]);
         return next;
       });
-    }, 22000 + Math.random() * 10000);
+    }, 14000 + Math.random() * 6000);
     return () => clearInterval(interval);
   }, [dismissed, show]);
 

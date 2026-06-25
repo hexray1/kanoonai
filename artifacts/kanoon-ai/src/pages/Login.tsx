@@ -115,7 +115,7 @@ export default function Login() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/25 rounded-full text-primary text-xs font-semibold mb-5">
               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              5,000+ Indians trust Kanoox AI
+              12,000+ Indians trust Kanoox AI
             </div>
 
             <h1 className="text-3xl xl:text-4xl font-black text-white mb-4 leading-tight">
@@ -163,7 +163,7 @@ export default function Login() {
             className="grid grid-cols-3 gap-4 mb-12 p-5 bg-card/50 border border-white/8 rounded-2xl"
           >
             {[
-              { value: "5,000+", label: "Customers" },
+              { value: "12,000+", label: "Customers" },
               { value: "25+",    label: "Doc Types" },
               { value: "60 sec", label: "Avg Time" },
             ].map((s) => (

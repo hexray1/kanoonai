@@ -250,7 +250,7 @@ export default function DownloadDocument() {
               </button>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">5,000+ users rated us 4.9 ⭐ on average</p>
+          <p className="text-xs text-muted-foreground">12,000+ users rated us 4.9 ⭐ on average</p>
         </motion.div>
 
         {/* ── REFERRAL ───────────────────────────────────── */}

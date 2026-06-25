@@ -135,7 +135,7 @@ export default function DocumentSelection() {
                 <Star className="h-3.5 w-3.5 text-primary fill-primary" />4.9/5 rated
               </span>
               <span className="flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5 text-primary" />5,000+ customers
+                <Users className="h-3.5 w-3.5 text-primary" />12,000+ customers
               </span>
             </div>
           </div>

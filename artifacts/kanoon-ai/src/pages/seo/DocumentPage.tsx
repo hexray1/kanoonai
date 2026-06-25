@@ -78,7 +78,7 @@ export default function DocumentPage() {
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
               {cityName
                 ? `Create a legally valid ${docTitle} for ${cityName} in minutes using NVIDIA AI. Compliant with ${stateName} laws. No lawyer needed.`
-                : `India's most trusted AI tool to generate a complete, legally sound ${docTitle} in under 60 seconds. Used by 5,000+ Indians.`}
+                : `India's most trusted AI tool to generate a complete, legally sound ${docTitle} in under 60 seconds. Used by 12,000+ Indians.`}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href={docConfig ? `/documents/generate/${docSlug}` : "/documents"}>
@@ -194,7 +194,7 @@ export default function DocumentPage() {
             Create your {docTitle}{cityName ? ` for ${cityName}` : ""} now
           </h2>
           <p className="text-muted-foreground mb-8">
-            Trusted by 5,000+ Indians · 4.9★ rating · 7-day refund guarantee
+            Trusted by 12,000+ Indians · 4.9★ rating · 7-day refund guarantee
           </p>
           <div className="flex items-center justify-center gap-2 mb-6">
             {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 text-primary fill-primary" />)}

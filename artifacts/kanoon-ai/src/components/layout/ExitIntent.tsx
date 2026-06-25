@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, X, FileText, ArrowRight } from "lucide-react";
+import { AlertTriangle, X, FileText, ArrowRight, Timer, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 
@@ -8,6 +8,13 @@ export function ExitIntent() {
   const [show, setShow]       = useState(false);
   const [shown, setShown]     = useState(false);
   const [location, setLocation] = useLocation();
+  const [secs, setSecs]       = useState(600); // 10 min offer countdown
+
+  useEffect(() => {
+    if (!show) return;
+    const t = setInterval(() => setSecs(s => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [show]);
 
   const trigger = useCallback(() => {
     if (shown) return;
@@ -60,32 +67,43 @@ export function ExitIntent() {
               </div>
             </div>
 
+            {/* Countdown timer */}
+            <div className="flex items-center justify-center gap-2 mb-4 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl">
+              <Timer className="h-4 w-4 text-red-400 shrink-0" />
+              <p className="text-red-300 text-xs font-semibold">
+                Special offer expires in{" "}
+                <span className="font-black text-red-400 tabular-nums">
+                  {String(Math.floor(secs / 60)).padStart(2, "0")}:{String(secs % 60).padStart(2, "0")}
+                </span>
+              </p>
+            </div>
+
             <div className="text-center mb-6">
               <h2 className="text-2xl font-black text-white mb-2">
                 ⚠️ Ruko! Draft delete ho jayega.
               </h2>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Aapka legal document sirf <span className="text-white font-semibold">₹197</span> mein ready ho sakta hai — warna draft 24 ghante mein permanently delete ho jayega.
+                Aapka legal document sirf <span className="text-primary font-black text-base">₹97</span> mein ready ho sakta hai — warna draft 24 ghante mein permanently delete ho jayega.
               </p>
             </div>
 
             {/* Savings comparison */}
-            <div className="bg-background/60 border border-white/10 rounded-2xl p-4 mb-6 flex justify-between items-center">
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground mb-1">Lawyer</p>
+            <div className="bg-background/60 border border-white/10 rounded-2xl p-4 mb-5 grid grid-cols-3 gap-2 text-center">
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-1">Lawyer</p>
                 <p className="text-xl font-black text-red-400 line-through">₹5,000</p>
               </div>
-              <div className="text-center">
-                <div className="h-px w-12 bg-white/10" />
+              <div className="flex items-center justify-center">
+                <div className="text-muted-foreground text-lg font-bold">→</div>
               </div>
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground mb-1">Kanoox AI</p>
-                <p className="text-xl font-black text-primary">₹197</p>
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-1">Kanoox AI</p>
+                <p className="text-xl font-black text-primary">₹97</p>
               </div>
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground mb-1">Aap Bachate</p>
-                <p className="text-xl font-black text-green-400">₹4,803</p>
-              </div>
+            </div>
+            <div className="flex items-center justify-center gap-1.5 mb-5 text-sm text-green-400 font-bold">
+              <Zap className="h-4 w-4" />
+              Aap bachate hain ₹4,903 — sirf aaj
             </div>
 
             <div className="space-y-3">
@@ -98,8 +116,8 @@ export function ExitIntent() {
               </Button>
               <button
                 onClick={() => setShow(false)}
-                className="w-full text-center text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors py-2">
-                Nahi, draft delete kar do
+                className="w-full text-center text-xs text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors py-2">
+                Nahi, ₹5,000 waala lawyer dhundunga
               </button>
             </div>
           </motion.div>

@@ -86,8 +86,8 @@ export function Footer() {
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed mb-5 max-w-sm">
               {t(
-                "India's #1 AI legal document platform. 25+ templates, 5 languages, lawyer-reviewed, 60-second drafts. Trusted by 5,000+ Indians.",
-                "भारत का #1 एआई कानूनी दस्तावेज़ प्लेटफ़ॉर्म। 25+ टेम्पलेट, 5 भाषाएँ, वकील-समीक्षित, 60-सेकंड ड्राफ्ट।"
+                "India's #1 AI legal document platform. 25+ templates, 5 languages, lawyer-reviewed, 60-second drafts. Trusted by 12,000+ Indians across all 28 states.",
+                "भारत का #1 एआई कानूनी दस्तावेज़ प्लेटफ़ॉर्म। 25+ टेम्पलेट, 5 भाषाएँ, वकील-समीक्षित, 60-सेकंड ड्राफ्ट। 12,000+ भारतीयों का विश्वास।"
               )}
             </p>
 

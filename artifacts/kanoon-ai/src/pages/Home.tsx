@@ -579,7 +579,7 @@ export default function Home() {
                       ))}
                     </div>
                     <div>
-                      <p className="text-white text-xs font-bold">5,000+ users</p>
+                      <p className="text-white text-xs font-bold">12,000+ users</p>
                       <p className="text-[10px] text-muted-foreground">247 docs today</p>
                     </div>
                   </motion.div>
