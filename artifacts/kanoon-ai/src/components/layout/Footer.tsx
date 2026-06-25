@@ -199,12 +199,9 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="border-t border-white/5 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-            <div>
+          <div className="border-t border-white/5 mt-8 pt-6 flex items-center justify-center text-xs text-muted-foreground">
+            <div className="text-center">
               © {new Date().getFullYear()} <span className="text-white">Kanoox AI Technologies Pvt. Ltd.</span> · All rights reserved · Made with ❤️ in India
-            </div>
-            <div className="text-center md:text-right max-w-md">
-              <strong className="text-white/70">Disclaimer:</strong> Kanoox AI is not a law firm. Documents are AI-generated drafts for informational purposes only and not a substitute for advice from a licensed advocate.
             </div>
           </div>
         </div>

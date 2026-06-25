@@ -71,7 +71,7 @@ export function LiveActivityToast() {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -100, opacity: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 28 }}
-          className="fixed bottom-6 left-4 z-[100] max-w-xs"
+          className="fixed bottom-24 left-4 z-[100] max-w-xs"
         >
           <div className="bg-card border border-white/15 rounded-2xl px-4 py-3 shadow-2xl flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
