@@ -3,12 +3,13 @@ import { useParams, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Download, Share2, CheckCircle2, FileText, Loader2, Sparkles,
-  Star, ArrowRight, PartyPopper, Trophy, Copy, Check,
+  Star, ArrowRight, PartyPopper, Trophy, Copy, Check, LogIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetDocument } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
-import { getAuthToken } from "@/hooks/use-auth";
+import { authFetch } from "@/hooks/use-auth";
+import { useAuthStore } from "@/hooks/use-auth";
 import { DOCUMENTS } from "@/lib/constants";
 import { Link } from "wouter";
 
@@ -82,10 +83,54 @@ function ReferralCopy() {
   );
 }
 
+// ── Soft login offer (for guests) ─────────────────────────────────────────────
+function SoftLoginOffer({ docId }: { docId: number }) {
+  const [, setLocation] = useLocation();
+  const [dismissed, setDismissed] = useState(false);
+
+  if (dismissed) return null;
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
+      className="bg-gradient-to-br from-primary/10 to-yellow-500/5 border border-primary/25 rounded-2xl p-5 mb-6 relative">
+      <button onClick={() => setDismissed(true)}
+        className="absolute top-3 right-3 text-muted-foreground/50 hover:text-white transition-colors">
+        <Check className="h-4 w-4" />
+      </button>
+      <div className="flex items-start gap-3 mb-4">
+        <div className="p-2.5 bg-primary/20 rounded-xl shrink-0 border border-primary/30">
+          <LogIn className="h-5 w-5 text-primary" />
+        </div>
+        <div>
+          <p className="text-white font-bold mb-1">Save your document to Dashboard</p>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Create a free account to access this document anytime, get re-download links, and track your legal documents.
+          </p>
+        </div>
+      </div>
+      <div className="flex gap-3">
+        <Button
+          onClick={() => {
+            try { sessionStorage.setItem("kanoon_redirect_after_login", `/documents/${docId}/download`); } catch {}
+            setLocation("/login");
+          }}
+          className="flex-1 h-10 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-sm">
+          <LogIn className="mr-2 h-4 w-4" />Sign Up Free
+        </Button>
+        <Button variant="ghost" onClick={() => setDismissed(true)}
+          className="h-10 text-muted-foreground text-sm hover:text-white px-4">
+          No thanks
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function DownloadDocument() {
   const { id }          = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const { data: doc, isLoading } = useGetDocument(Number(id));
+  const { token }       = useAuthStore();
   const { toast }       = useToast();
   const [downloading, setDownloading] = useState(false);
   const [downloaded, setDownloaded]   = useState(false);
@@ -93,13 +138,13 @@ export default function DownloadDocument() {
   const [rating, setRating]             = useState(0);
   const autoTriggered = useRef(false);
 
+  const isLoggedIn = !!token;
+
   const handleDownload = useCallback(async () => {
     setDownloading(true);
     try {
-      const token = getAuthToken();
-      const res = await fetch(`${BASE}/api/documents/${id}/download`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // authFetch automatically includes both auth token (if logged in) and x-guest-token
+      const res = await authFetch(`${BASE}/api/documents/${id}/download`);
       if (!res.ok) throw new Error("Download failed");
       const blob = await res.blob();
       const url  = URL.createObjectURL(blob);
@@ -144,7 +189,7 @@ export default function DownloadDocument() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-center">
         <p className="text-white mb-4">Document not found or payment required.</p>
-        <Button onClick={() => setLocation("/dashboard")} variant="outline">Go to Dashboard</Button>
+        <Button onClick={() => setLocation("/documents")} variant="outline">Browse Documents</Button>
       </div>
     );
   }
@@ -179,7 +224,7 @@ export default function DownloadDocument() {
               Your <span className="text-white font-semibold">{doc.title}</span> is ready to download.
             </p>
             <p className="text-xs text-muted-foreground/60 mb-6">
-              Re-download anytime from your Dashboard · Valid across all Indian states
+              Valid across all Indian states · Lawyer-reviewed format
             </p>
           </motion.div>
 
@@ -221,10 +266,17 @@ export default function DownloadDocument() {
             </Button>
 
             <div className="flex gap-3">
-              <Button onClick={() => setLocation("/dashboard")} variant="ghost"
-                className="flex-1 h-10 text-muted-foreground hover:text-white">
-                Dashboard
-              </Button>
+              {isLoggedIn ? (
+                <Button onClick={() => setLocation("/dashboard")} variant="ghost"
+                  className="flex-1 h-10 text-muted-foreground hover:text-white">
+                  Dashboard
+                </Button>
+              ) : (
+                <Button onClick={() => setLocation("/documents")} variant="ghost"
+                  className="flex-1 h-10 text-muted-foreground hover:text-white">
+                  Browse Docs
+                </Button>
+              )}
               <Button onClick={() => setLocation("/documents")} variant="ghost"
                 className="flex-1 h-10 text-muted-foreground hover:text-white">
                 <Sparkles className="mr-1.5 h-4 w-4" />More Docs
@@ -232,6 +284,9 @@ export default function DownloadDocument() {
             </div>
           </motion.div>
         </motion.div>
+
+        {/* ── SOFT LOGIN OFFER (guests only) ──────────────── */}
+        {!isLoggedIn && <SoftLoginOffer docId={Number(id)} />}
 
         {/* ── RATING ─────────────────────────────────────── */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}
@@ -254,19 +309,21 @@ export default function DownloadDocument() {
         </motion.div>
 
         {/* ── REFERRAL ───────────────────────────────────── */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}
-          className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-5 mb-6">
-          <div className="flex items-start gap-3 mb-3">
-            <div className="p-2 bg-primary/20 rounded-xl shrink-0">
-              <Share2 className="h-5 w-5 text-primary" />
+        {isLoggedIn && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}
+            className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-5 mb-6">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="p-2 bg-primary/20 rounded-xl shrink-0">
+                <Share2 className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-white font-bold mb-0.5">Earn ₹50 per referral 💰</p>
+                <p className="text-xs text-muted-foreground">Share your link — get ₹50 credit for every friend who creates a document.</p>
+              </div>
             </div>
-            <div>
-              <p className="text-white font-bold mb-0.5">Earn ₹50 per referral 💰</p>
-              <p className="text-xs text-muted-foreground">Share your link — get ₹50 credit for every friend who creates a document.</p>
-            </div>
-          </div>
-          <ReferralCopy />
-        </motion.div>
+            <ReferralCopy />
+          </motion.div>
+        )}
 
         {/* ── RELATED DOCUMENTS UPSELL ───────────────────── */}
         {relatedDocs.length > 0 && (

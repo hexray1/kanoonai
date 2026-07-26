@@ -13,7 +13,6 @@ import { generatePDF } from "../utils/pdfGenerator.js";
 const router = Router();
 
 // ─── PUBLIC: Guest streaming (no auth, no DB save) ──────────────────────────
-// Used for the pre-login generation experience.
 router.post("/stream/guest", async (req, res) => {
   const { type, formData, language = "en" } = req.body as {
     type: string;
@@ -38,7 +37,6 @@ router.post("/stream/guest", async (req, res) => {
     for await (const chunk of generateLegalDocumentStream(type, formData, language)) {
       send({ chunk });
     }
-    // Don't save to DB — just signal done with metadata
     send({
       done: true,
       title: getDocumentTitle(type),
@@ -48,39 +46,6 @@ router.post("/stream/guest", async (req, res) => {
     send({ error: err?.message || "Generation failed" });
   } finally {
     res.end();
-  }
-});
-
-// ─── PUBLIC: Save pre-generated content (called after login) ────────────────
-// Frontend streams to guest endpoint, stores content locally, then saves here
-// after the user authenticates.
-router.post("/from-content", authMiddleware, async (req: AuthRequest, res) => {
-  try {
-    const { type, title, content, formData, language = "en", price } = req.body as {
-      type: string; title: string; content: string;
-      formData: Record<string, unknown>; language: string; price: number;
-    };
-
-    if (!type || !content) {
-      res.status(400).json({ error: "type and content required" });
-      return;
-    }
-
-    const [doc] = await db.insert(documentsTable).values({
-      userId: req.userId!,
-      type,
-      title: title || getDocumentTitle(type),
-      content,
-      formData: formData ?? {},
-      paid: false,
-      language,
-      price: price || getDocumentPrice(type),
-    }).returning();
-
-    res.json({ id: doc.id, title: doc.title, price: doc.price });
-  } catch (err) {
-    req.log.error({ err }, "save-from-content error");
-    res.status(500).json({ error: "Failed to save document" });
   }
 });
 
@@ -100,6 +65,26 @@ router.get("/", async (req: AuthRequest, res) => {
   } catch (err) {
     req.log.error({ err }, "list docs error");
     res.status(500).json({ error: "Failed to list documents" });
+  }
+});
+
+// Get single document (auth user's own)
+router.get("/:id", async (req: AuthRequest, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const docs = await db.select().from(documentsTable)
+      .where(and(eq(documentsTable.id, id), eq(documentsTable.userId, req.userId!)))
+      .limit(1);
+    if (docs.length === 0) { res.status(404).json({ error: "Not found" }); return; }
+    const doc = docs[0];
+    res.json({
+      ...doc,
+      content: doc.paid ? doc.content
+        : doc.content ? doc.content.substring(0, 500) + "\n\n[Full document unlocks after payment]" : null,
+    });
+  } catch (err) {
+    req.log.error({ err }, "get doc error");
+    res.status(500).json({ error: "Failed to get document" });
   }
 });
 
@@ -147,6 +132,37 @@ router.post("/stream", async (req: AuthRequest, res) => {
   }
 });
 
+// Save pre-generated content (after guest login redirect)
+router.post("/from-content", async (req: AuthRequest, res) => {
+  try {
+    const { type, title, content, formData, language = "en", price } = req.body as {
+      type: string; title: string; content: string;
+      formData: Record<string, unknown>; language: string; price: number;
+    };
+
+    if (!type || !content) {
+      res.status(400).json({ error: "type and content required" });
+      return;
+    }
+
+    const [doc] = await db.insert(documentsTable).values({
+      userId: req.userId!,
+      type,
+      title: title || getDocumentTitle(type),
+      content,
+      formData: formData ?? {},
+      paid: false,
+      language,
+      price: price || getDocumentPrice(type),
+    }).returning();
+
+    res.json({ id: doc.id, title: doc.title, price: doc.price });
+  } catch (err) {
+    req.log.error({ err }, "from-content error");
+    res.status(500).json({ error: "Failed to save document" });
+  }
+});
+
 // Non-streaming fallback
 router.post("/", async (req: AuthRequest, res) => {
   try {
@@ -170,28 +186,7 @@ router.post("/", async (req: AuthRequest, res) => {
   }
 });
 
-// Get single document
-router.get("/:id", async (req: AuthRequest, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const docs = await db.select().from(documentsTable)
-      .where(and(eq(documentsTable.id, id), eq(documentsTable.userId, req.userId!)))
-      .limit(1);
-    if (docs.length === 0) { res.status(404).json({ error: "Not found" }); return; }
-    const doc = docs[0];
-    res.json({
-      ...doc,
-      content: doc.paid ? doc.content : doc.content
-        ? doc.content.substring(0, 500) + "\n\n[Full document unlocks after payment]"
-        : null,
-    });
-  } catch (err) {
-    req.log.error({ err }, "get doc error");
-    res.status(500).json({ error: "Failed to get document" });
-  }
-});
-
-// Download PDF (paid docs only)
+// Download PDF (paid documents)
 router.get("/:id/download", async (req: AuthRequest, res) => {
   try {
     const id = parseInt(req.params.id);

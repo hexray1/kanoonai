@@ -43,6 +43,26 @@ export async function authMiddleware(
   }
 }
 
+/** Like authMiddleware but never rejects — sets userId if token valid, otherwise continues as guest. */
+export async function optionalAuthMiddleware(
+  req: AuthRequest,
+  _res: Response,
+  next: NextFunction
+): Promise<void> {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; isAdmin: boolean };
+      req.userId = decoded.userId;
+      req.isAdmin = decoded.isAdmin;
+    } catch {
+      // Invalid token — treat as guest, do not reject
+    }
+  }
+  next();
+}
+
 export async function adminMiddleware(
   req: AuthRequest,
   res: Response,

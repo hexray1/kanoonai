@@ -37,14 +37,35 @@ export function getAuthToken(): string | null {
   return useAuthStore.getState().token;
 }
 
+const GUEST_TOKEN_KEY = 'kanoox_guest_token';
+
+/** Returns a stable per-device guest token (UUID), creating one if needed. */
+export function getGuestToken(): string {
+  try {
+    const existing = localStorage.getItem(GUEST_TOKEN_KEY);
+    if (existing) return existing;
+    const newToken = crypto.randomUUID();
+    localStorage.setItem(GUEST_TOKEN_KEY, newToken);
+    return newToken;
+  } catch {
+    return 'guest-fallback';
+  }
+}
+
+/** Fetch that includes both Authorization (if logged in) and x-guest-token headers. */
 export function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const token = getAuthToken();
+  const guestToken = getGuestToken();
   return fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      'x-guest-token': guestToken,
       ...options.headers,
     },
   });
 }
+
+/** Alias — same as authFetch, works for both guests and logged-in users. */
+export const guestFetch = authFetch;
