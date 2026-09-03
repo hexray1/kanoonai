@@ -85,8 +85,7 @@ export async function benchmarkNvidiaModels(): Promise<Array<{
         messages: [{ role: "user", content: "Reply with exactly: NVIDIA MODEL OK" }],
         temperature: 0,
         max_tokens: 8192,
-        signal: AbortSignal.timeout(25000),
-      });
+      }, { signal: AbortSignal.timeout(25000) });
       const text = completion.choices[0]?.message?.content ?? "";
       results.push({ model, ok: text.includes("NVIDIA"), ms: Date.now() - startedAt, chars: text.length });
     } catch (error: any) {
