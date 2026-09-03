@@ -12,6 +12,126 @@ const client = new OpenAI({
 
 export const NVIDIA_MODEL = "meta/llama-3.3-70b-instruct";
 
+const PREFERRED_NVIDIA_MODELS = [
+  "nvidia/llama-3.1-nemotron-51b-instruct",
+  "nvidia/nemotron-3-super-120b-a12b",
+  "openai/gpt-oss-20b",
+  "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "meta/llama-3.3-70b-instruct",
+  "mistralai/mistral-large-2-instruct",
+];
+
+let resolvedModel: string | null = null;
+let modelResolutionPromise: Promise<string> | null = null;
+
+async function resolveNvidiaModel(): Promise<string> {
+  if (resolvedModel) return resolvedModel;
+  if (modelResolutionPromise) return modelResolutionPromise;
+
+  modelResolutionPromise = (async () => {
+    try {
+      const page = await client.models.list();
+      const available = new Set(
+        (page.data ?? [])
+          .map((model: { id?: string }) => model.id)
+          .filter((id): id is string => Boolean(id)),
+      );
+
+      const selected =
+        PREFERRED_NVIDIA_MODELS.find((model) => available.has(model)) ??
+        [...available][0];
+
+      if (selected) {
+        resolvedModel = selected;
+        console.log(`[AI] Using NVIDIA model: ${selected}`);
+        return selected;
+      }
+    } catch (error: any) {
+      console.warn(
+        `[AI] Could not list NVIDIA models (${error?.status ?? error?.message ?? "unknown"}); ` +
+        `trying configured model ${NVIDIA_MODEL}`,
+      );
+    }
+
+    resolvedModel = NVIDIA_MODEL;
+    return NVIDIA_MODEL;
+  })();
+
+  try {
+    return await modelResolutionPromise;
+  } finally {
+    modelResolutionPromise = null;
+  }
+}
+
+export async function benchmarkNvidiaModels(): Promise<Array<{
+  model: string;
+  ok: boolean;
+  ms: number;
+  chars: number;
+  error?: string;
+}>> {
+  const status = await getNvidiaModelStatus();
+  const candidates = PREFERRED_NVIDIA_MODELS.filter((model) =>
+    status.availableModels.includes(model),
+  );
+  const results = [];
+
+  for (const model of candidates) {
+    const startedAt = Date.now();
+    try {
+      const completion = await client.chat.completions.create({
+        model,
+        messages: [{ role: "user", content: "Reply with exactly: NVIDIA MODEL OK" }],
+        temperature: 0,
+        max_tokens: 8192,
+        signal: AbortSignal.timeout(25000),
+      });
+      const text = completion.choices[0]?.message?.content ?? "";
+      results.push({ model, ok: text.includes("NVIDIA"), ms: Date.now() - startedAt, chars: text.length });
+    } catch (error: any) {
+      results.push({
+        model,
+        ok: false,
+        ms: Date.now() - startedAt,
+        chars: 0,
+        error: `${error?.status ?? error?.code ?? "ERR"} ${error?.message ?? ""}`.trim().slice(0, 180),
+      });
+    }
+  }
+
+  const working = results
+    .filter((result) => result.ok)
+    .sort((a, b) => a.ms - b.ms)[0];
+  if (working) resolvedModel = working.model;
+  return results;
+}
+
+export async function getNvidiaModelStatus(): Promise<{
+  configuredModel: string;
+  resolvedModel: string;
+  availableModels: string[];
+}> {
+  try {
+    const page = await client.models.list();
+    const availableModels = (page.data ?? [])
+      .map((model: { id?: string }) => model.id)
+      .filter((id): id is string => Boolean(id));
+    const selected =
+      PREFERRED_NVIDIA_MODELS.find((model) => availableModels.includes(model)) ??
+      availableModels[0] ??
+      NVIDIA_MODEL;
+    resolvedModel = selected;
+    return { configuredModel: NVIDIA_MODEL, resolvedModel: selected, availableModels };
+  } catch (error: any) {
+    return {
+      configuredModel: NVIDIA_MODEL,
+      resolvedModel: resolvedModel ?? NVIDIA_MODEL,
+      availableModels: [],
+    };
+  }
+}
+
 // ── System prompts per document type ─────────────────────────────────────────
 // Each prompt gives the AI a specific legal persona + mandatory clause list.
 const DOCUMENT_PROMPTS: Record<string, string> = {
@@ -753,14 +873,15 @@ export async function generateLegalDocument(
   const { system, user } = buildPrompt(documentType, formData, language);
 
   return withRetry(async () => {
+    const model = await resolveNvidiaModel();
     const completion = await client.chat.completions.create({
-      model: NVIDIA_MODEL,
+      model,
       messages: [
         { role: "system", content: system },
         { role: "user", content: user },
       ],
       temperature: 0.2,
-      max_tokens: 8000,
+      max_tokens: 8192,
     });
 
     const text = completion.choices[0]?.message?.content;
@@ -778,15 +899,16 @@ export async function* generateLegalDocumentStream(
   language = "en",
 ): AsyncGenerator<string> {
   const { system, user } = buildPrompt(documentType, formData, language);
+  const model = await resolveNvidiaModel();
 
   const stream = await client.chat.completions.create({
-    model: NVIDIA_MODEL,
+    model,
     messages: [
       { role: "system", content: system },
       { role: "user", content: user },
     ],
     temperature: 0.2,
-    max_tokens: 8000,
+    max_tokens: 8192,
     stream: true,
   });
 
