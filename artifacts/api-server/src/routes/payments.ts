@@ -376,9 +376,8 @@ router.post("/subscription/verify", async (req: AuthRequest, res) => {
       userId:    req.userId!,
       plan,
       status:    "active",
-      startDate: now.toISOString().split("T")[0],
-      endDate:   expires.toISOString().split("T")[0],
-      amount:    (planData?.amount ?? 0) / 100,
+      startDate: now,
+      endDate:   expires,
     }).onConflictDoNothing();
 
     await db.update(usersTable).set({ plan }).where(eq(usersTable.id, req.userId!));

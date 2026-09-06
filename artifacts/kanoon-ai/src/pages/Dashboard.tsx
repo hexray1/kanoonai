@@ -209,7 +209,13 @@ export default function Dashboard() {
   const [viewMode, setViewMode]   = useState<ViewMode>("grid");
   const [downloading, setDownloading] = useState<number | null>(null);
 
-  const activeUser  = me?.user || user;
+  const activeUser  = (me || user) as {
+    name?: string;
+    email?: string;
+    profilePicture?: string;
+    plan?: string;
+    referralCode?: string;
+  } | null;
   const paidCount   = documents?.filter((d: any) => d.paid).length ?? 0;
   const draftCount  = (documents?.length ?? 0) - paidCount;
   const renewalDue  = documents?.filter((d: any) => getRenewalStatus(d) !== null).length ?? 0;

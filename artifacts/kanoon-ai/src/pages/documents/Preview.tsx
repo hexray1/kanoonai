@@ -151,7 +151,7 @@ export default function DocumentPreview() {
 
       const rzp = new window.Razorpay({
         key:      order.keyId,
-        amount:   order.amountPaise ?? (order.amount * 100),
+        amount:   order.amount * 100,
         currency: "INR",
         name:     "Kanoox AI",
         description: doc.title,

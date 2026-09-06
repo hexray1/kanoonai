@@ -751,33 +751,37 @@ export default function GenerateDocument() {
 
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
+          let payload: any;
           try {
-            const payload = JSON.parse(line.slice(6));
-            if (payload.chunk) {
-              fullContent += payload.chunk;
-              setStreamText((p) => p + payload.chunk);
-            } else if (payload.done) {
-              if (isLoggedIn && payload.docId) {
-                // Authenticated stream → already saved
-                setSavedDocId(payload.docId);
-                setPhase("payment");
-                setTimeout(() => openRazorpay(payload.docId, docConfig.price, docConfig.name), 400);
-              } else {
-                // Guest stream → show locked preview (pay without login)
-                const pending: PendingDoc = {
-                  type: type!, formData,
-                  content: fullContent,
-                  language: docLanguage,
-                  title: payload.title ?? docConfig.name,
-                  price: payload.price ?? docConfig.price,
-                };
-                setGeneratedDoc(pending);
-                try { localStorage.setItem(PENDING_KEY, JSON.stringify(pending)); } catch {}
-                setPhase("locked");
-              }
-              return;
-            } else if (payload.error) throw new Error(payload.error);
-          } catch {}
+            payload = JSON.parse(line.slice(6));
+          } catch {
+            continue;
+          }
+          if (payload.error) throw new Error(payload.error);
+          if (payload.chunk) {
+            fullContent += payload.chunk;
+            setStreamText((p) => p + payload.chunk);
+          } else if (payload.done) {
+            if (isLoggedIn && payload.docId) {
+              // Authenticated stream → already saved
+              setSavedDocId(payload.docId);
+              setPhase("payment");
+              setTimeout(() => openRazorpay(payload.docId, docConfig.price, docConfig.name), 400);
+            } else {
+              // Guest stream → show locked preview (pay without login)
+              const pending: PendingDoc = {
+                type: type!, formData,
+                content: fullContent,
+                language: docLanguage,
+                title: payload.title ?? docConfig.name,
+                price: payload.price ?? docConfig.price,
+              };
+              setGeneratedDoc(pending);
+              try { localStorage.setItem(PENDING_KEY, JSON.stringify(pending)); } catch {}
+              setPhase("locked");
+            }
+            return;
+          }
         }
       }
     } catch (err: any) {

@@ -10,7 +10,7 @@ const client = new OpenAI({
   timeout: 120_000,
 });
 
-export const NVIDIA_MODEL = "meta/llama-3.3-70b-instruct";
+export const NVIDIA_MODEL = "nvidia/nemotron-3-super-120b-a12b";
 
 const PREFERRED_NVIDIA_MODELS = [
   "nvidia/llama-3.1-nemotron-51b-instruct",
@@ -22,112 +22,28 @@ const PREFERRED_NVIDIA_MODELS = [
 ];
 
 let resolvedModel: string | null = null;
-let modelResolutionPromise: Promise<string> | null = null;
+let availableModelsCache: string[] | null = null;
+let availableModelsCacheExpires = 0;
 
-async function resolveNvidiaModel(): Promise<string> {
-  if (resolvedModel) return resolvedModel;
-  if (modelResolutionPromise) return modelResolutionPromise;
-
-  modelResolutionPromise = (async () => {
-    try {
-      const page = await client.models.list();
-      const available = new Set(
-        (page.data ?? [])
-          .map((model: { id?: string }) => model.id)
-          .filter((id): id is string => Boolean(id)),
-      );
-
-      const selected =
-        PREFERRED_NVIDIA_MODELS.find((model) => available.has(model)) ??
-        [...available][0];
-
-      if (selected) {
-        resolvedModel = selected;
-        console.log(`[AI] Using NVIDIA model: ${selected}`);
-        return selected;
-      }
-    } catch (error: any) {
-      console.warn(
-        `[AI] Could not list NVIDIA models (${error?.status ?? error?.message ?? "unknown"}); ` +
-        `trying configured model ${NVIDIA_MODEL}`,
-      );
-    }
-
-    resolvedModel = NVIDIA_MODEL;
-    return NVIDIA_MODEL;
-  })();
-
-  try {
-    return await modelResolutionPromise;
-  } finally {
-    modelResolutionPromise = null;
-  }
-}
-
-export async function benchmarkNvidiaModels(): Promise<Array<{
-  model: string;
-  ok: boolean;
-  ms: number;
-  chars: number;
-  error?: string;
-}>> {
-  const status = await getNvidiaModelStatus();
-  const candidates = PREFERRED_NVIDIA_MODELS.filter((model) =>
-    status.availableModels.includes(model),
-  );
-  const results = [];
-
-  for (const model of candidates) {
-    const startedAt = Date.now();
-    try {
-      const completion = await client.chat.completions.create({
-        model,
-        messages: [{ role: "user", content: "Reply with exactly: NVIDIA MODEL OK" }],
-        temperature: 0,
-        max_tokens: 8192,
-      }, { signal: AbortSignal.timeout(25000) });
-      const text = completion.choices[0]?.message?.content ?? "";
-      results.push({ model, ok: text.includes("NVIDIA"), ms: Date.now() - startedAt, chars: text.length });
-    } catch (error: any) {
-      results.push({
-        model,
-        ok: false,
-        ms: Date.now() - startedAt,
-        chars: 0,
-        error: `${error?.status ?? error?.code ?? "ERR"} ${error?.message ?? ""}`.trim().slice(0, 180),
-      });
-    }
+async function getNvidiaCandidates(): Promise<string[]> {
+  if (availableModelsCache && Date.now() < availableModelsCacheExpires) {
+    const preferred = PREFERRED_NVIDIA_MODELS.filter((model) =>
+      availableModelsCache!.includes(model),
+    );
+    return preferred.length > 0 ? preferred : [resolvedModel ?? NVIDIA_MODEL];
   }
 
-  const working = results
-    .filter((result) => result.ok)
-    .sort((a, b) => a.ms - b.ms)[0];
-  if (working) resolvedModel = working.model;
-  return results;
-}
-
-export async function getNvidiaModelStatus(): Promise<{
-  configuredModel: string;
-  resolvedModel: string;
-  availableModels: string[];
-}> {
   try {
     const page = await client.models.list();
-    const availableModels = (page.data ?? [])
+    const available = (page.data ?? [])
       .map((model: { id?: string }) => model.id)
       .filter((id): id is string => Boolean(id));
-    const selected =
-      PREFERRED_NVIDIA_MODELS.find((model) => availableModels.includes(model)) ??
-      availableModels[0] ??
-      NVIDIA_MODEL;
-    resolvedModel = selected;
-    return { configuredModel: NVIDIA_MODEL, resolvedModel: selected, availableModels };
-  } catch (error: any) {
-    return {
-      configuredModel: NVIDIA_MODEL,
-      resolvedModel: resolvedModel ?? NVIDIA_MODEL,
-      availableModels: [],
-    };
+    availableModelsCache = available;
+    availableModelsCacheExpires = Date.now() + 5 * 60 * 1000;
+    const preferred = PREFERRED_NVIDIA_MODELS.filter((model) => available.includes(model));
+    return preferred.length > 0 ? preferred : [NVIDIA_MODEL];
+  } catch {
+    return [resolvedModel ?? NVIDIA_MODEL];
   }
 }
 
@@ -870,25 +786,48 @@ export async function generateLegalDocument(
   language = "en",
 ): Promise<string> {
   const { system, user } = buildPrompt(documentType, formData, language);
+  const candidates = await getNvidiaCandidates();
+  let lastError: unknown;
 
-  return withRetry(async () => {
-    const model = await resolveNvidiaModel();
-    const completion = await client.chat.completions.create({
-      model,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      temperature: 0.2,
-      max_tokens: 8192,
-    });
+  for (const model of candidates) {
+    try {
+      const completion = await withRetry(() => client.chat.completions.create({
+        model,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+        temperature: 0.2,
+        max_tokens: 8192,
+      }));
 
-    const text = completion.choices[0]?.message?.content;
-    if (!text || text.trim().length < 200) {
-      throw new Error("AI returned an empty or incomplete response. Please try again.");
+      const text = completion.choices[0]?.message?.content;
+      if (!text || text.trim().length < 200) {
+        throw new Error("AI returned an empty or incomplete response.");
+      }
+
+      resolvedModel = model;
+      console.log(`[AI] Generated ${documentType} with ${model} (${text.length} chars)`);
+      return text;
+    } catch (error: any) {
+      lastError = error;
+      const status = error?.status;
+      const canTryNext =
+        status === 400 ||
+        status === 404 ||
+        status === 410 ||
+        status === 429 ||
+        status === 500 ||
+        status === 502 ||
+        status === 503 ||
+        error?.code === "ETIMEDOUT" ||
+        error?.code === "ECONNRESET";
+      if (!canTryNext) throw error;
+      console.warn(`[AI] Model ${model} failed (${status ?? error?.code ?? "unknown"}); trying fallback`);
     }
-    return text;
-  });
+  }
+
+  throw lastError ?? new Error("No NVIDIA model was available for generation.");
 }
 
 // ── Streaming generation ─────────────────────────────────────────────────────
@@ -897,31 +836,14 @@ export async function* generateLegalDocumentStream(
   formData: Record<string, unknown>,
   language = "en",
 ): AsyncGenerator<string> {
-  const { system, user } = buildPrompt(documentType, formData, language);
-  const model = await resolveNvidiaModel();
-
-  const stream = await client.chat.completions.create({
-    model,
-    messages: [
-      { role: "system", content: system },
-      { role: "user", content: user },
-    ],
-    temperature: 0.2,
-    max_tokens: 8192,
-    stream: true,
-  });
-
-  let totalChars = 0;
-  for await (const chunk of stream) {
-    const text = chunk.choices[0]?.delta?.content;
-    if (text) {
-      totalChars += text.length;
-      yield text;
-    }
-  }
-
-  if (totalChars < 200) {
-    throw new Error("AI generation produced insufficient content. Please retry.");
+  // Some NVIDIA serverless models expose chat completions but not the
+  // streaming variant consistently. Generate once, then emit small chunks
+  // so the UI still gets a smooth typewriter/progress experience.
+  const fullText = await generateLegalDocument(documentType, formData, language);
+  const chunkSize = 48;
+  for (let offset = 0; offset < fullText.length; offset += chunkSize) {
+    yield fullText.slice(offset, offset + chunkSize);
+    await new Promise((resolve) => setTimeout(resolve, 8));
   }
 }
 

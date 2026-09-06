@@ -71,7 +71,7 @@ router.get("/", async (req: AuthRequest, res) => {
 // Get single document (auth user's own)
 router.get("/:id", async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number.parseInt(String(req.params.id), 10);
     const docs = await db.select().from(documentsTable)
       .where(and(eq(documentsTable.id, id), eq(documentsTable.userId, req.userId!)))
       .limit(1);
@@ -189,7 +189,7 @@ router.post("/", async (req: AuthRequest, res) => {
 // Download PDF (paid documents)
 router.get("/:id/download", async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number.parseInt(String(req.params.id), 10);
     const docs = await db.select().from(documentsTable)
       .where(and(eq(documentsTable.id, id), eq(documentsTable.userId, req.userId!)))
       .limit(1);
