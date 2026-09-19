@@ -80,7 +80,7 @@ export function Navbar() {
               <Scale className="h-5 w-5" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white">
-              Kanoox<span className="text-primary"> AI</span>
+              A2z Kanoon<span className="text-primary"> AI</span>
             </span>
           </Link>
 

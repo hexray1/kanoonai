@@ -153,7 +153,7 @@ export default function DocumentPreview() {
         key:      order.keyId,
         amount:   order.amount * 100,
         currency: "INR",
-        name:     "Kanoox AI",
+        name:     "A2z Kanoon AI",
         description: doc.title,
         order_id: order.orderId,
         prefill: {},
@@ -233,7 +233,7 @@ export default function DocumentPreview() {
             {/* Watermark */}
             <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center opacity-[0.06] rotate-[-30deg]">
               <span className="text-5xl font-black tracking-widest text-black select-none uppercase whitespace-nowrap">
-                DRAFT · KANOOX AI · kanooxai.in
+                DRAFT · A2Z KANOON AI · kanooxai.in
               </span>
             </div>
 
@@ -300,7 +300,7 @@ export default function DocumentPreview() {
                   <span className="text-red-400 line-through font-medium">₹{lawyerCost.toLocaleString("en-IN")}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Kanoox AI</span>
+                  <span className="text-muted-foreground">A2z Kanoon AI</span>
                   <span className="text-white font-medium">₹{doc.price}</span>
                 </div>
                 <div className="flex justify-between text-sm">

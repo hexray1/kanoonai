@@ -97,7 +97,7 @@ export function ExitIntent() {
                 <div className="text-muted-foreground text-lg font-bold">→</div>
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground mb-1">Kanoox AI</p>
+                <p className="text-[10px] text-muted-foreground mb-1">A2z Kanoon AI</p>
                 <p className="text-xl font-black text-primary">₹97</p>
               </div>
             </div>

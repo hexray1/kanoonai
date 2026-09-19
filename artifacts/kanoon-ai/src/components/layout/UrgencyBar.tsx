@@ -18,7 +18,7 @@ function fmt(secs: number): string {
 
 const MESSAGES = [
   "⚡ Today only: All documents from ₹97 · Price increases at midnight",
-  "🔥 12,000+ Indians trust Kanoox AI · Rated 4.9★ from 1,247 reviews",
+  "🔥 12,000+ Indians trust A2z Kanoon AI · Rated 4.9★ from 1,247 reviews",
   "💸 Save up to ₹49,000 vs lawyer fees · NVIDIA AI drafts in 60 seconds",
   "🇮🇳 Available in Hindi, Marathi, Tamil, Telugu + English · 28 states",
   "⏳ Limited time: 97 ₹ flat for any document · Ends at midnight tonight",

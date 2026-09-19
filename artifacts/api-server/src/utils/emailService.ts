@@ -7,7 +7,7 @@ const resend = Resend && process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM = "Kanoox AI <documents@kanooxai.in>";
+const FROM = "A2z Kanoon AI <documents@kanooxai.in>";
 
 function log(msg: string) {
   if (!resend) console.info(`[EmailService] (no RESEND_API_KEY) — skipping: ${msg}`);
@@ -37,7 +37,7 @@ export async function sendDocumentDelivery({
     .footer{background:#f0f0f0;padding:16px 32px;font-size:11px;color:#888;}
     </style></head>
     <body><div class="wrap">
-    <div class="header"><div class="brand">Kanoox AI</div></div>
+    <div class="header"><div class="brand">A2z Kanoon AI</div></div>
     <div class="body">
       <h2>Your document is ready, ${name}! 🎉</h2>
       <p>Your AI-generated legal document has been unlocked and is attached to this email.</p>
@@ -45,7 +45,7 @@ export async function sendDocumentDelivery({
         <div class="doc-title">${docTitle}</div>
         <div class="doc-meta">Document ID: KAI-${docId} · Paid: ₹${price}</div>
       </div>
-      <p>The document is also saved in your Kanoox AI dashboard for future downloads.</p>
+      <p>The document is also saved in your A2z Kanoon AI dashboard for future downloads.</p>
       <a href="https://kanooxai.in/dashboard" class="btn">View in Dashboard →</a>
       <p style="font-size:12px;color:#888;margin-top:24px;">
         Disclaimer: This is an AI-generated draft. For legal proceedings or high-value transactions, 
@@ -53,7 +53,7 @@ export async function sendDocumentDelivery({
       </p>
     </div>
     <div class="footer">
-      © ${new Date().getFullYear()} Kanoox AI Technologies Pvt. Ltd. · 
+      © ${new Date().getFullYear()} A2z Kanoon AI Technologies Pvt. Ltd. ·
       <a href="https://kanooxai.in" style="color:#888;">kanooxai.in</a> · 
       <a href="https://kanooxai.in/refund" style="color:#888;">Refund Policy</a>
     </div>
@@ -66,7 +66,7 @@ export async function sendDocumentDelivery({
       : [];
 
     await resend.emails.send({
-      from: FROM, to, subject: `Your ${docTitle} — Kanoox AI`,
+      from: FROM, to, subject: `Your ${docTitle} — A2z Kanoon AI`,
       html, attachments,
     });
   } catch (err) {
@@ -95,7 +95,7 @@ export async function sendPaymentReceipt({
     .footer{background:#f0f0f0;padding:14px 28px;font-size:11px;color:#888;}
     </style></head>
     <body><div class="wrap">
-    <div class="header"><div class="brand">Kanoox AI</div></div>
+    <div class="header"><div class="brand">A2z Kanoon AI</div></div>
     <div class="body">
       <h2>Payment Receipt ✅</h2>
       <div class="receipt-row"><span>Document</span><span>${docTitle}</span></div>
@@ -105,7 +105,7 @@ export async function sendPaymentReceipt({
       <div class="receipt-row"><span>Date</span><span>${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span></div>
       <div class="receipt-row"><span>Status</span><span style="color:green">✓ PAID</span></div>
     </div>
-    <div class="footer">Kanoox AI Technologies Pvt. Ltd. · GST Invoice available on request</div>
+    <div class="footer">A2z Kanoon AI Technologies Pvt. Ltd. · GST Invoice available on request</div>
     </div></body></html>
   `;
 
@@ -132,13 +132,13 @@ export async function sendAbandonedCheckout({
     p{color:#444;line-height:1.6;}
     </style></head>
     <body><div class="wrap">
-    <div class="header"><div class="brand">Kanoox AI</div></div>
+    <div class="header"><div class="brand">A2z Kanoon AI</div></div>
     <div class="body">
       <p>Hi ${name},</p>
       <p>You were almost done! Your <strong>${docTitle}</strong> draft is saved and ready to unlock for just <strong>₹${price}</strong>.</p>
       <p>One click to download your professionally drafted legal document.</p>
       <a href="https://kanooxai.in/dashboard" class="btn">Complete My Download →</a>
-      <p style="font-size:12px;color:#aaa;margin-top:24px;">You generated this document on Kanoox AI. Your draft is saved for 30 days.</p>
+      <p style="font-size:12px;color:#aaa;margin-top:24px;">You generated this document on A2z Kanoon AI. Your draft is saved for 30 days.</p>
     </div>
     </div></body></html>
   `;

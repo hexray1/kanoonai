@@ -257,7 +257,7 @@ export default function DownloadDocument() {
 
             <Button onClick={() => {
               const text = encodeURIComponent(
-                `Just created my ${doc.title} using Kanoox AI in under 60 seconds! No lawyer needed 🚀 Try it free: kanooxai.in`
+                `Just created my ${doc.title} using A2z Kanoon AI in under 60 seconds! No lawyer needed 🚀 Try it free: kanooxai.in`
               );
               window.open(`https://wa.me/?text=${text}`, "_blank");
             }} variant="outline"

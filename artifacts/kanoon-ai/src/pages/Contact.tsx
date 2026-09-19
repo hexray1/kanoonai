@@ -64,8 +64,8 @@ const QUICK_TOPICS = [
 
 export default function Contact() {
   useSeo({
-    title: "Contact Kanoox AI — WhatsApp, Email & Phone Support",
-    description: "Reach Kanoox AI on WhatsApp +91 98765 43210 or email support@kanooxai.in. Mon–Sat, 10 AM – 6 PM IST. Average response under 24 hours.",
+    title: "Contact A2z Kanoon AI — WhatsApp, Email & Phone Support",
+    description: "Reach A2z Kanoon AI on WhatsApp +91 98765 43210 or email support@kanooxai.in. Mon–Sat, 10 AM – 6 PM IST. Average response under 24 hours.",
   });
 
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
