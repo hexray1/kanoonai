@@ -191,7 +191,7 @@ function StatCard({ icon: Icon, label, value, color, sub }: {
 // ── Main dashboard ────────────────────────────────────────────────────────────
 export default function Dashboard() {
   useSeo({
-    title: "My Documents — A2z Kanoon AI Dashboard",
+    title: "My Documents — Kanoon AI Dashboard",
     description: "View, download and manage all your AI-generated Indian legal documents.",
   });
 
@@ -350,7 +350,7 @@ export default function Dashboard() {
               Copy Link
             </Button>
             <Button variant="ghost" onClick={() => {
-              const text = encodeURIComponent(`Try A2z Kanoon AI — India's AI legal document platform. Use my code ${activeUser?.referralCode ?? ""} for ₹50 off! kanooxai.in`);
+              const text = encodeURIComponent(`Try Kanoon AI — India's AI legal document platform. Use my code ${activeUser?.referralCode ?? ""} for ₹50 off! kanooxai.in`);
               window.open(`https://wa.me/?text=${text}`, "_blank");
             }} className="text-green-400 hover:bg-green-500/10 h-9 px-3 text-sm border border-green-500/20">
               Share on WhatsApp

@@ -82,7 +82,7 @@ export function Footer() {
               <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shadow-gold">
                 <Scale className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold text-white">A2z Kanoon<span className="text-primary"> AI</span></span>
+              <span className="text-xl font-bold text-white">Kanoon<span className="text-primary"> AI</span></span>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed mb-5 max-w-sm">
               {t(
@@ -201,7 +201,7 @@ export function Footer() {
 
           <div className="border-t border-white/5 mt-8 pt-6 flex items-center justify-center text-xs text-muted-foreground">
             <div className="text-center">
-              © {new Date().getFullYear()} <span className="text-white">A2z Kanoon AI Technologies Pvt. Ltd.</span> · All rights reserved · Made with ❤️ in India
+              © {new Date().getFullYear()} <span className="text-white">Kanoon AI Technologies Pvt. Ltd.</span> · All rights reserved · Made with ❤️ in India
             </div>
           </div>
         </div>

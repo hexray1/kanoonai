@@ -363,13 +363,13 @@ const TESTIMONIALS = [
   { name: "Rahul Sharma",   loc: "Delhi",     role: "Small Business Owner",
     text: "Drafted my partnership deed in 5 minutes. Saved ₹15,000 in lawyer fees. The document was perfect — even my CA was impressed.", rating: 5 },
   { name: "Priya Patel",    loc: "Mumbai",    role: "Independent Consultant",
-    text: "I send NDAs to 10+ clients every month. A2z Kanoon AI completely changed my workflow. Professional, fast, and legally solid.", rating: 5 },
+    text: "I send NDAs to 10+ clients every month. Kanoon AI completely changed my workflow. Professional, fast, and legally solid.", rating: 5 },
   { name: "Anand Kumar",    loc: "Bengaluru", role: "Landlord (3 properties)",
     text: "Generated Hindi rent agreements for all my tenants. They loved how professional the documents looked. Highly recommended.", rating: 5 },
   { name: "Sneha Reddy",    loc: "Hyderabad", role: "HR Manager, TechStartup",
-    text: "We use A2z Kanoon AI for offer letters, experience certificates, and termination letters. Saves our team 3+ hours per week.", rating: 5 },
+    text: "We use Kanoon AI for offer letters, experience certificates, and termination letters. Saves our team 3+ hours per week.", rating: 5 },
   { name: "Vikram Singh",   loc: "Jaipur",    role: "CA & Tax Consultant",
-    text: "I recommend A2z Kanoon AI to all my SME clients for basic contracts and agreements. Fast, affordable, and legally sound.", rating: 5 },
+    text: "I recommend Kanoon AI to all my SME clients for basic contracts and agreements. Fast, affordable, and legally sound.", rating: 5 },
   { name: "Deepa Menon",    loc: "Kochi",     role: "Freelance Designer",
     text: "Sent my first legal notice to a client who didn't pay me. The AI wrote a perfectly worded notice that got results in 3 days!", rating: 5 },
 ];
@@ -390,7 +390,7 @@ const HOME_FAQS = [
   { q: "Are these documents legally valid in India?",
     a: "Yes. All templates comply with Indian statutes — Indian Contract Act, Transfer of Property Act, Indian Partnership Act, Indian Evidence Act — and include witness sections, stamp duty advisories, and jurisdiction clauses. Certain documents like Wills may require notarization/registration; the AI includes guidance on this." },
   { q: "Do I need to pay before I can see my document?",
-    a: "Never. A2z Kanoon AI lets you draft and preview the complete document for free. You pay only when you're satisfied and ready to download the final PDF. No hidden charges." },
+    a: "Never. Kanoon AI lets you draft and preview the complete document for free. You pay only when you're satisfied and ready to download the final PDF. No hidden charges." },
   { q: "How long does it take to get my document?",
     a: "Under 60 seconds for most documents. You watch the NVIDIA AI write it in real-time — like watching a senior lawyer type your document live on screen. Complex documents like Partnership Deeds or Wills may take up to 90 seconds." },
   { q: "Which states and languages are supported?",
@@ -643,7 +643,7 @@ export default function Home() {
               Why are Indians still overpaying for basic legal documents?
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              The traditional legal system is broken for everyday Indians. A2z Kanoon AI fixes it.
+              The traditional legal system is broken for everyday Indians. Kanoon AI fixes it.
             </p>
           </div>
 
@@ -671,14 +671,14 @@ export default function Home() {
               </div>
             </div>
 
-            {/* A2z Kanoon Way */}
+            {/* Kanoon Way */}
             <div className="p-7 rounded-2xl bg-green-500/5 border border-green-500/20 relative">
               <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
                 Smart Choice
               </div>
               <div className="flex items-center gap-3 mb-5">
                 <div className="h-10 w-10 rounded-xl bg-green-500/15 flex items-center justify-center text-lg">✅</div>
-                <h3 className="text-white font-bold text-lg">The A2z Kanoon Way — AI in 60 Seconds</h3>
+                <h3 className="text-white font-bold text-lg">The Kanoon Way — AI in 60 Seconds</h3>
               </div>
               <div className="space-y-3">
                 {[
@@ -817,7 +817,7 @@ export default function Home() {
               See how much you save
             </h2>
             <p className="text-muted-foreground">
-              Compare A2z Kanoon AI vs hiring a traditional lawyer in India.
+              Compare Kanoon AI vs hiring a traditional lawyer in India.
             </p>
           </div>
 
@@ -861,7 +861,7 @@ export default function Home() {
               </div>
 
               <div className="bg-primary/10 border border-primary/30 rounded-2xl p-6 text-center shadow-gold">
-                <p className="text-primary text-xs font-bold uppercase tracking-wider mb-2">A2z Kanoon AI</p>
+                <p className="text-primary text-xs font-bold uppercase tracking-wider mb-2">Kanoon AI</p>
                 <p className="text-4xl font-black text-white mb-1">
                   ₹{kanooxCost}
                 </p>
@@ -890,10 +890,10 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
           <div className="text-center mb-14">
             <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-4">
-              Why A2z Kanoon AI?
+              Why Kanoon AI?
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              A2z Kanoon AI vs the alternatives
+              Kanoon AI vs the alternatives
             </h2>
             <p className="text-muted-foreground">No contest. See for yourself.</p>
           </div>
@@ -904,7 +904,7 @@ export default function Home() {
                 <tr className="border-b border-white/10">
                   <th className="text-left p-4 text-muted-foreground font-medium">Feature</th>
                   <th className="p-4 text-center bg-primary/10 border-x border-primary/20">
-                    <span className="text-primary font-bold">A2z Kanoon AI</span>
+                    <span className="text-primary font-bold">Kanoon AI</span>
                     <div className="text-[10px] text-primary/60 mt-0.5">Recommended</div>
                   </th>
                   <th className="p-4 text-center text-muted-foreground font-medium">Traditional Lawyer</th>
@@ -939,7 +939,7 @@ export default function Home() {
           <div className="text-center mt-8">
             <Link href="/documents">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold h-12 px-8">
-                Try A2z Kanoon AI Free <ArrowRight className="ml-2 h-4 w-4" />
+                Try Kanoon AI Free <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
@@ -958,7 +958,7 @@ export default function Home() {
                 World's most powerful AI writes your legal documents
               </h2>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                A2z Kanoon AI uses <strong className="text-white">Meta Llama 3.3 70B</strong> — served on NVIDIA's enterprise AI platform — one of the highest-ranked open models for professional, structured writing. You can watch it draft your document in real-time, word by word, like a senior lawyer typing in front of you.
+                Kanoon AI uses <strong className="text-white">Meta Llama 3.3 70B</strong> — served on NVIDIA's enterprise AI platform — one of the highest-ranked open models for professional, structured writing. You can watch it draft your document in real-time, word by word, like a senior lawyer typing in front of you.
               </p>
               <div className="space-y-3">
                 {[
@@ -981,7 +981,7 @@ export default function Home() {
                 <div className="w-3 h-3 rounded-full bg-red-500" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
                 <div className="w-3 h-3 rounded-full bg-[#76b900]" />
-                <span className="text-muted-foreground text-xs ml-2">a2z-kanoon-ai / live-generation</span>
+                <span className="text-muted-foreground text-xs ml-2">kanoon-ai / live-generation</span>
               </div>
               {[
                 { label: "Model",     val: "meta/llama-3.3-70b-instruct",   color: "text-[#76b900]" },

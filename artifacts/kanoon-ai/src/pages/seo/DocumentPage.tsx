@@ -176,7 +176,7 @@ export default function DocumentPage() {
               <div key={i} className="p-5 bg-card border border-white/10 rounded-2xl">
                 <p className="text-white font-medium mb-2">{q}</p>
                 <p className="text-muted-foreground text-sm">
-                  A2z Kanoon AI generates {docTitle.toLowerCase()}s that comply with all applicable Indian laws
+                  Kanoon AI generates {docTitle.toLowerCase()}s that comply with all applicable Indian laws
                   {stateName ? ` including ${stateName} specific regulations` : ""}. 
                   Our NVIDIA AI includes the correct legal clauses, stamp duty guidance, and jurisdiction provisions automatically.{" "}
                   <Link href="/faq" className="text-primary hover:underline">Read full FAQ →</Link>

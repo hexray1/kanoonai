@@ -5,8 +5,8 @@ import { useSeo } from "@/hooks/use-seo";
 
 export default function RefundPolicy() {
   useSeo({
-    title: "Refund & Cancellation Policy — A2z Kanoon AI",
-    description: "A2z Kanoon AI's refund policy for digital legal documents. 7-day satisfaction guarantee on most templates.",
+    title: "Refund & Cancellation Policy — Kanoon AI",
+    description: "Kanoon AI's refund policy for digital legal documents. 7-day satisfaction guarantee on most templates.",
   });
   return (
     <div className="min-h-screen bg-background py-16 px-4">

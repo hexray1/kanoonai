@@ -32,7 +32,7 @@ const TESTIMONIALS = [
     name: "Priya Menon",
     city: "Bengaluru",
     role: "Startup Founder",
-    text: "NDA with our partner was ready before the call ended. A2z Kanoon AI is incredible.",
+    text: "NDA with our partner was ready before the call ended. Kanoon AI is incredible.",
     stars: 5,
     doc: "NDA",
   },
@@ -50,8 +50,8 @@ function Stars({ count }: { count: number }) {
 
 export default function Login() {
   useSeo({
-    title: "Sign In — A2z Kanoon AI | India's #1 AI Legal Document Platform",
-    description: "Sign in to A2z Kanoon AI with your Google account to draft and download Indian legal documents instantly.",
+    title: "Sign In — Kanoon AI | India's #1 AI Legal Document Platform",
+    description: "Sign in to Kanoon AI with your Google account to draft and download Indian legal documents instantly.",
   });
 
   const [, setLocation] = useLocation();
@@ -107,7 +107,7 @@ export default function Login() {
               <Scale className="h-5.5 w-5.5 text-primary-foreground" />
             </div>
             <span className="text-2xl font-bold tracking-tight text-white">
-              A2z Kanoon<span className="text-primary"> AI</span>
+              Kanoon<span className="text-primary"> AI</span>
             </span>
           </Link>
 
@@ -115,7 +115,7 @@ export default function Login() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/25 rounded-full text-primary text-xs font-semibold mb-5">
               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              12,000+ Indians trust A2z Kanoon AI
+              12,000+ Indians trust Kanoon AI
             </div>
 
             <h1 className="text-3xl xl:text-4xl font-black text-white mb-4 leading-tight">
@@ -226,7 +226,7 @@ export default function Login() {
               <Scale className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold text-white">
-              A2z Kanoon<span className="text-primary"> AI</span>
+              Kanoon<span className="text-primary"> AI</span>
             </span>
           </div>
 
@@ -240,7 +240,7 @@ export default function Login() {
                   <Scale className="h-7 w-7 text-primary" />
                 </div>
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome to A2z Kanoon AI</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">Welcome to Kanoon AI</h2>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Sign in to generate professional legal documents instantly. Free to preview — pay only to download.
               </p>

@@ -17,7 +17,7 @@ export function FloatingSupport() {
       Icon: MessageCircle,
       label: "WhatsApp",
       sub: "Reply within 5 minutes",
-      href: "https://wa.me/918012345678?text=Hi%20A2z%20Kanoon%20AI%2C%20I%20need%20help%20with%20a%20document",
+      href: "https://wa.me/918012345678?text=Hi%20Kanoon%20AI%2C%20I%20need%20help%20with%20a%20document",
       color: "bg-green-500",
     },
     {

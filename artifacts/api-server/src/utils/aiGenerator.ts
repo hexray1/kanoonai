@@ -746,7 +746,7 @@ OUTPUT FORMAT:
 5. Start directly with the document title
 
 DISCLAIMER (add at very end):
-"DISCLAIMER: This document is AI-generated for informational purposes. It should be reviewed by a qualified legal professional before execution. A2z Kanoon AI does not provide legal advice."
+"DISCLAIMER: This document is AI-generated for informational purposes. It should be reviewed by a qualified legal professional before execution. Kanoon AI does not provide legal advice."
 ${langInstruction}`;
 
   return { system, user };

@@ -141,7 +141,7 @@ function LockedDocPreview({ content, title }: { content: string; title: string }
       <div className="bg-[#0a0f1e] px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-[#f5c518] flex items-center justify-center font-black text-[#0a0f1e] text-sm">K</div>
-          <span className="text-[#f5c518] font-bold text-sm">A2z Kanoon AI</span>
+          <span className="text-[#f5c518] font-bold text-sm">Kanoon AI</span>
         </div>
         <span className="text-[#888] text-xs">DRAFT PREVIEW</span>
       </div>
@@ -152,7 +152,7 @@ function LockedDocPreview({ content, title }: { content: string; title: string }
         <span style={{ transform: "rotate(-35deg)", fontSize: "72px", fontWeight: 900,
           color: "rgba(0,0,0,0.04)", whiteSpace: "nowrap", fontFamily: "sans-serif",
           letterSpacing: "6px" }}>
-          A2Z KANOON AI PREVIEW
+          KANOON AI PREVIEW
         </span>
       </div>
 
@@ -359,7 +359,7 @@ function DocumentGenerationExperience({
             animate={{ opacity: 1, y: 0 }}
             className="mb-2 text-[11px] font-bold uppercase tracking-[0.28em] text-primary"
           >
-            A2z Kanoon AI · Professional drafting studio
+            Kanoon AI · Professional drafting studio
           </motion.p>
           <motion.h1
             initial={reducedMotion ? false : { opacity: 0, y: 10 }}
@@ -770,8 +770,8 @@ export default function GenerateDocument() {
   // ── SEO ───────────────────────────────────────────────────────────────────
   useSeo({
     title: docConfig
-      ? `Generate ${docConfig.name} — A2z Kanoon AI | AI Legal Document India`
-      : "Generate Legal Document — A2z Kanoon AI",
+      ? `Generate ${docConfig.name} — Kanoon AI | AI Legal Document India`
+      : "Generate Legal Document — Kanoon AI",
     description: docConfig
       ? `Create a ${docConfig.name} in 60 seconds. Free to preview. Pay ₹${docConfig.price} to unlock PDF.`
       : undefined,
@@ -830,7 +830,7 @@ export default function GenerateDocument() {
         key: order.keyId,
         amount: order.amountPaise,
         currency: "INR",
-        name: "A2z Kanoon AI",
+        name: "Kanoon AI",
         description: pending.title,
         order_id: order.orderId,
         prefill: {},
@@ -899,7 +899,7 @@ export default function GenerateDocument() {
         key: order.keyId,
         amount: total * 100,
         currency: "INR",
-        name: "A2z Kanoon AI",
+        name: "Kanoon AI",
         description: title,
         order_id: order.orderId,
         prefill: { name: user?.name ?? "", email: user?.email ?? "" },
