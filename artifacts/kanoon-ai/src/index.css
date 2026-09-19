@@ -142,3 +142,102 @@
     z-index: 10;
   }
 }
+
+@keyframes generation-grid-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, 18px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes generation-live-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+@keyframes generation-scan {
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: 0.6; }
+}
+
+.generation-shell {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 28%, hsl(45 93% 53% / 0.055), transparent 32rem),
+    linear-gradient(145deg, hsl(225 50% 6%), hsl(225 45% 8%) 55%, hsl(225 50% 5%));
+}
+
+.generation-grid {
+  background-image:
+    linear-gradient(hsl(45 93% 53% / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(45 93% 53% / 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black, transparent 80%);
+  animation: generation-grid-drift 14s ease-in-out infinite;
+}
+
+.generation-glow {
+  filter: blur(90px);
+  opacity: 0.11;
+}
+
+.generation-glow-gold { background: hsl(45 93% 53%); }
+.generation-glow-green { background: #76b900; opacity: 0.07; }
+
+.generation-brand-mark {
+  box-shadow: 0 0 30px hsl(45 93% 53% / 0.12);
+}
+
+.generation-live-dot {
+  animation: generation-live-pulse 1.8s ease-in-out infinite;
+  box-shadow: 0 0 12px hsl(45 93% 53% / 0.8);
+}
+
+.generation-orbit {
+  box-shadow: 0 0 35px hsl(45 93% 53% / 0.08), inset 0 0 35px hsl(45 93% 53% / 0.035);
+}
+
+.generation-orbit::after {
+  content: "";
+  position: absolute;
+  top: 9%;
+  left: 12%;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: hsl(45 93% 53%);
+  box-shadow: 0 0 14px 4px hsl(45 93% 53% / 0.45);
+}
+
+.generation-orbit-secondary::after {
+  top: auto;
+  left: auto;
+  right: 7%;
+  bottom: 14%;
+  width: 5px;
+  height: 5px;
+  background: #76b900;
+  box-shadow: 0 0 14px 4px rgb(118 185 0 / 0.42);
+}
+
+.generation-scan-line {
+  background: linear-gradient(to bottom, transparent, hsl(45 93% 53% / 0.3), transparent);
+  filter: blur(3px);
+  animation: generation-scan 3.4s ease-in-out infinite;
+}
+
+.generation-caret {
+  animation: generation-live-pulse 1s ease-in-out infinite;
+}
+
+.generation-progress-fill {
+  box-shadow: 0 0 16px hsl(45 93% 53% / 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .generation-grid,
+  .generation-live-dot,
+  .generation-scan-line,
+  .generation-caret {
+    animation: none;
+  }
+}

@@ -5,12 +5,13 @@
  */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useLocation, useSearch } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Check, Zap, Shield, Globe,
   Sparkles, ChevronRight, Eye, FileText, RotateCcw,
   Lock, FileDown, CheckCircle2, Loader2, Star,
-  Download, PartyPopper, User,
+  Download, PartyPopper, User, Cpu, FileCheck2, PenLine,
+  ScanSearch, ShieldCheck, Layers3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DOCUMENTS, FIELD_LABELS } from "@/lib/constants";
@@ -298,6 +299,228 @@ function OrderSidebar({
   );
 }
 
+// ── Premium document generation experience ───────────────────────────────────
+function DocumentGenerationExperience({
+  documentName, streamText, stageIdx, progress, wordCount, onCancel,
+}: {
+  documentName: string;
+  streamText: string;
+  stageIdx: number;
+  progress: number;
+  wordCount: number;
+  onCancel: () => void;
+}) {
+  const reducedMotion = useReducedMotion();
+  const currentStage = Math.min(stageIdx, STREAM_STAGES.length - 1);
+  const stageDetails = [
+    { icon: Cpu, eyebrow: "Secure AI workspace", detail: "Establishing a private drafting session" },
+    { icon: ScanSearch, eyebrow: "Legal intelligence", detail: "Matching Indian legal requirements" },
+    { icon: PenLine, eyebrow: "First draft", detail: "Structuring parties, recitals and intent" },
+    { icon: Layers3, eyebrow: "Clause engine", detail: "Building clear, enforceable provisions" },
+    { icon: ShieldCheck, eyebrow: "Quality review", detail: "Checking jurisdiction and consistency" },
+    { icon: FileCheck2, eyebrow: "Finishing touches", detail: "Preparing your print-ready document" },
+  ];
+  const ActiveIcon = stageDetails[currentStage].icon;
+  const visibleText = streamText.slice(0, 3400);
+
+  return (
+    <div className="generation-shell min-h-screen bg-background text-white flex flex-col overflow-hidden">
+      <div className="generation-grid pointer-events-none absolute inset-0 opacity-40" />
+      <div className="generation-glow generation-glow-gold pointer-events-none absolute -top-48 left-1/2 h-[540px] w-[540px] -translate-x-1/2 rounded-full" />
+      <div className="generation-glow generation-glow-green pointer-events-none absolute -bottom-72 -right-40 h-[480px] w-[480px] rounded-full" />
+
+      <header className="relative z-10 border-b border-white/[0.08] bg-[#090d17]/75 px-5 py-4 backdrop-blur-xl sm:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="generation-brand-mark flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10">
+              <Sparkles className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-white">{documentName}</p>
+              <p className="mt-0.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-primary/80">
+                <span className="generation-live-dot h-1.5 w-1.5 rounded-full bg-primary" />
+                Creating your document
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onCancel}
+            className="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-white"
+          >
+            Cancel
+          </button>
+        </div>
+      </header>
+
+      <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-8 sm:px-8 lg:py-12">
+        <div className="mb-8 text-center">
+          <motion.p
+            initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-2 text-[11px] font-bold uppercase tracking-[0.28em] text-primary"
+          >
+            Kanoox AI · Professional drafting studio
+          </motion.p>
+          <motion.h1
+            initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: reducedMotion ? 0 : 0.08 }}
+            className="text-2xl font-semibold tracking-tight text-white sm:text-4xl"
+          >
+            Your document is being crafted.
+          </motion.h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Our legal AI is turning your details into a clear, professional document — reviewed for Indian legal context.
+          </p>
+        </div>
+
+        <div className="grid flex-1 items-center gap-8 lg:grid-cols-[220px_minmax(360px,1fr)_250px] lg:gap-12">
+          <aside className="order-2 hidden lg:block">
+            <div className="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              <span className="h-px w-6 bg-primary/60" /> Drafting flow
+            </div>
+            <div className="space-y-1">
+              {STREAM_STAGES.map((stage, index) => {
+                const completed = index < currentStage;
+                const active = index === currentStage;
+                return (
+                  <div
+                    key={stage}
+                    className={`relative flex gap-3 rounded-xl px-3 py-3 transition-colors ${
+                      active ? "bg-primary/[0.08] text-white" : completed ? "text-white/65" : "text-muted-foreground/45"
+                    }`}
+                  >
+                    {active && <motion.div layoutId="active-stage" className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary" />}
+                    <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] ${
+                      completed ? "border-green-400/50 bg-green-400/10 text-green-400" :
+                      active ? "border-primary/60 bg-primary/15 text-primary" : "border-white/10 text-muted-foreground/40"
+                    }`}>
+                      {completed ? <Check className="h-3 w-3" /> : index + 1}
+                    </div>
+                    <span className="text-[11px] leading-4">{stage.replace("…", "")}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </aside>
+
+          <section className="order-1 flex justify-center">
+            <div className="relative w-full max-w-[430px]">
+              <motion.div
+                aria-hidden="true"
+                animate={reducedMotion ? undefined : { rotate: 360 }}
+                transition={reducedMotion ? undefined : { duration: 24, repeat: Infinity, ease: "linear" }}
+                className="generation-orbit absolute -inset-5 rounded-[2.25rem] border border-primary/15"
+              />
+              <motion.div
+                aria-hidden="true"
+                animate={reducedMotion ? undefined : { rotate: -360 }}
+                transition={reducedMotion ? undefined : { duration: 18, repeat: Infinity, ease: "linear" }}
+                className="generation-orbit generation-orbit-secondary absolute -inset-2 rounded-[1.75rem] border border-green-400/10"
+              />
+
+              <div className="relative rounded-[1.6rem] border border-white/15 bg-[#111827]/90 p-2 shadow-[0_30px_100px_-30px_rgba(234,179,8,0.35)] backdrop-blur-xl">
+                <div className="relative aspect-[0.73] overflow-hidden rounded-[1.25rem] bg-[#f7f4ed] text-[#19202a] shadow-inner">
+                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#d6a512] to-transparent" />
+                  <div className="flex items-center justify-between px-7 pt-7">
+                    <div>
+                      <div className="mb-2 h-1 w-16 rounded-full bg-[#c69928]" />
+                      <p className="font-serif text-[10px] font-bold uppercase tracking-[0.2em] text-[#555b63]">Legal document</p>
+                    </div>
+                    <div className="h-8 w-8 rounded-full border border-[#d8c58b] bg-[#f2e8c6]/60" />
+                  </div>
+
+                  <div className="relative h-[calc(100%-76px)] overflow-hidden px-7 pb-7 pt-6">
+                    {visibleText ? (
+                      <pre className="generation-document-text h-full overflow-hidden whitespace-pre-wrap font-serif text-[10px] leading-[1.9] text-[#343b45]">
+                        {visibleText}
+                        <span className="generation-caret ml-0.5 inline-block h-3 w-0.5 bg-[#bd8b11] align-middle" />
+                      </pre>
+                    ) : (
+                      <div className="space-y-4">
+                        {[88, 68, 94, 80, 90, 61, 82, 73, 91].map((width, index) => (
+                          <motion.div
+                            key={index}
+                            animate={reducedMotion ? undefined : { opacity: [0.25, 0.75, 0.25] }}
+                            transition={reducedMotion ? undefined : { duration: 1.8, delay: index * 0.08, repeat: Infinity }}
+                            className="h-2 rounded-full bg-[#c7c1b2]"
+                            style={{ width: `${width}%` }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <motion.div
+                      aria-hidden="true"
+                      animate={reducedMotion ? undefined : { top: ["-10%", "110%"] }}
+                      transition={reducedMotion ? undefined : { duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+                      className="generation-scan-line pointer-events-none absolute inset-x-5 h-20"
+                    />
+                  </div>
+                  <div className="absolute bottom-4 right-6 font-mono text-[8px] tracking-widest text-[#a59b83]">KX / DRAFT</div>
+                </div>
+              </div>
+
+              <motion.div
+                key={currentStage}
+                initial={reducedMotion ? false : { opacity: 0, y: 8, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                className="absolute -bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-white/15 bg-[#101827]/95 px-4 py-2.5 text-xs font-medium text-white shadow-xl backdrop-blur-xl"
+              >
+                <ActiveIcon className="h-3.5 w-3.5 text-primary" />
+                {stageDetails[currentStage].eyebrow}
+                <span className="h-1 w-1 rounded-full bg-green-400" />
+                <span className="text-muted-foreground">{wordCount.toLocaleString()} words</span>
+              </motion.div>
+            </div>
+          </section>
+
+          <aside className="order-3 space-y-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl">
+              <div className="mb-5 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Live status</p>
+                  <p className="mt-1 text-sm font-semibold text-white">{stageDetails[currentStage].detail}</p>
+                </div>
+                <motion.div
+                  animate={reducedMotion ? undefined : { scale: [1, 1.12, 1] }}
+                  transition={reducedMotion ? undefined : { duration: 2, repeat: Infinity }}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-primary/10"
+                >
+                  <ActiveIcon className="h-4 w-4 text-primary" />
+                </motion.div>
+              </div>
+              <div className="mb-2 flex items-end justify-between">
+                <span className="text-3xl font-semibold tracking-tight text-white">{Math.round(progress)}<span className="text-base text-primary">%</span></span>
+                <span className="text-xs text-muted-foreground">{wordCount.toLocaleString()} words</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                <motion.div
+                  className="generation-progress-fill h-full rounded-full bg-gradient-to-r from-primary via-yellow-300 to-green-400"
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.7, ease: "easeOut" }}
+                />
+              </div>
+              <div className="mt-3 flex items-center gap-2 text-[11px] text-green-300/80">
+                <ShieldCheck className="h-3.5 w-3.5" /> Private & securely processed
+              </div>
+            </div>
+            <div className="hidden rounded-2xl border border-white/[0.08] bg-black/10 p-4 sm:block">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Powered by</p>
+              <p className="mt-2 text-sm font-medium text-white">NVIDIA AI · Llama 3.3 70B</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Built for fast, context-aware Indian legal drafting.</p>
+            </div>
+          </aside>
+        </div>
+
+        <div className="mt-12 flex items-center justify-center gap-2 text-center text-xs text-muted-foreground">
+          <span className="h-1.5 w-1.5 rounded-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.8)]" />
+          Usually ready in under 60 seconds · Please keep this window open
+        </div>
+      </main>
+    </div>
+  );
+}
+
 // ── Guest Success Page (no DB, PDF already downloaded) ───────────────────────
 function GuestSuccessView({
   title, blobUrl, onAnother, onLogin,
@@ -499,7 +722,6 @@ export default function GenerateDocument() {
   const [stageIdx, setStageIdx] = useState(0);
   const [wordCount, setWordCount] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
-  const streamRef = useRef<HTMLPreElement>(null);
 
   // Locked phase
   const [generatedDoc, setGeneratedDoc] = useState<PendingDoc | null>(null);
@@ -524,7 +746,6 @@ export default function GenerateDocument() {
   }, [phase]);
 
   useEffect(() => {
-    if (streamRef.current) streamRef.current.scrollTop = streamRef.current.scrollHeight;
     setWordCount(streamText.split(/\s+/).filter(Boolean).length);
   }, [streamText]);
 
@@ -914,83 +1135,14 @@ export default function GenerateDocument() {
   if (phase === "streaming") {
     const prog = Math.min(10 + (streamText.length / 8000) * 85, 95);
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="border-b border-white/10 bg-card/80 backdrop-blur px-5 py-3 flex items-center justify-between sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 bg-[#76b900]/10 rounded-lg flex items-center justify-center border border-[#76b900]/30">
-              <Zap className="h-4 w-4 text-[#76b900]" />
-            </div>
-            <div>
-              <p className="text-white text-sm font-semibold">{docConfig.name}</p>
-              <p className="text-[#76b900] text-xs flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-[#76b900] rounded-full animate-pulse inline-block" />
-                Llama 3.3 70B generating…
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>{wordCount.toLocaleString()} words</span>
-            <button onClick={() => { abortRef.current?.abort(); setPhase("wizard"); }}
-              className="text-red-400 hover:text-red-300">Cancel</button>
-          </div>
-        </div>
-
-        <div className="h-0.5 bg-white/5">
-          <motion.div className="h-full bg-[#76b900]" animate={{ width: `${prog}%` }} transition={{ duration: 0.5 }} />
-        </div>
-
-        <div className="flex flex-1 overflow-hidden">
-          <div className="w-52 shrink-0 border-r border-white/10 bg-card/50 p-5 hidden md:flex flex-col gap-4">
-            <div className="bg-[#76b900]/5 border border-[#76b900]/20 rounded-xl p-4">
-              <p className="text-[#76b900] text-xs font-bold uppercase tracking-wider mb-3">AI Status</p>
-              <div className="space-y-2">
-                {STREAM_STAGES.map((s, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className={`h-1.5 w-1.5 rounded-full shrink-0 ${
-                      i < stageIdx ? "bg-[#76b900]"
-                      : i === stageIdx ? "bg-[#76b900] animate-pulse"
-                      : "bg-white/20"
-                    }`} />
-                    <span className={`text-xs ${i <= stageIdx ? "text-white" : "text-muted-foreground"}`}>{s}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-hidden relative">
-              {streamText ? (
-                <pre ref={streamRef}
-                  className="h-full overflow-auto p-6 text-sm text-white/90 leading-relaxed whitespace-pre-wrap"
-                  style={{ fontFamily: "'Courier New', monospace" }}>
-                  {streamText}
-                  <span className="inline-block w-2 h-4 bg-[#76b900] ml-0.5 animate-pulse align-middle" />
-                </pre>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <motion.div animate={{ rotate: 360 }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                      className="w-14 h-14 border-4 border-[#76b900]/20 border-t-[#76b900] rounded-full mx-auto mb-4" />
-                    <p className="text-white font-medium">{STREAM_STAGES[stageIdx]}</p>
-                    <p className="text-muted-foreground text-sm mt-1">Powered by Llama 3.3 70B via NVIDIA</p>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="border-t border-white/10 bg-card/50 px-5 py-2 flex items-center justify-between text-xs text-muted-foreground">
-              <AnimatePresence mode="wait">
-                <motion.span key={stageIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }} className="flex items-center gap-2 text-[#76b900]">
-                  <Sparkles className="h-3 w-3" />{STREAM_STAGES[stageIdx]}
-                </motion.span>
-              </AnimatePresence>
-              <span className="flex items-center gap-1.5"><Zap className="h-3 w-3 text-[#76b900]" />NVIDIA AI</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DocumentGenerationExperience
+        documentName={docConfig.name}
+        streamText={streamText}
+        stageIdx={stageIdx}
+        progress={prog}
+        wordCount={wordCount}
+        onCancel={() => { abortRef.current?.abort(); setPhase("wizard"); }}
+      />
     );
   }
 
