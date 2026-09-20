@@ -2,11 +2,6 @@ import { createRoot } from "react-dom/client";
 import posthog from "posthog-js";
 import App from "./App";
 import "./index.css";
-import { setAuthTokenGetter } from "@workspace/api-client-react";
-import { useAuthStore } from "./hooks/use-auth";
-
-setAuthTokenGetter(() => useAuthStore.getState().token);
-
 const PH_KEY = import.meta.env.VITE_POSTHOG_KEY as string | undefined;
 if (PH_KEY) {
   posthog.init(PH_KEY, {

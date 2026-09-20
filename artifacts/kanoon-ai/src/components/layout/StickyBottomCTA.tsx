@@ -4,7 +4,7 @@ import { Zap, X, ArrowRight, FileText } from "lucide-react";
 import { Link } from "wouter";
 import { useLocation } from "wouter";
 
-const HIDE_PATHS = ["/login", "/admin", "/auth/callback", "/documents/generate"];
+const HIDE_PATHS = ["/documents/generate"];
 
 export function StickyBottomCTA() {
   const [visible, setVisible] = useState(false);

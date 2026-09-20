@@ -1117,7 +1117,7 @@ export default function Home() {
                 vs ₹15,000+/month with a lawyer — <span className="text-green-400 font-bold">Save 98%</span>
               </p>
               <ul className="space-y-3 mb-8 text-sm">
-                {["5 Documents / Month", "Priority Support (24hr)", "Free Edits Within 7 Days", "No Watermark PDF", "Dashboard Access", "All 25+ Document Types"].map(f => (
+                {["Pay per document", "Priority Support (24hr)", "Free Edits Within 7 Days", "No Watermark PDF", "Instant PDF Delivery", "All 25+ Document Types"].map(f => (
                   <li key={f} className="flex items-center gap-3 text-white">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />{f}
                   </li>
@@ -1254,7 +1254,7 @@ export default function Home() {
             </div>
 
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> No signup to browse</span>
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> No account required</span>
               <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> Free preview always</span>
               <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> 7-day refund guarantee</span>
               <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> Razorpay secured</span>

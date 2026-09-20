@@ -63,7 +63,7 @@ export default function RefundPolicy() {
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">How to Request a Refund</h2>
               <ol className="list-decimal pl-6 space-y-2">
-                <li>Go to your <Link href="/dashboard"><span className="text-primary hover:underline cursor-pointer">Dashboard</span></Link> → select the document → click "Request Refund"</li>
+                <li>Email <strong className="text-primary">refunds@kanooxai.in</strong> with your payment ID and document details to request a refund.</li>
                 <li>Or email us at <strong className="text-primary">refunds@kanooxai.in</strong> with:
                   <ul className="list-disc pl-6 mt-1 space-y-1 text-sm">
                     <li>Your registered email address</li>
@@ -95,12 +95,10 @@ export default function RefundPolicy() {
 
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">Subscription Cancellation</h2>
-              <p>You may cancel your subscription at any time from your Dashboard. Upon cancellation:</p>
+              <p>Kanoon AI currently charges per document. If a recurring plan is introduced in the future, cancellation instructions will be provided before enrollment.</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li>Your access continues until the end of the current billing period</li>
-                <li>No further charges will be made</li>
-                <li>Unused document credits in the current period are forfeited</li>
-                <li>Partial-month refunds are not provided unless within the 7-day window of first subscription</li>
+                <li>No recurring subscription is required to generate or download a document</li>
+                <li>Refund requests are handled under the policy above</li>
               </ul>
             </section>
 
@@ -121,11 +119,6 @@ export default function RefundPolicy() {
               <Link href="/contact">
                 <button className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors">
                   <MessageCircle className="h-4 w-4" /> Contact Us
-                </button>
-              </Link>
-              <Link href="/dashboard">
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-card border border-white/15 text-muted-foreground rounded-xl text-sm font-medium hover:text-white transition-colors">
-                  <FileText className="h-4 w-4" /> My Dashboard
                 </button>
               </Link>
             </div>

@@ -36,8 +36,7 @@ export default function PrivacyPolicy() {
               <h2 className="text-xl font-semibold text-white mb-3">1. Information We Collect</h2>
               <p>Kanoon AI ("we", "our", or "the Company") collects the following types of information when you use our platform:</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li><strong className="text-white">Account Information:</strong> Your name and email address collected via Google Sign-In.</li>
-                <li><strong className="text-white">Document Data:</strong> The information you provide to generate legal documents (e.g., party names, addresses, dates, terms). This data is stored to allow you to download and reaccess your documents.</li>
+                <li><strong className="text-white">Document Data:</strong> The information you provide to generate legal documents (e.g., party names, addresses, dates, terms). No account or login is required.</li>
                 <li><strong className="text-white">Payment Information:</strong> We use Razorpay for payments. We do not store your card details. We only store the Razorpay order ID and payment ID for transaction records.</li>
                 <li><strong className="text-white">Usage Data:</strong> Browser type, IP address, pages visited, and time spent, collected for analytics and to improve our service.</li>
               </ul>
@@ -46,7 +45,6 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">2. How We Use Your Information</h2>
               <ul className="list-disc pl-6 space-y-1">
-                <li>To create and maintain your account</li>
                 <li>To generate AI-powered legal documents based on the information you provide</li>
                 <li>To process payments and send receipts</li>
                 <li>To send important service notifications (no spam)</li>
@@ -61,7 +59,6 @@ export default function PrivacyPolicy() {
               <ul className="list-disc pl-6 mt-2 space-y-1">
                 <li><strong className="text-white">NVIDIA AI:</strong> Your document form data is sent to NVIDIA's enterprise AI API for document generation. NVIDIA does not train on customer API data by default.</li>
                 <li><strong className="text-white">Razorpay:</strong> Payment processing. Governed by Razorpay's Privacy Policy.</li>
-                <li><strong className="text-white">Google:</strong> Authentication only. We receive your name, email, and profile photo.</li>
                 <li><strong className="text-white">Legal Authorities:</strong> If required by law or court order under Indian law (IT Act, 2000).</li>
               </ul>
             </section>
@@ -72,7 +69,7 @@ export default function PrivacyPolicy() {
               <ul className="list-disc pl-6 mt-2 space-y-1">
                 <li>HTTPS/TLS encryption for all data in transit</li>
                 <li>Encrypted database storage at rest</li>
-                <li>JWT-based authentication with secure token expiry</li>
+                <li>Short-lived processing and secure guest-session controls</li>
                 <li>Regular security audits</li>
               </ul>
             </section>
@@ -92,7 +89,7 @@ export default function PrivacyPolicy() {
 
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">6. Cookies</h2>
-              <p>We use essential cookies for session management and authentication. We do not use tracking or advertising cookies. You can disable cookies in your browser, but this may affect functionality.</p>
+              <p>We use essential browser storage for the guest document flow and service preferences. We do not use tracking or advertising cookies. You can disable browser storage, but this may affect functionality.</p>
             </section>
 
             <section>

@@ -47,17 +47,16 @@ export default function Terms() {
 
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">3. Eligibility</h2>
-              <p>You must be at least 18 years of age to use Kanoon AI. By creating an account, you represent that you are legally capable of entering into binding contracts under the Indian Contract Act, 1872.</p>
+              <p>You must be at least 18 years of age to use Kanoon AI. By using the Service, you represent that you are legally capable of entering into binding contracts under the Indian Contract Act, 1872.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-3">4. User Account</h2>
+              <h2 className="text-xl font-semibold text-white mb-3">4. Guest Use</h2>
               <ul className="list-disc pl-6 space-y-1">
-                <li>You are responsible for maintaining the confidentiality of your account</li>
-                <li>You must provide accurate information (name, email) during registration</li>
-                <li>You are responsible for all activities under your account</li>
-                <li>You must notify us immediately of any unauthorized use</li>
-                <li>We reserve the right to suspend or terminate accounts that violate these terms</li>
+                <li>No account or login is required to generate or download a document</li>
+                <li>You must provide accurate information in the document form</li>
+                <li>You are responsible for reviewing the generated draft before using it</li>
+                <li>We reserve the right to suspend service access that violates these terms</li>
               </ul>
             </section>
 
@@ -68,7 +67,7 @@ export default function Terms() {
                 <li>All prices are inclusive of applicable GST</li>
                 <li>Payments are processed by Razorpay, a PCI-DSS compliant payment gateway</li>
                 <li>We accept UPI, credit cards, debit cards, and net banking</li>
-                <li>Subscription plans renew automatically unless cancelled 24 hours before the renewal date</li>
+                <li>Kanoon AI currently uses one-time per-document payments; no subscription is required</li>
               </ul>
             </section>
 

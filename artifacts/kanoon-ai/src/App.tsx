@@ -1,9 +1,8 @@
 import { lazy, Suspense } from "react";
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useAuthStore } from "@/hooks/use-auth";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingSupport } from "@/components/layout/FloatingSupport";
@@ -12,14 +11,8 @@ import { ExitIntent } from "@/components/layout/ExitIntent";
 
 // Lazy-loaded routes — each loads only when visited (cuts initial bundle ~60%)
 const Home             = lazy(() => import("@/pages/Home"));
-const Login            = lazy(() => import("@/pages/Login"));
-const AuthCallback     = lazy(() => import("@/pages/AuthCallback"));
 const DocumentSelection = lazy(() => import("@/pages/documents/Index"));
 const GenerateDocument = lazy(() => import("@/pages/documents/Generate"));
-const DocumentPreview  = lazy(() => import("@/pages/documents/Preview"));
-const DownloadDocument = lazy(() => import("@/pages/documents/Download"));
-const Dashboard        = lazy(() => import("@/pages/Dashboard"));
-const AdminDashboard   = lazy(() => import("@/pages/admin/Dashboard"));
 const PrivacyPolicy    = lazy(() => import("@/pages/PrivacyPolicy"));
 const Terms            = lazy(() => import("@/pages/Terms"));
 const RefundPolicy     = lazy(() => import("@/pages/RefundPolicy"));
@@ -40,32 +33,6 @@ function PageLoader() {
   );
 }
 
-function ProtectedRoute({ component: Component, adminOnly = false }: { component: any; adminOnly?: boolean }) {
-  const { token, user } = useAuthStore();
-  if (!token) {
-    try {
-      const path = window.location.pathname + window.location.search;
-      if (path && !path.includes("/login") && !path.includes("/auth/callback")) {
-        sessionStorage.setItem("kanoon_redirect_after_login", path);
-      }
-    } catch {}
-    return <Redirect to="/login" />;
-  }
-  if (adminOnly && !user?.isAdmin) {
-    return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
-        <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
-          <span className="text-3xl">🔒</span>
-        </div>
-        <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
-        <p className="text-muted-foreground mb-6">This area is reserved for administrators.</p>
-        <a href="/" className="text-primary hover:underline">← Back to Home</a>
-      </div>
-    );
-  }
-  return <Component />;
-}
-
 function Router() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -75,24 +42,10 @@ function Router() {
         <Suspense fallback={<PageLoader />}>
           <Switch>
             <Route path="/" component={Home} />
-            <Route path="/login" component={Login} />
-            <Route path="/auth/callback" component={AuthCallback} />
             <Route path="/documents" component={DocumentSelection} />
-            {/* Public — no login required before generation */}
+            {/* Guest-only flow: generation, payment and PDF delivery require no account. */}
             <Route path="/documents/generate/:type" component={GenerateDocument} />
             <Route path="/generate/:type" component={GenerateDocument} />
-            <Route path="/documents/:id/preview">
-              {() => <ProtectedRoute component={DocumentPreview} />}
-            </Route>
-            <Route path="/documents/:id/download">
-              {() => <ProtectedRoute component={DownloadDocument} />}
-            </Route>
-            <Route path="/dashboard">
-              {() => <ProtectedRoute component={Dashboard} />}
-            </Route>
-            <Route path="/admin">
-              {() => <ProtectedRoute component={AdminDashboard} adminOnly={true} />}
-            </Route>
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/terms" component={Terms} />
             <Route path="/refund" component={RefundPolicy} />

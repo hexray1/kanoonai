@@ -84,11 +84,11 @@ const CATEGORIES = [
       },
       {
         q: "Can I get a refund if I'm not satisfied with my document?",
-        a: "Yes — 7-day no-questions-asked refund guarantee on all purchases. If the generated document doesn't meet your needs, email support@kanooxai.in within 7 days with your order ID and we'll process a full refund. Subscription plans can be cancelled anytime; you retain access until the billing cycle ends. See our full Refund Policy for details.",
+        a: "Yes — 7-day no-questions-asked refund guarantee on all purchases. If the generated document doesn't meet your needs, email support@kanooxai.in within 7 days with your order ID and we'll process a full refund. See our full Refund Policy for details.",
       },
       {
-        q: "What are the subscription plans?",
-        a: "Basic Plan (₹299/month): 5 documents per month, priority support, free edits for 7 days, no watermark. Pro Plan (₹699/month): unlimited documents, 15-minute free advocate consultation, API access, white-label PDF output, dedicated account manager. Annual plans available at 30% discount. All plans include full access to all 25+ document types.",
+        q: "Do I need a subscription?",
+        a: "No. Kanoon AI is guest-only and uses one-time per-document pricing. Choose a template, enter your details, preview the draft, and pay only when you want the final PDF.",
       },
       {
         q: "Is drafting a document free? When do I pay?",
@@ -101,11 +101,11 @@ const CATEGORIES = [
     faqs: [
       {
         q: "Is my personal information secure on Kanoon AI?",
-        a: "Yes. All data is encrypted in transit using TLS 1.3 (HTTPS) and encrypted at rest in our database. Your documents are stored securely and are only accessible by your account. We do not sell, rent, or share your data with any third party for marketing purposes. We comply with India's Digital Personal Data Protection Act (DPDPA) 2023.",
+        a: "Yes. Data is encrypted in transit using TLS 1.3 (HTTPS) and handled securely during document generation and delivery. We do not sell, rent, or share your data with any third party for marketing purposes. We comply with India's Digital Personal Data Protection Act (DPDPA) 2023.",
       },
       {
         q: "Does Kanoon AI store my documents permanently?",
-        a: "Your documents are stored in your account for convenient re-download at any time. You can delete any document from your Dashboard permanently at any time. We retain document data for 90 days after account deletion for legal compliance, after which it is permanently purged from our servers.",
+        a: "Your document is delivered as a PDF immediately after payment. We do not require an account or login, so please save the downloaded file somewhere secure. Draft data is handled according to our Privacy Policy.",
       },
       {
         q: "Does NVIDIA train on my document data?",
@@ -122,7 +122,7 @@ const CATEGORIES = [
       },
       {
         q: "How do I download my document after generation?",
-        a: "After the AI finishes writing, you see a full preview. Click 'Unlock & Download PDF', complete payment, and the professionally formatted PDF is immediately available for download. You can also re-download any paid document anytime from your Dashboard → My Documents.",
+        a: "After the AI finishes writing, you see a preview. Click 'Unlock PDF', complete payment, and the professionally formatted PDF is immediately available for download — no account or login required.",
       },
       {
         q: "Can I edit the document after downloading?",

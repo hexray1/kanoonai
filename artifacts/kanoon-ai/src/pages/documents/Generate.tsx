@@ -1,16 +1,16 @@
 /**
  * Generate.tsx — Full conversion-optimised flow:
- * Wizard → Guest AI Stream → Locked Preview → Login (if needed) → Payment → Download
- * No login required until AFTER the document has been generated.
+ * Wizard → Guest AI Stream → Locked Preview → Payment → Download
+ * No account or login is required at any point.
  */
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, useLocation, useSearch } from "wouter";
+import { useState, useEffect, useRef } from "react";
+import { useParams, useLocation } from "wouter";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Check, Zap, Shield, Globe,
   Sparkles, ChevronRight, Eye, FileText, RotateCcw,
   Lock, FileDown, CheckCircle2, Loader2, Star,
-  Download, PartyPopper, User, Cpu, FileCheck2, PenLine,
+  Download, PartyPopper, Cpu, FileCheck2, PenLine,
   ScanSearch, ShieldCheck, Layers3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,12 +20,12 @@ import { buildDocumentPreview } from "@/lib/documentTemplates";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useSeo } from "@/hooks/use-seo";
-import { useAuthStore, authFetch, getAuthToken } from "@/hooks/use-auth";
+import { guestFetch } from "@/hooks/use-guest-fetch";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 // ── Types ────────────────────────────────────────────────────────────────────
-type Phase = "wizard" | "streaming" | "locked" | "saving" | "payment" | "success";
+type Phase = "wizard" | "streaming" | "locked" | "payment" | "success";
 
 interface PendingDoc {
   type: string;
@@ -38,7 +38,6 @@ interface PendingDoc {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const PENDING_KEY = "kanoox_pending_doc";
-const REDIRECT_KEY = "kanoon_redirect_after_login";
 
 const STREAM_STAGES = [
   "Connecting to Llama 3.3 70B…",
@@ -195,10 +194,9 @@ function LockedDocPreview({ content, title }: { content: string; title: string }
 
 // ── Order Summary Sidebar ─────────────────────────────────────────────────────
 function OrderSidebar({
-  title, price, isLoggedIn, onLogin, onPay, isPaying,
+  title, price, onPay, isPaying,
 }: {
-  title: string; price: number; isLoggedIn: boolean;
-  onLogin: () => void; onPay: () => void; isPaying: boolean;
+  title: string; price: number; onPay: () => void; isPaying: boolean;
 }) {
   const gst = Math.round(price * 0.18);
   const total = price + gst;
@@ -243,7 +241,7 @@ function OrderSidebar({
         {[
           "Professional print-ready PDF",
           "No watermark after download",
-          "Re-download anytime from Dashboard",
+          "Instant PDF download after payment",
           "Email delivery included",
           "7-day refund guarantee",
         ].map((f) => (
@@ -255,7 +253,7 @@ function OrderSidebar({
       </ul>
 
       {/* CTA */}
-      {isLoggedIn ? (
+      {
         <Button
           onClick={onPay}
           disabled={isPaying}
@@ -266,30 +264,7 @@ function OrderSidebar({
           ) : (
             <><Lock className="mr-2 h-5 w-5" />Unlock PDF — ₹{total}</>
           )}
-        </Button>
-      ) : (
-        <div className="space-y-3">
-          <div className="text-center mb-1">
-            <p className="text-white font-bold text-sm">🎉 Your document is ready!</p>
-            <p className="text-muted-foreground text-xs mt-1">Sign in to unlock the full PDF</p>
-          </div>
-          <Button
-            onClick={onLogin}
-            className="w-full h-12 font-bold bg-white text-[#0a0f1e] hover:bg-white/90 flex items-center justify-center gap-2.5"
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            Continue with Google — Free
-          </Button>
-          <p className="text-center text-xs text-muted-foreground/60">
-            No spam · Secure · DPDPA 2023 Compliant
-          </p>
-        </div>
-      )}
+        </Button>}
 
       <div className="flex items-center justify-center gap-1.5 mt-4 text-xs text-muted-foreground/60">
         <Shield className="h-3.5 w-3.5" />
@@ -523,10 +498,10 @@ function DocumentGenerationExperience({
 
 // ── Guest Success Page (no DB, PDF already downloaded) ───────────────────────
 function GuestSuccessView({
-  title, blobUrl, onAnother, onLogin,
+  title, blobUrl, onAnother,
 }: {
   title: string; blobUrl: string | null;
-  onAnother: () => void; onLogin: () => void;
+  onAnother: () => void;
 }) {
   const { toast } = useToast();
 
@@ -580,113 +555,9 @@ function GuestSuccessView({
           </motion.div>
         </div>
 
-        {/* Soft login offer */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
-          className="bg-gradient-to-br from-primary/10 to-yellow-500/5 border border-primary/25 rounded-2xl p-5">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="p-2.5 bg-primary/20 rounded-xl shrink-0 border border-primary/30">
-              <User className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-white font-bold mb-1">Save to dashboard?</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Create a free account to re-download anytime, track all your documents, and get exclusive deals.
-              </p>
-            </div>
-          </div>
-          <Button onClick={onLogin}
-            className="w-full h-10 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-sm">
-            Sign Up Free — It's Quick
-          </Button>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ── Success Page ──────────────────────────────────────────────────────────────
-function SuccessView({
-  docId, title, onDashboard, onAnother,
-}: {
-  docId: number; title: string; onDashboard: () => void; onAnother: () => void;
-}) {
-  const { toast } = useToast();
-  const [downloading, setDownloading] = useState(false);
-  const [autoDownloaded, setAutoDownloaded] = useState(false);
-
-  const handleDownload = useCallback(async () => {
-    setDownloading(true);
-    try {
-      const res = await authFetch(`${BASE}/api/documents/${docId}/download`);
-      if (!res.ok) throw new Error("Download failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = `${title.replace(/\s+/g, "-")}.pdf`;
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a); URL.revokeObjectURL(url);
-      setAutoDownloaded(true);
-      toast({ title: "Download started! 🎉", description: "Your legal PDF is downloading." });
-    } catch (e: any) {
-      toast({ title: "Download failed", description: e.message, variant: "destructive" });
-    } finally { setDownloading(false); }
-  }, [docId, title]);
-
-  // Auto-trigger download
-  useEffect(() => { handleDownload(); }, []);
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-card border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0" />
-
-        {/* Confetti-style animation */}
-        <motion.div
-          initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 12 }}
-          className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-5 border-2 border-green-500/30">
-          <CheckCircle2 className="h-12 w-12 text-green-400" />
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <h1 className="text-2xl font-black text-white mb-1">Payment Successful!</h1>
-          <p className="text-muted-foreground mb-6">Your document is unlocked and ready to download.</p>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="bg-background border border-white/5 rounded-xl p-4 flex items-center gap-3 mb-6 text-left">
-          <div className="p-2.5 bg-primary/10 rounded-lg">
-            <FileText className="h-6 w-6 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-white truncate">{title}.pdf</p>
-            <p className="text-xs text-muted-foreground">A4 · Print-ready · Professional format</p>
-          </div>
-          {autoDownloaded && <Check className="h-5 w-5 text-green-400 shrink-0" />}
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-          className="space-y-3">
-          <Button onClick={handleDownload} disabled={downloading}
-            className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-gold">
-            {downloading
-              ? <><Loader2 className="animate-spin mr-2 h-4 w-4" />Preparing…</>
-              : <><Download className="mr-2 h-4 w-4" />Download PDF Again</>}
-          </Button>
-          <Button onClick={onDashboard} variant="outline"
-            className="w-full h-12 border-white/10 text-muted-foreground hover:text-white">
-            View in Dashboard
-          </Button>
-          <Button onClick={onAnother} variant="ghost"
-            className="w-full h-10 text-muted-foreground text-sm hover:text-white">
-            <Sparkles className="mr-2 h-4 w-4" /> Generate Another Document
-          </Button>
-        </motion.div>
-
-        <p className="text-xs text-muted-foreground/50 mt-5">
-          A copy has been sent to your email · Re-download anytime from Dashboard
-        </p>
+        <div className="text-center text-xs text-muted-foreground/70">
+          No account required. Keep your downloaded PDF somewhere safe for future access.
+        </div>
       </div>
     </motion.div>
   );
@@ -696,11 +567,8 @@ function SuccessView({
 export default function GenerateDocument() {
   const { type } = useParams<{ type: string }>();
   const [, setLocation] = useLocation();
-  const search = useSearch();
   const { t, language: appLang } = useLanguage();
   const { toast } = useToast();
-  const { token, user } = useAuthStore();
-  const isLoggedIn = !!token;
 
   const docConfig = DOCUMENTS[type as keyof typeof DOCUMENTS];
   const fields: string[] = docConfig?.fields ?? [];
@@ -725,7 +593,6 @@ export default function GenerateDocument() {
 
   // Locked phase
   const [generatedDoc, setGeneratedDoc] = useState<PendingDoc | null>(null);
-  const [savedDocId, setSavedDocId] = useState<number | null>(null);
   const [isPaying, setIsPaying] = useState(false);
   const [guestPdfBlobUrl, setGuestPdfBlobUrl] = useState<string | null>(null);
 
@@ -749,24 +616,6 @@ export default function GenerateDocument() {
     setWordCount(streamText.split(/\s+/).filter(Boolean).length);
   }, [streamText]);
 
-  // ── Handle ?resume=1 after login ───────────────────────────────────────────
-  useEffect(() => {
-    if (!isLoggedIn) return;
-    const params = new URLSearchParams(search);
-    if (params.get("resume") !== "1") return;
-
-    const raw = localStorage.getItem(PENDING_KEY);
-    if (!raw) return;
-    try {
-      const pending: PendingDoc = JSON.parse(raw);
-      if (pending.type !== type) return;
-      setGeneratedDoc(pending);
-      setStreamText(pending.content);
-      setPhase("saving");
-      saveToDatabase(pending);
-    } catch {}
-  }, [isLoggedIn, search, type]);
-
   // ── SEO ───────────────────────────────────────────────────────────────────
   useSeo({
     title: docConfig
@@ -788,38 +637,12 @@ export default function GenerateDocument() {
     );
   }
 
-  // ── Save to DB after login (for the ?resume=1 flow) ──────────────────────────
-  async function saveToDatabase(pending: PendingDoc) {
-    try {
-      const res = await authFetch(`${BASE}/api/documents/from-content`, {
-        method: "POST",
-        body: JSON.stringify({
-          type: pending.type,
-          title: pending.title,
-          content: pending.content,
-          formData: pending.formData,
-          language: pending.language,
-          price: pending.price,
-        }),
-      });
-      if (!res.ok) throw new Error("Save failed");
-      const data = await res.json();
-      setSavedDocId(data.id);
-      localStorage.removeItem(PENDING_KEY);
-      setPhase("payment");
-      setTimeout(() => openRazorpay(data.id, pending.price, pending.title), 400);
-    } catch (err: any) {
-      toast({ title: "Save failed", description: err.message, variant: "destructive" });
-      setPhase("locked");
-    }
-  }
-
   // ── Razorpay payment (guest — no DB, PDF returned directly) ─────────────────
   async function openGuestRazorpay(pending: PendingDoc) {
     setIsPaying(true);
     try {
       await loadRazorpay();
-      const orderRes = await authFetch(`${BASE}/api/payments/guest-create-order`, {
+      const orderRes = await guestFetch(`${BASE}/api/payments/guest-create-order`, {
         method: "POST",
         body: JSON.stringify({ type: pending.type }),
       });
@@ -837,7 +660,7 @@ export default function GenerateDocument() {
         theme: { color: "#F5C518" },
         handler: async (response: any) => {
           try {
-            const deliverRes = await authFetch(`${BASE}/api/payments/guest-deliver`, {
+            const deliverRes = await guestFetch(`${BASE}/api/payments/guest-deliver`, {
               method: "POST",
               body: JSON.stringify({
                 orderId:   response.razorpay_order_id,
@@ -881,60 +704,6 @@ export default function GenerateDocument() {
     }
   }
 
-  // ── Razorpay payment (auth — saves doc in DB, download from dashboard) ───────
-  async function openRazorpay(docId: number, price: number, title: string) {
-    setIsPaying(true);
-    try {
-      await loadRazorpay();
-      const orderRes = await authFetch(`${BASE}/api/payments/create-order`, {
-        method: "POST",
-        body: JSON.stringify({ documentId: docId, amount: price }),
-      });
-      if (!orderRes.ok) throw new Error("Could not create payment order");
-      const order = await orderRes.json();
-      const gst = Math.round(price * 0.18);
-      const total = price + gst;
-
-      const rzp = new window.Razorpay({
-        key: order.keyId,
-        amount: total * 100,
-        currency: "INR",
-        name: "Kanoon AI",
-        description: title,
-        order_id: order.orderId,
-        prefill: { name: user?.name ?? "", email: user?.email ?? "" },
-        theme: { color: "#F5C518" },
-        handler: async (response: any) => {
-          try {
-            await authFetch(`${BASE}/api/payments/verify`, {
-              method: "POST",
-              body: JSON.stringify({
-                documentId: docId,
-                orderId: response.razorpay_order_id,
-                paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature,
-              }),
-            });
-            setSavedDocId(docId);
-            setPhase("success");
-            try { localStorage.removeItem(`kanoox_wizard_${type}`); } catch {}
-          } catch {
-            toast({ title: "Verification failed", description: "Payment received. Contact support.", variant: "destructive" });
-          }
-        },
-        modal: { ondismiss: () => setIsPaying(false) },
-      });
-      rzp.on("payment.failed", () => {
-        toast({ title: "Payment failed", description: "Please try again.", variant: "destructive" });
-        setIsPaying(false);
-      });
-      rzp.open();
-    } catch (err: any) {
-      toast({ title: "Payment error", description: err.message, variant: "destructive" });
-      setIsPaying(false);
-    }
-  }
-
   // ── Submit wizard — start generation ──────────────────────────────────────
   async function handleGenerate() {
     abortRef.current = new AbortController();
@@ -942,13 +711,10 @@ export default function GenerateDocument() {
     setStreamText("");
     setStageIdx(0);
 
-    // Choose endpoint based on auth status
-    const endpoint = isLoggedIn
-      ? `${BASE}/api/documents/stream`
-      : `${BASE}/api/documents/stream/guest`;
+    const endpoint = `${BASE}/api/documents/stream/guest`;
 
     try {
-      const res = await authFetch(endpoint, {
+      const res = await guestFetch(endpoint, {
         method: "POST",
         body: JSON.stringify({ type, formData, language: docLanguage }),
         signal: abortRef.current.signal,
@@ -983,24 +749,16 @@ export default function GenerateDocument() {
             fullContent += payload.chunk;
             setStreamText((p) => p + payload.chunk);
           } else if (payload.done) {
-            if (isLoggedIn && payload.docId) {
-              // Authenticated stream → already saved
-              setSavedDocId(payload.docId);
-              setPhase("payment");
-              setTimeout(() => openRazorpay(payload.docId, docConfig.price, docConfig.name), 400);
-            } else {
-              // Guest stream → show locked preview (pay without login)
-              const pending: PendingDoc = {
-                type: type!, formData,
-                content: fullContent,
-                language: docLanguage,
-                title: payload.title ?? docConfig.name,
-                price: payload.price ?? docConfig.price,
-              };
-              setGeneratedDoc(pending);
-              try { localStorage.setItem(PENDING_KEY, JSON.stringify(pending)); } catch {}
-              setPhase("locked");
-            }
+            const pending: PendingDoc = {
+              type: type!, formData,
+              content: fullContent,
+              language: docLanguage,
+              title: payload.title ?? docConfig.name,
+              price: payload.price ?? docConfig.price,
+            };
+            setGeneratedDoc(pending);
+            try { localStorage.setItem(PENDING_KEY, JSON.stringify(pending)); } catch {}
+            setPhase("locked");
             return;
           }
         }
@@ -1012,47 +770,25 @@ export default function GenerateDocument() {
     }
   }
 
-  function handleLoginForUnlock() {
-    try {
-      sessionStorage.setItem(REDIRECT_KEY, `/documents/generate/${type}?resume=1`);
-    } catch {}
-    setLocation("/login");
-  }
-
   // ── SUCCESS ───────────────────────────────────────────────────────────────
   if (phase === "success") {
-    if (savedDocId) {
-      return (
-        <SuccessView
-          docId={savedDocId}
-          title={generatedDoc?.title ?? docConfig.name}
-          onDashboard={() => setLocation("/dashboard")}
-          onAnother={() => setLocation("/documents")}
-        />
-      );
-    }
-    // Guest success — PDF already auto-downloaded by openGuestRazorpay
     return (
       <GuestSuccessView
         title={generatedDoc?.title ?? docConfig.name}
         blobUrl={guestPdfBlobUrl}
         onAnother={() => setLocation("/documents")}
-        onLogin={() => {
-          try { sessionStorage.setItem(REDIRECT_KEY, `/documents/generate/${type}?resume=1`); } catch {}
-          setLocation("/login");
-        }}
       />
     );
   }
 
   // ── PAYMENT WAITING (opening Razorpay) ────────────────────────────────────
-  if (phase === "payment" || phase === "saving") {
+  if (phase === "payment") {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-5">
         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
           className="w-14 h-14 border-4 border-primary/20 border-t-primary rounded-full" />
         <p className="text-white font-medium">
-          {phase === "saving" ? "Saving your document…" : "Opening payment…"}
+          Opening payment…
         </p>
         <p className="text-muted-foreground text-sm">Powered by Razorpay · SSL Secured</p>
       </div>
@@ -1102,13 +838,7 @@ export default function GenerateDocument() {
               <OrderSidebar
                 title={generatedDoc.title}
                 price={generatedDoc.price}
-                isLoggedIn={true}
-                onLogin={handleLoginForUnlock}
-                onPay={() => {
-                  if (savedDocId) openRazorpay(savedDocId, generatedDoc.price, generatedDoc.title);
-                  else if (isLoggedIn) { setPhase("saving"); saveToDatabase(generatedDoc); }
-                  else openGuestRazorpay(generatedDoc);
-                }}
+                onPay={() => openGuestRazorpay(generatedDoc)}
                 isPaying={isPaying}
               />
             </motion.div>
@@ -1117,11 +847,7 @@ export default function GenerateDocument() {
 
         {/* Mobile sticky CTA */}
         <div className="lg:hidden sticky bottom-0 bg-card/95 backdrop-blur border-t border-white/10 p-4">
-          <Button onClick={() => {
-            if (savedDocId) openRazorpay(savedDocId, generatedDoc.price, generatedDoc.title);
-            else if (isLoggedIn) { setPhase("saving"); saveToDatabase(generatedDoc); }
-            else openGuestRazorpay(generatedDoc);
-          }} disabled={isPaying}
+          <Button onClick={() => openGuestRazorpay(generatedDoc)} disabled={isPaying}
             className="w-full h-14 text-base font-bold bg-primary text-primary-foreground shadow-gold">
             {isPaying ? <Loader2 className="animate-spin mr-2 h-5 w-5" /> : <Lock className="mr-2 h-5 w-5" />}
             Unlock PDF — ₹{generatedDoc.price + Math.round(generatedDoc.price * 0.18)}

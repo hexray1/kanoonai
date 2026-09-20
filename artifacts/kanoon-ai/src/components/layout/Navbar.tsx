@@ -1,18 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import {
-  Scale, Globe, User, LogOut, LayoutDashboard, ShieldCheck,
+  Scale, Globe,
   Menu, X, FileText, IndianRupee, HelpCircle, Phone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
-import { useAuthStore } from "@/hooks/use-auth";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const NAV_LINKS = [
   { href: "/documents", labelEn: "Templates", labelHi: "टेम्पलेट्स", icon: FileText, badge: "Free" },
@@ -23,8 +16,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
-  const { language, setLanguage, t } = useLanguage();
-  const { user, logout } = useAuthStore();
+  const { language, setLanguage } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -37,12 +29,6 @@ export function Navbar() {
 
   // Close mobile menu on route change
   useEffect(() => { setMobileOpen(false); }, [location]);
-
-  const handleLogout = () => {
-    logout();
-    setMobileOpen(false);
-    setLocation("/");
-  };
 
   const handleNavClick = (href: string) => {
     setMobileOpen(false);
@@ -117,68 +103,6 @@ export function Navbar() {
               <Globe className="mr-2 h-4 w-4" />
               {language === "en" ? "हिंदी" : "English"}
             </Button>
-
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 gap-2 pr-3 pl-2 h-10"
-                  >
-                    {user.profilePicture ? (
-                      <img
-                        src={user.profilePicture}
-                        alt={user.name || "User"}
-                        className="h-7 w-7 rounded-full object-cover"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                      />
-                    ) : (
-                      <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center">
-                        <User className="h-4 w-4" />
-                      </div>
-                    )}
-                    <span className="max-w-[100px] truncate hidden sm:inline">
-                      {user.name?.split(" ")[0] || user.email?.split("@")[0] || "Account"}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-card border-white/10">
-                  {(user.name || user.email) && (
-                    <div className="px-3 py-2.5 border-b border-white/10">
-                      <p className="text-white text-sm font-medium truncate">{user.name || ""}</p>
-                      {user.email && <p className="text-muted-foreground text-xs truncate">{user.email}</p>}
-                    </div>
-                  )}
-                  <DropdownMenuItem onClick={() => setLocation("/dashboard")} className="cursor-pointer hover:bg-white/5">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    {t("Dashboard", "डैशबोर्ड")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLocation("/documents")} className="cursor-pointer hover:bg-white/5">
-                    <Scale className="mr-2 h-4 w-4" />
-                    {t("New Document", "नया दस्तावेज़")}
-                  </DropdownMenuItem>
-                  {user.isAdmin && (
-                    <DropdownMenuItem onClick={() => setLocation("/admin")} className="cursor-pointer hover:bg-white/5 text-primary">
-                      <ShieldCheck className="mr-2 h-4 w-4" />
-                      Admin Panel
-                    </DropdownMenuItem>
-                  )}
-                  <div className="border-t border-white/10 mt-1 pt-1">
-                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-red-500/10 text-red-400">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      {t("Logout", "लॉगआउट")}
-                    </DropdownMenuItem>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button
-                onClick={() => setLocation("/login")}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold h-10"
-              >
-                {t("Login", "लॉगिन")}
-              </Button>
-            )}
 
             {/* Mobile menu toggle */}
             <button

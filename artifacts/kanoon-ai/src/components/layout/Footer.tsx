@@ -154,7 +154,6 @@ export function Footer() {
               <li><a href="/#pricing" onClick={handlePricing} className="hover:text-primary transition-colors cursor-pointer">Pricing</a></li>
               <li><Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
               <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
-              <li><Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
             </ul>
           </div>
 
