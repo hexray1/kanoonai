@@ -1,14 +1,26 @@
 import OpenAI from "openai";
 
-if (!process.env.NVIDIA_API_KEY) {
-  throw new Error("NVIDIA_API_KEY must be set. Add it in Replit Secrets.");
-}
+/**
+ * Lazy NVIDIA client: the API must stay importable (and /api/healthz must
+ * answer) even when NVIDIA_API_KEY is not configured. The key is required
+ * only when an actual generation is attempted.
+ */
+let _client: OpenAI | null = null;
 
-const client = new OpenAI({
-  apiKey: process.env.NVIDIA_API_KEY,
-  baseURL: "https://integrate.api.nvidia.com/v1",
-  timeout: 120_000,
-});
+function getClient(): OpenAI {
+  if (!_client) {
+    const apiKey = process.env.NVIDIA_API_KEY;
+    if (!apiKey) {
+      throw new Error("NVIDIA_API_KEY must be set to generate documents.");
+    }
+    _client = new OpenAI({
+      apiKey,
+      baseURL: "https://integrate.api.nvidia.com/v1",
+      timeout: 120_000,
+    });
+  }
+  return _client;
+}
 
 export const NVIDIA_MODEL = "nvidia/nemotron-3-super-120b-a12b";
 
@@ -34,7 +46,7 @@ async function getNvidiaCandidates(): Promise<string[]> {
   }
 
   try {
-    const page = await client.models.list();
+    const page = await getClient().models.list();
     const available = (page.data ?? [])
       .map((model: { id?: string }) => model.id)
       .filter((id): id is string => Boolean(id));
@@ -791,7 +803,7 @@ export async function generateLegalDocument(
 
   for (const model of candidates) {
     try {
-      const completion = await withRetry(() => client.chat.completions.create({
+      const completion = await withRetry(() => getClient().chat.completions.create({
         model,
         messages: [
           { role: "system", content: system },
@@ -849,7 +861,7 @@ export async function* generateLegalDocumentStream(
     // Attempt 1: true token streaming from the model
     try {
       const stream = await withRetry(() =>
-        client.chat.completions.create({
+        getClient().chat.completions.create({
           model,
           messages: [...messages],
           temperature: 0.2,
@@ -882,7 +894,7 @@ export async function* generateLegalDocumentStream(
     // chunks so the UI still gets a smooth typewriter/progress experience.
     try {
       const completion = await withRetry(() =>
-        client.chat.completions.create({
+        getClient().chat.completions.create({
           model,
           messages: [...messages],
           temperature: 0.2,
