@@ -22,9 +22,6 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
 
 const sharedExternal = [
       "*.node",
-      "pdfkit",
-      "fontkit",
-      "@swc/helpers",
       "sharp",
       "better-sqlite3",
       "sqlite3",
@@ -55,7 +52,6 @@ const sharedExternal = [
       "@prisma/client",
       "@mikro-orm/*",
       "@grpc/*",
-      "@swc/*",
       "@aws-sdk/*",
       "@azure/*",
       "@opentelemetry/*",
