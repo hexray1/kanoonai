@@ -97,7 +97,7 @@ MANDATORY SECTIONS:
 15. DISPUTE RESOLUTION — Arbitration under Arbitration and Conciliation Act 1996
 16. SIGNATURE BLOCKS — Both parties with full name, designation, company name, date, witness
 
-Compliance: Indian Contract Act 1872, IT Act 2000, DPDPA 2023, Indian Evidence Act 1872.`,
+Compliance: Indian Contract Act 1872, IT Act 2000, DPDPA 2023, Bharatiya Sakshya Adhiniyam 2023.`,
 
   "affidavit": `You are an Indian advocate specialising in sworn statements, notarised declarations, and affidavits for courts, tribunals, and government authorities. Generate a formal, court-admissible Affidavit.
 
@@ -113,7 +113,7 @@ MANDATORY SECTIONS:
 9. ADVOCATE ATTESTATION — Advocate's name, enrollment number, Bar Council registration, signature
 10. OATH COMMISSIONER/NOTARY BLOCK — Name, appointment number, date of appointment, stamp space, signature
 
-Compliance: Indian Evidence Act 1872, Code of Civil Procedure 1908, Oaths Act 1969, Notaries Act 1952.`,
+Compliance: Bharatiya Sakshya Adhiniyam 2023, Code of Civil Procedure 1908, Oaths Act 1969, Notaries Act 1952.`,
 
   "legal-notice": `You are a senior Advocate enrolled with the Bar Council of India, specialising in sending pre-litigation demand notices. Generate a formal Legal Notice on advocate's letterhead.
 
@@ -444,17 +444,17 @@ Compliance: Applicable state Rent Control Act, Transfer of Property Act 1882, Co
 
   "fir-draft": `You are an Indian criminal law expert. Generate a First Information Report (FIR) Draft.
 
-⚠️ DISCLAIMER: "This is a draft FIR for reference. The actual FIR must be filed in person at the jurisdictional police station. Under Section 154 CrPC / Section 173 BNSS, the police officer in charge is obligated to register the FIR."
+⚠️ DISCLAIMER: "This is a draft FIR for reference. The actual FIR must be filed in person at the jurisdictional police station. Under Section 173 of the Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS; formerly Section 154 CrPC), the police officer in charge is obligated to register the FIR."
 
 MANDATORY SECTIONS:
 1. TO — The Officer In Charge, [Police Station Name], [District], [State]
-2. SUBJECT — "COMPLAINT FOR REGISTRATION OF FIR UNDER [IPC/BNS Sections]"
+2. SUBJECT — "COMPLAINT FOR REGISTRATION OF FIR UNDER [BNS Sections]"
 3. COMPLAINANT DETAILS — Full name, father's/husband's name, age, address, Aadhaar/mobile number, email
 4. ACCUSED DETAILS — Name (or Unknown if not known), address, description, relationship to complainant
 5. DATE, TIME, AND PLACE OF INCIDENT — Specific dates, times, exact location
 6. INCIDENT NARRATIVE (5W1H format) — Who, What, When, Where, Why, How — detailed chronological account
 7. WITNESSES — Names, addresses, contact numbers of persons who witnessed the incident
-8. APPLICABLE SECTIONS — IPC/BNS sections with brief description of each offence:
+8. APPLICABLE SECTIONS — BNS sections with brief description of each offence:
    - Specify section number and offence name
    - Explain briefly how facts constitute the offence
 9. EVIDENCE AVAILABLE — Documents, CCTV footage, call records, photographs, medical reports
@@ -464,9 +464,9 @@ MANDATORY SECTIONS:
 13. COMPLAINANT SIGNATURE — Name, signature/thumb impression, date, place
 14. ACKNOWLEDGEMENT SPACE — For police officer to sign and provide FIR copy reference
 
-Note: Reference both IPC sections AND BNS (Bharatiya Nyaya Sanhita 2023) equivalents.
+Note: Cite BNS (Bharatiya Nyaya Sanhita, 2023) sections as the primary law in force since 1 July 2024; you may add the repealed IPC equivalent in parentheses for transitional clarity.
 
-Compliance: Code of Criminal Procedure 1973 / BNSS 2023, Indian Penal Code 1860 / BNS 2023.`,
+Compliance: Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS), Bharatiya Nyaya Sanhita, 2023 (BNS).`,
 
   "complaint-letter": `You are an Indian consumer rights advocate. Generate a formal Complaint Letter to the appropriate authority.
 
@@ -638,7 +638,7 @@ MANDATORY SECTIONS:
 6. PURPOSE — Education (domicile quota), government employment, schemes, court proceedings
 7. LANDLORD DECLARATION — If rented, landlord's consent letter with property details
 8. DECLARATION — "I have been ordinarily residing in the State of [State] for the past [X] years continuously and I am not a citizen/resident of any other state for the purpose of domicile."
-9. VERIFICATION — "I am aware that false domicile claim is punishable under IPC Section 199/420 or BNS equivalent."
+9. VERIFICATION — "I am aware that false domicile claim is punishable under the BNS (Bharatiya Nyaya Sanhita, 2023) equivalents of IPC Sections 199/420 (repealed 1 July 2024)."
 10. APPLICANT SIGNATURE — Name, thumb impression, signature, date`,
 
   "ration-card": `You are an Indian government document specialist. Generate a Ration Card (NFSA) Application.
@@ -830,21 +830,96 @@ export async function generateLegalDocument(
   throw lastError ?? new Error("No NVIDIA model was available for generation.");
 }
 
-// ── Streaming generation ─────────────────────────────────────────────────────
+// ── Streaming generation (true token streaming with paced fallback) ──────────
 export async function* generateLegalDocumentStream(
   documentType: string,
   formData: Record<string, unknown>,
   language = "en",
 ): AsyncGenerator<string> {
-  // Some NVIDIA serverless models expose chat completions but not the
-  // streaming variant consistently. Generate once, then emit small chunks
-  // so the UI still gets a smooth typewriter/progress experience.
-  const fullText = await generateLegalDocument(documentType, formData, language);
-  const chunkSize = 48;
-  for (let offset = 0; offset < fullText.length; offset += chunkSize) {
-    yield fullText.slice(offset, offset + chunkSize);
-    await new Promise((resolve) => setTimeout(resolve, 8));
+  const { system, user } = buildPrompt(documentType, formData, language);
+  const candidates = await getNvidiaCandidates();
+  let lastError: unknown;
+
+  for (const model of candidates) {
+    const messages = [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ] as const;
+
+    // Attempt 1: true token streaming from the model
+    try {
+      const stream = await withRetry(() =>
+        client.chat.completions.create({
+          model,
+          messages: [...messages],
+          temperature: 0.2,
+          max_tokens: 8192,
+          stream: true,
+        }),
+      );
+      let received = "";
+      for await (const part of stream) {
+        const delta = (part as any)?.choices?.[0]?.delta?.content ?? "";
+        if (delta) {
+          received += delta;
+          yield delta;
+        }
+      }
+      if (!received || received.trim().length < 200) {
+        throw new Error("AI returned an empty or incomplete response.");
+      }
+      resolvedModel = model;
+      console.log(`[AI] Streamed ${documentType} with ${model} (${received.length} chars)`);
+      return;
+    } catch (error: any) {
+      lastError = error;
+      console.warn(
+        `[AI] Token stream failed on ${model} (${error?.status ?? error?.code ?? "unknown"}); trying non-streaming fallback`,
+      );
+    }
+
+    // Attempt 2 (same model): non-streaming completion, paced out as small
+    // chunks so the UI still gets a smooth typewriter/progress experience.
+    try {
+      const completion = await withRetry(() =>
+        client.chat.completions.create({
+          model,
+          messages: [...messages],
+          temperature: 0.2,
+          max_tokens: 8192,
+        }),
+      );
+      const text = completion.choices[0]?.message?.content;
+      if (!text || text.trim().length < 200) {
+        throw new Error("AI returned an empty or incomplete response.");
+      }
+      resolvedModel = model;
+      console.log(`[AI] Generated ${documentType} with ${model} (${text.length} chars, paced fallback)`);
+      const chunkSize = 48;
+      for (let offset = 0; offset < text.length; offset += chunkSize) {
+        yield text.slice(offset, offset + chunkSize);
+        await new Promise((resolve) => setTimeout(resolve, 8));
+      }
+      return;
+    } catch (error: any) {
+      lastError = error;
+      const status = error?.status;
+      const canTryNext =
+        status === 400 ||
+        status === 404 ||
+        status === 410 ||
+        status === 429 ||
+        status === 500 ||
+        status === 502 ||
+        status === 503 ||
+        error?.code === "ETIMEDOUT" ||
+        error?.code === "ECONNRESET";
+      if (!canTryNext) throw error;
+      console.warn(`[AI] Model ${model} failed (${status ?? error?.code ?? "unknown"}); trying fallback`);
+    }
   }
+
+  throw lastError ?? new Error("No NVIDIA model was available for generation.");
 }
 
 // ── Price registry (server-authoritative) ────────────────────────────────────

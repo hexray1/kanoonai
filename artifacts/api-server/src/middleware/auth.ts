@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
@@ -8,7 +9,22 @@ export interface AuthRequest extends Request {
   isAdmin?: boolean;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || "kanoonai-dev-secret-change-in-prod";
+// Legacy auth routes are unmounted from the guest-only product, but the
+// middleware module is still imported. Never fall back to a hardcoded
+// secret: without JWT_SECRET we generate an ephemeral one (invalidated on
+// restart) and log a loud warning.
+function resolveJwtSecret(): string {
+  const configured = process.env.JWT_SECRET;
+  if (configured && configured.length >= 16) return configured;
+  const ephemeral = crypto.randomBytes(32).toString("hex");
+  console.warn(
+    "[auth] JWT_SECRET is missing or too short — using an ephemeral secret. " +
+      "All previously issued tokens are invalid. Set JWT_SECRET in production.",
+  );
+  return ephemeral;
+}
+
+const JWT_SECRET = resolveJwtSecret();
 
 export function signToken(payload: { userId: number; isAdmin: boolean }): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "30d" });

@@ -221,7 +221,7 @@ function DocumentTypingPreview() {
           {displayedLines.length}/{doc.lines.length} lines · {displayedLines.join(" ").split(/\s+/).filter(Boolean).length} words
         </span>
         <span className="text-gray-600 flex items-center gap-1">
-          <Zap className="h-2.5 w-2.5" />Llama 3.3 70B
+          <Zap className="h-2.5 w-2.5" />Nemotron 3 Super
         </span>
       </div>
     </div>
@@ -536,7 +536,7 @@ export default function Home() {
                   { icon: Lock,       text: "SSL Encrypted"        },
                   { icon: Shield,     text: "Razorpay Secured"      },
                   { icon: Award,      text: "Lawyer-Reviewed"       },
-                  { icon: Cpu,        text: "Meta Llama 3.3 70B"    },
+                  { icon: Cpu,        text: "NVIDIA Nemotron 3 Super"    },
                   { icon: BadgeCheck, text: "DPDPA 2023 Compliant"  },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-1">
@@ -958,12 +958,12 @@ export default function Home() {
                 World's most powerful AI writes your legal documents
               </h2>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Kanoon AI uses <strong className="text-white">Meta Llama 3.3 70B</strong> — served on NVIDIA's enterprise AI platform — one of the highest-ranked open models for professional, structured writing. You can watch it draft your document in real-time, word by word, like a senior lawyer typing in front of you.
+                Kanoon AI uses <strong className="text-white">NVIDIA Nemotron 3 Super</strong> — served on NVIDIA's enterprise AI platform — one of the highest-ranked open models for professional, structured writing. You can watch it draft your document in real-time, word by word, like a senior lawyer typing in front of you.
               </p>
               <div className="space-y-3">
                 {[
                   "Trained specifically on Indian legal statutes and formats",
-                  "Cites specific sections: IPC, CrPC, Contract Act, TP Act",
+                  "Cites specific sections: BNS, BNSS, Contract Act, TP Act",
                   "Generates complete documents — no truncation, no fillers",
                   "Enterprise API: your data is never used for AI training",
                 ].map((pt) => (

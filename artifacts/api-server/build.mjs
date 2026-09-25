@@ -3,31 +3,24 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
+import { rm, mkdir, copyFile } from "node:fs/promises";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(artifactDir, "..", "..");
 
-async function buildAll() {
-  const distDir = path.resolve(artifactDir, "dist");
-  await rm(distDir, { recursive: true, force: true });
+const sharedBanner = `import { createRequire as __bannerCrReq } from 'node:module';
+import __bannerPath from 'node:path';
+import __bannerUrl from 'node:url';
 
-  await esbuild({
-    entryPoints: [path.resolve(artifactDir, "src/index.ts")],
-    platform: "node",
-    bundle: true,
-    format: "esm",
-    outdir: distDir,
-    outExtension: { ".js": ".mjs" },
-    logLevel: "info",
-    // Some packages may not be bundleable, so we externalize them, we can add more here as needed.
-    // Some of the packages below may not be imported or installed, but we're adding them in case they are in the future.
-    // Examples of unbundleable packages:
-    // - uses native modules and loads them dynamically (e.g. sharp)
-    // - use path traversal to read files (e.g. @google-cloud/secret-manager loads sibling .proto files)
-    external: [
+globalThis.require = __bannerCrReq(import.meta.url);
+globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
+globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
+    `;
+
+const sharedExternal = [
       "*.node",
       "pdfkit",
       "fontkit",
@@ -103,24 +96,61 @@ async function buildAll() {
       "puppeteer",
       "puppeteer-core",
       "electron",
-    ],
+];
+
+async function baseBuild(entryPoint, out) {
+  await esbuild({
+    entryPoints: [entryPoint],
+    platform: "node",
+    bundle: true,
+    format: "esm",
+    logLevel: "info",
+    // Some packages may not be bundleable, so we externalize them, we can add more here as needed.
+    // Some of the packages below may not be imported or installed, but we're adding them in case they are in the future.
+    // Examples of unbundleable packages:
+    // - uses native modules and loads them dynamically (e.g. sharp)
+    // - use path traversal to read files (e.g. @google-cloud/secret-manager loads sibling .proto files)
+    external: sharedExternal,
     sourcemap: "linked",
     plugins: [
       // pino relies on workers to handle logging, instead of externalizing it we use a plugin to handle it
       esbuildPluginPino({ transports: ["pino-pretty"] })
     ],
     // Make sure packages that are cjs only (e.g. express) but are bundled continue to work in our esm output file
-    banner: {
-      js: `import { createRequire as __bannerCrReq } from 'node:module';
-import __bannerPath from 'node:path';
-import __bannerUrl from 'node:url';
-
-globalThis.require = __bannerCrReq(import.meta.url);
-globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
-globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
-    `,
-    },
+    banner: { js: sharedBanner },
+    ...out,
   });
+}
+
+async function buildAll() {
+  const distDir = path.resolve(artifactDir, "dist");
+  await rm(distDir, { recursive: true, force: true });
+
+  // 1) Long-running server bundle (Replit / VPS)
+  await baseBuild(path.resolve(artifactDir, "src/index.ts"), {
+    outdir: distDir,
+    outExtension: { ".js": ".mjs" },
+  });
+
+  // 2) Vercel serverless bundle -> <repoRoot>/api/index.mjs
+  //    (generated during `vercel build`; never committed)
+  //    NOTE: the pino plugin emits extra worker chunks (pino-*.mjs) alongside
+  //    index.mjs. Only index.mjs is copied into api/ — the workers are dev-only
+  //    (production logger has no transport) and extra .mjs files in api/
+  //    would each be deployed as their own serverless function.
+  const vercelTmp = path.resolve(artifactDir, "dist-vercel");
+  await rm(vercelTmp, { recursive: true, force: true });
+  await baseBuild(path.resolve(artifactDir, "src/vercel.ts"), {
+    outdir: vercelTmp,
+    outExtension: { ".js": ".mjs" },
+  });
+  const vercelApiDir = path.resolve(repoRoot, "api");
+  await mkdir(vercelApiDir, { recursive: true });
+  await copyFile(
+    path.resolve(vercelTmp, "vercel.mjs"),
+    path.resolve(vercelApiDir, "index.mjs"),
+  );
+  console.log("Vercel serverless bundle written to", path.resolve(vercelApiDir, "index.mjs"));
 }
 
 buildAll().catch((err) => {

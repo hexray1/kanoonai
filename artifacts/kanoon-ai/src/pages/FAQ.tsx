@@ -26,7 +26,7 @@ const CATEGORIES = [
       },
       {
         q: "Which AI model powers Kanoon AI?",
-        a: "Kanoon AI uses Meta Llama 3.3 70B served on NVIDIA's enterprise AI platform — one of the highest-ranked large language models on professional writing benchmarks. We generate documents in real-time, streaming the text to your screen as it's written, so you can watch your document come to life.",
+        a: "Kanoon AI uses NVIDIA Nemotron 3 Super served on NVIDIA's enterprise AI platform — one of the highest-ranked large language models on professional writing benchmarks. We generate documents in real-time, streaming the text to your screen as it's written, so you can watch your document come to life.",
       },
     ],
   },

@@ -1,28 +1,25 @@
 import { Router } from "express";
 import crypto from "crypto";
-import { db, paymentsTable, documentsTable, usersTable, subscriptionsTable } from "@workspace/db";
+import { db, paymentsTable, documentsTable, usersTable, subscriptionsTable, guestOrdersTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { authMiddleware, type AuthRequest } from "../middleware/auth.js";
 import { generatePDF } from "../utils/pdfGenerator.js";
 import { sendDocumentDelivery, sendPaymentReceipt } from "../utils/emailService.js";
 import { DOCUMENT_PRICES } from "../utils/aiGenerator.js";
+import { guestOrderRateLimit } from "../middleware/rateLimit.js";
 
 const router = Router();
 
 const RAZORPAY_KEY_ID     = process.env.RAZORPAY_KEY_ID     || "";
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "";
 const WEBHOOK_SECRET      = process.env.RAZORPAY_WEBHOOK_SECRET || RAZORPAY_KEY_SECRET;
+const PAYMENTS_CONFIGURED = Boolean(RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET);
+const IS_PROD = process.env.NODE_ENV === "production";
 
-// ── In-memory guest order registry ──────────────────────────────────────────
-// Tracks pending guest orders so we can verify them on delivery.
-// Orders expire after 1 hour (well beyond any reasonable payment window).
-const pendingGuestOrders = new Map<string, { type: string; amount: number; expiresAt: number }>();
-setInterval(() => {
-  const now = Date.now();
-  for (const [k, v] of pendingGuestOrders) {
-    if (v.expiresAt < now) pendingGuestOrders.delete(k);
-  }
-}, 10 * 60 * 1000); // clean up every 10 min
+// ── Guest order registry (DB-backed) ─────────────────────────────────────────
+// Replaces the old in-memory pendingGuestOrders Map, which silently broke on
+// multi-instance / serverless deployments (paid users got "Unknown or expired
+// order"). Orders are single-use: guest-deliver atomically consumes them.
 
 // ── Helper: create Razorpay order ────────────────────────────────────────────
 async function createRazorpayOrder(
@@ -30,7 +27,10 @@ async function createRazorpayOrder(
   currency = "INR",
   receipt?: string,
 ): Promise<{ id: string }> {
-  if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+  if (!PAYMENTS_CONFIGURED) {
+    // Dev only: without Razorpay keys, mint a fake order id. Production
+    // refuses outright (503) instead of silently auto-approving payments.
+    if (IS_PROD) throw new Error("Payments not configured");
     return { id: `dev_order_${Date.now()}` };
   }
   const creds = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString("base64");
@@ -52,11 +52,16 @@ async function createRazorpayOrder(
 
 // ── GUEST (no auth): Create payment order ────────────────────────────────────
 // Price is determined server-side from the document type — cannot be spoofed.
-router.post("/guest-create-order", async (req, res) => {
+router.post("/guest-create-order", guestOrderRateLimit, async (req, res) => {
   try {
+    if (!PAYMENTS_CONFIGURED && IS_PROD) {
+      res.status(503).json({ error: "Payments are not configured yet. Please try again later." });
+      return;
+    }
+
     const { type } = req.body as { type: string };
-    if (!type) {
-      res.status(400).json({ error: "type is required" });
+    if (!type || typeof type !== "string" || !(type in DOCUMENT_PRICES)) {
+      res.status(400).json({ error: "Valid document type is required" });
       return;
     }
 
@@ -67,11 +72,13 @@ router.post("/guest-create-order", async (req, res) => {
 
     const order = await createRazorpayOrder(totalPaise, "INR", `guest_${type}_${Date.now()}`);
 
-    // Register the order so guest-deliver can verify it later
-    pendingGuestOrders.set(order.id, {
-      type,
+    // Register the order in the DB so guest-deliver can verify + consume it,
+    // even across serverless instances.
+    await db.insert(guestOrdersTable).values({
+      orderId: order.id,
+      docType: type,
       amount: total,
-      expiresAt: Date.now() + 60 * 60 * 1000, // 1 hour
+      status: "pending",
     });
 
     res.json({
@@ -95,6 +102,11 @@ router.post("/guest-create-order", async (req, res) => {
 // We verify the Razorpay signature, then generate and return the PDF directly.
 router.post("/guest-deliver", async (req, res) => {
   try {
+    if (!PAYMENTS_CONFIGURED && IS_PROD) {
+      res.status(503).json({ error: "Payments are not configured yet. Please try again later." });
+      return;
+    }
+
     const { orderId, paymentId, signature, content, title } = req.body as {
       orderId: string; paymentId: string; signature: string;
       content: string; title: string;
@@ -104,10 +116,18 @@ router.post("/guest-deliver", async (req, res) => {
       res.status(400).json({ error: "orderId, paymentId, content, and title are required" });
       return;
     }
+    if (typeof content !== "string" || content.length > 200_000) {
+      res.status(400).json({ error: "Invalid document content" });
+      return;
+    }
 
-    // Verify Razorpay signature (skip in dev mode)
-    const isDev = !RAZORPAY_KEY_SECRET || orderId.startsWith("dev_order_");
+    // Verify Razorpay signature (skip only in non-production dev mode)
+    const isDev = !PAYMENTS_CONFIGURED || orderId.startsWith("dev_order_");
     if (!isDev) {
+      if (!signature) {
+        res.status(400).json({ error: "Payment signature is required" });
+        return;
+      }
       const expected = crypto
         .createHmac("sha256", RAZORPAY_KEY_SECRET)
         .update(`${orderId}|${paymentId}`)
@@ -118,13 +138,22 @@ router.post("/guest-deliver", async (req, res) => {
         return;
       }
 
-      // Verify order was created by this server (prevents replayed/forged orders)
-      if (!pendingGuestOrders.has(orderId)) {
-        (req as any).log?.warn({ orderId }, "Guest deliver: unknown order");
+      // Atomically consume the order: exactly one successful delivery per
+      // paid order, safe across serverless instances (no replay).
+      const consumed = await db
+        .delete(guestOrdersTable)
+        .where(
+          and(
+            eq(guestOrdersTable.orderId, orderId),
+            eq(guestOrdersTable.status, "pending"),
+          ),
+        )
+        .returning({ orderId: guestOrdersTable.orderId });
+      if (consumed.length === 0) {
+        (req as any).log?.warn({ orderId }, "Guest deliver: unknown or already-consumed order");
         res.status(400).json({ error: "Unknown or expired order" });
         return;
       }
-      pendingGuestOrders.delete(orderId); // consume the order
     }
 
     // Generate PDF from the submitted content and stream it back
@@ -396,14 +425,26 @@ export function createWebhookHandler() {
   const wRouter = Router();
 
   wRouter.post("/razorpay", async (req, res) => {
-    const signature = req.headers["x-razorpay-signature"] as string;
-    const body      = JSON.stringify(req.body);
-    const expected  = crypto
+    const signature = req.headers["x-razorpay-signature"] as string | undefined;
+
+    // Signature is mandatory. A missing header must NEVER bypass verification.
+    if (!WEBHOOK_SECRET) {
+      res.status(503).json({ error: "Webhook secret not configured" });
+      return;
+    }
+    if (!signature) {
+      res.status(400).json({ error: "Missing webhook signature" });
+      return;
+    }
+
+    // HMAC over the exact raw request bytes (not re-serialized JSON).
+    const rawBody: Buffer | undefined = (req as any).rawBody;
+    const expected = crypto
       .createHmac("sha256", WEBHOOK_SECRET)
-      .update(body)
+      .update(rawBody ?? Buffer.from(JSON.stringify(req.body)))
       .digest("hex");
 
-    if (WEBHOOK_SECRET && signature && signature !== expected) {
+    if (signature !== expected) {
       res.status(400).json({ error: "Invalid webhook signature" });
       return;
     }

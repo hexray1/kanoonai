@@ -1,0 +1,1 @@
+{"$schema":"https://openapi.vercel.sh/vercel.json","buildCommand":"pnpm --filter @workspace/kanoon-ai build && pnpm --filter @workspace/api-server build","functions":{"api/index.mjs":{"maxDuration":300}},"installCommand":"pnpm install","outputDirectory":"artifacts/kanoon-ai/dist","rewrites":[{"destination":"/api/index","source":"/api/:path*"}]}

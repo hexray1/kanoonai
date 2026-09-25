@@ -40,7 +40,7 @@ interface PendingDoc {
 const PENDING_KEY = "kanoox_pending_doc";
 
 const STREAM_STAGES = [
-  "Connecting to Llama 3.3 70B…",
+  "Connecting to Nemotron 3 Super…",
   "Analysing Indian legal requirements…",
   "Drafting parties & recitals…",
   "Writing clauses & provisions…",
@@ -481,7 +481,7 @@ function DocumentGenerationExperience({
             </div>
             <div className="hidden rounded-2xl border border-white/[0.08] bg-black/10 p-4 sm:block">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Powered by</p>
-              <p className="mt-2 text-sm font-medium text-white">NVIDIA AI · Llama 3.3 70B</p>
+              <p className="mt-2 text-sm font-medium text-white">NVIDIA AI · Nemotron 3 Super</p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Built for fast, context-aware Indian legal drafting.</p>
             </div>
           </aside>

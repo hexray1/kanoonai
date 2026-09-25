@@ -7,21 +7,33 @@ import {
   generateLegalDocument,
   getDocumentPrice,
   getDocumentTitle,
+  DOCUMENT_PRICES,
 } from "../utils/aiGenerator.js";
 import { generatePDF } from "../utils/pdfGenerator.js";
+import { guestStreamRateLimit } from "../middleware/rateLimit.js";
 
 const router = Router();
 
+const SUPPORTED_LANGUAGES = new Set(["en", "hi", "mr", "ta", "te"]);
+
 // ─── PUBLIC: Guest streaming (no auth, no DB save) ──────────────────────────
-router.post("/stream/guest", async (req, res) => {
+router.post("/stream/guest", guestStreamRateLimit, async (req, res) => {
   const { type, formData, language = "en" } = req.body as {
     type: string;
     formData: Record<string, unknown>;
     language: string;
   };
 
-  if (!type || !formData) {
-    res.status(400).json({ error: "type and formData required" });
+  if (!type || typeof type !== "string" || !(type in DOCUMENT_PRICES)) {
+    res.status(400).json({ error: "A valid document type is required" });
+    return;
+  }
+  if (!formData || typeof formData !== "object") {
+    res.status(400).json({ error: "formData is required" });
+    return;
+  }
+  if (!SUPPORTED_LANGUAGES.has(language)) {
+    res.status(400).json({ error: "Unsupported language" });
     return;
   }
 
