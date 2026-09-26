@@ -211,7 +211,7 @@ export default function FAQ() {
               <button
                 key={cat.label}
                 onClick={() => setActiveCategory(cat.label)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
                   activeCategory === cat.label
                     ? "bg-primary text-primary-foreground shadow-gold"
                     : "bg-card border border-white/10 text-muted-foreground hover:text-white hover:border-white/30"

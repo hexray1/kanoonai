@@ -447,7 +447,7 @@ function DocumentGenerationExperience({
                 key={currentStage}
                 initial={reducedMotion ? false : { opacity: 0, y: 8, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                className="absolute -bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-white/15 bg-[#101827]/95 px-4 py-2.5 text-xs font-medium text-white shadow-xl backdrop-blur-xl"
+                className="absolute -bottom-5 left-1/2 flex max-w-[calc(100vw-2.5rem)] -translate-x-1/2 items-center justify-center gap-2 rounded-full border border-white/15 bg-[#101827]/95 px-4 py-2.5 text-xs font-medium text-white shadow-xl backdrop-blur-xl text-center"
               >
                 <ActiveIcon className="h-3.5 w-3.5 text-primary" />
                 {stageDetails[currentStage].eyebrow}
@@ -866,7 +866,7 @@ export default function GenerateDocument() {
         {/* Top bar */}
         <div className="border-b border-white/10 bg-card/80 backdrop-blur px-5 py-3 flex items-center gap-4 sticky top-0 z-20">
           <Button variant="ghost" size="icon" onClick={() => setPhase("wizard")}
-            className="text-muted-foreground hover:text-white h-8 w-8 shrink-0">
+            className="text-muted-foreground hover:text-white h-10 w-10 shrink-0">
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex-1">
@@ -975,7 +975,7 @@ export default function GenerateDocument() {
       {/* Top bar */}
       <div className="border-b border-white/10 bg-card/80 backdrop-blur px-5 py-3 flex items-center gap-4 sticky top-0 z-20">
         <Button variant="ghost" size="icon" onClick={() => setLocation("/documents")}
-          className="text-muted-foreground hover:text-white h-8 w-8 shrink-0">
+          className="text-muted-foreground hover:text-white h-10 w-10 shrink-0">
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1 min-w-0">
@@ -1017,7 +1017,7 @@ export default function GenerateDocument() {
       </AnimatePresence>
 
       {/* Mobile tabs */}
-      <div className="flex lg:hidden sticky top-[57px] z-30 bg-background/95 backdrop-blur border-b border-white/10">
+      <div className="flex lg:hidden sticky top-16 z-30 bg-background/95 backdrop-blur border-b border-white/10">
         {(["form", "preview"] as const).map((tab) => (
           <button key={tab} onClick={() => setMobileTab(tab)}
             className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
@@ -1129,8 +1129,8 @@ export default function GenerateDocument() {
           </div>
         </div>
 
-        {/* RIGHT: Live preview */}
-        <div className={`hidden lg:flex flex-col w-[48%] border-l border-white/10 bg-black/20 overflow-hidden ${mobileTab === "preview" ? "!flex w-full" : ""}`}>
+        {/* RIGHT: Live preview (desktop split view; mobile uses the dedicated preview block below) */}
+        <div className="hidden lg:flex flex-col w-[48%] border-l border-white/10 bg-black/20 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 bg-card/50 shrink-0">
             <div className="flex items-center gap-2">
               <Eye className="h-4 w-4 text-primary" />

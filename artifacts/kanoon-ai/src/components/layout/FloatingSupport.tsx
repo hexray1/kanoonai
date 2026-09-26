@@ -23,7 +23,7 @@ export function FloatingSupport() {
   ];
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-24 right-4 sm:right-5 z-50 flex flex-col items-end gap-3 pointer-events-none">
       {/* Back to top */}
       <AnimatePresence>
         {showTop && (

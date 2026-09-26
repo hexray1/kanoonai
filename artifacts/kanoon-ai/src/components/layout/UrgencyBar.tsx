@@ -54,7 +54,7 @@ export function UrgencyBar() {
   if (dismissed) return null;
 
   return (
-    <div className="relative bg-gradient-to-r from-primary via-yellow-400 to-primary text-black text-center py-2 px-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-3 z-50">
+    <div className="relative bg-gradient-to-r from-primary via-yellow-400 to-primary text-black text-center py-2 pl-4 pr-10 text-xs sm:text-sm font-semibold flex items-center justify-center gap-3 z-50">
       <AnimatePresence mode="wait">
         <motion.span key={msgIdx}
           initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
@@ -70,7 +70,7 @@ export function UrgencyBar() {
       </span>
 
       <button onClick={dismiss}
-        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-black/10 rounded-full transition-colors"
+        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-black/10 rounded-full transition-colors"
         aria-label="Dismiss">
         <X className="h-3.5 w-3.5" />
       </button>
