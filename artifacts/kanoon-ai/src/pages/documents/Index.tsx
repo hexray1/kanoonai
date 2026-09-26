@@ -148,7 +148,7 @@ export default function DocumentSelection() {
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <Filter className="h-4 w-4 text-muted-foreground shrink-0 mr-1" />
             <button onClick={() => setActiveCat("all")}
-              className={`px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                 activeCat === "all"
                   ? "bg-primary text-primary-foreground shadow-gold"
                   : "bg-card text-muted-foreground hover:text-white hover:bg-white/5 border border-white/10"
@@ -159,7 +159,7 @@ export default function DocumentSelection() {
               const count = allDocs.filter(([, d]) => d.category === cat.id).length;
               return (
                 <button key={cat.id} onClick={() => setActiveCat(cat.id)}
-                  className={`px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                     activeCat === cat.id
                       ? "bg-primary text-primary-foreground shadow-gold"
                       : "bg-card text-muted-foreground hover:text-white hover:bg-white/5 border border-white/10"

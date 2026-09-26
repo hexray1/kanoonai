@@ -63,8 +63,8 @@ export function StickyBottomCTA() {
               <Link href="/documents">
                 <button className="flex items-center gap-1.5 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-bold hover:bg-primary/90 shadow-[0_0_20px_rgba(234,179,8,0.3)] transition-all active:scale-95 whitespace-nowrap">
                   <Zap className="h-4 w-4" />
-                  <span className="hidden sm:inline">Generate Now</span>
-                  <span className="sm:hidden">Go</span>
+                  <span className="hidden xs:inline">Generate Now</span>
+                  <span className="xs:hidden">Go</span>
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </Link>

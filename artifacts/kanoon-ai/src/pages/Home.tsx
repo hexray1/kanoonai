@@ -481,17 +481,17 @@ export default function Home() {
 
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
                 className="flex flex-col sm:flex-row gap-3 mb-10">
-                <Link href="/documents" className="w-full sm:w-auto">
-                  <Button size="lg" className="w-full text-base h-13 px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold group font-bold">
+                <Link href="/documents">
+                  <Button size="lg" className="w-full sm:w-auto text-base h-13 px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold group font-bold">
                     {t("Create Document Now", "अभी दस्तावेज़ बनाएँ")}
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
-                <div className="w-full sm:w-auto"><Button size="lg" variant="outline"
-                  className="w-full text-base h-13 px-6 border-white/20 text-white hover:bg-white/5"
+                <Button size="lg" variant="outline"
+                  className="w-full sm:w-auto text-base h-13 px-6 border-white/20 text-white hover:bg-white/5"
                   onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>
                   {t("See Pricing", "मूल्य देखें")}
-                </Button></div>
+                </Button>
               </motion.div>
 
               {/* Quick doc links */}
@@ -812,7 +812,7 @@ export default function Home() {
               <div className="flex flex-wrap gap-2">
                 {Object.keys(LAWYER_COSTS).map((doc) => (
                   <button key={doc} onClick={() => setCalcDoc(doc)}
-                    className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       calcDoc === doc
                         ? "bg-primary text-primary-foreground shadow-gold"
                         : "bg-background border border-white/10 text-muted-foreground hover:text-white hover:border-white/30"
@@ -883,8 +883,8 @@ export default function Home() {
             <p className="text-muted-foreground">No contest. See for yourself.</p>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-white/10 -mx-4 px-4 sm:mx-0 sm:px-0">
-            <table className="w-full min-w-[620px] text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-white/10">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
                   <th className="text-left p-4 text-muted-foreground font-medium">Feature</th>
@@ -976,9 +976,9 @@ export default function Home() {
                 { label: "Time",      val: "42s elapsed",                      color: "text-primary"   },
                 { label: "Status",    val: "● Drafting witness section...",    color: "text-[#76b900]" },
               ].map(({ label, val, color }) => (
-                <div key={label} className="flex items-start gap-3">
+                <div key={label} className="flex items-center gap-3">
                   <span className="text-muted-foreground w-24 shrink-0">{label}:</span>
-                  <span className={`${color} min-w-0 break-all`}>{val}</span>
+                  <span className={color}>{val}</span>
                 </div>
               ))}
               <div className="mt-4 pt-4 border-t border-white/10 text-muted-foreground text-xs leading-relaxed">
@@ -1011,7 +1011,7 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-white mb-1">Essential</h3>
               <p className="text-muted-foreground text-sm mb-4">Letters, applications & certificates</p>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl md:text-5xl font-black text-white">₹99</span>
+                <span className="text-5xl font-black text-white">₹99</span>
                 <span className="text-sm text-muted-foreground">/ document</span>
               </div>
               <ul className="space-y-3 mb-8 text-sm">
@@ -1034,7 +1034,7 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-white mb-1">Standard</h3>
               <p className="text-muted-foreground text-sm mb-4">Agreements, notices & contracts</p>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl md:text-5xl font-black text-white">₹199–299</span>
+                <span className="text-5xl font-black text-white">₹199–299</span>
                 <span className="text-sm text-muted-foreground">/ document</span>
               </div>
               <ul className="space-y-3 mb-8 text-sm">
@@ -1057,7 +1057,7 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-white mb-1">Premium</h3>
               <p className="text-muted-foreground text-sm mb-4">Complex deeds & petitions</p>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl md:text-5xl font-black text-white">₹499</span>
+                <span className="text-5xl font-black text-white">₹499</span>
                 <span className="text-sm text-muted-foreground">/ document</span>
               </div>
               <ul className="space-y-3 mb-8 text-sm">
@@ -1159,15 +1159,15 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/documents" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full h-16 px-12 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_40px_rgba(234,179,8,0.35)] group">
+              <Link href="/documents">
+                <Button size="lg" className="w-full sm:w-auto h-16 px-12 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_40px_rgba(234,179,8,0.35)] group">
                   <Sparkles className="mr-2 h-5 w-5" />
                   Create Document Free
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link href="/contact" className="w-full sm:w-auto">
-                <Button size="lg" variant="outline" className="w-full h-16 px-8 text-base border-white/20 text-white hover:bg-white/5">
+              <Link href="/contact">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto h-16 px-8 text-base border-white/20 text-white hover:bg-white/5">
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Talk to Support
                 </Button>

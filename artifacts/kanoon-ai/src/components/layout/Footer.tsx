@@ -118,7 +118,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="h-10 w-10 rounded-lg bg-background border border-white/10 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all"
+                  className="h-9 w-9 rounded-lg bg-background border border-white/10 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-all"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -158,7 +158,7 @@ export function Footer() {
           </div>
 
           {/* Legal & Contact */}
-          <div className="col-span-2 md:col-span-1">
+          <div>
             <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Legal & Help</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
               <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>

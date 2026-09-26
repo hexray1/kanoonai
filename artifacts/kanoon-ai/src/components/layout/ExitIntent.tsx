@@ -54,7 +54,7 @@ export function ExitIntent() {
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.85, y: 30 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="relative bg-card border border-red-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
+            className="relative bg-card border border-red-500/30 rounded-3xl p-8 max-w-md w-full shadow-2xl">
             <button onClick={() => setShow(false)}
               className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-white transition-colors rounded-full hover:bg-white/5">
               <X className="h-5 w-5" />

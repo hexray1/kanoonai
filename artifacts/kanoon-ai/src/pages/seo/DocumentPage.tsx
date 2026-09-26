@@ -81,10 +81,10 @@ export default function DocumentPage() {
                 : `India's most trusted AI tool to generate a complete, legally sound ${docTitle} in under 60 seconds. Used by 12,000+ Indians.`}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href={docConfig ? `/documents/generate/${docSlug}` : "/documents"} className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-6 sm:px-10 text-base sm:text-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold font-bold group whitespace-normal text-center leading-snug">
+              <Link href={docConfig ? `/documents/generate/${docSlug}` : "/documents"}>
+                <Button size="lg" className="h-14 px-10 text-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold font-bold group">
                   Generate {docTitle} Now — ₹{docConfig?.price ?? 99}
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform shrink-0" />
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
             </div>
@@ -200,10 +200,10 @@ export default function DocumentPage() {
             {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 text-primary fill-primary" />)}
             <span className="text-white font-medium ml-1">4.9 / 5</span>
           </div>
-          <Link href={docConfig ? `/documents/generate/${docSlug}` : "/documents"} className="inline-block w-full sm:w-auto">
-            <Button size="lg" className="w-full sm:w-auto h-14 px-6 sm:px-10 text-base sm:text-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold font-bold whitespace-normal text-center leading-snug">
+          <Link href={docConfig ? `/documents/generate/${docSlug}` : "/documents"}>
+            <Button size="lg" className="h-14 px-10 text-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold font-bold">
               Generate {docTitle} — ₹{docConfig?.price ?? 99}
-              <ArrowRight className="ml-2 h-5 w-5 shrink-0" />
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
           <p className="text-xs text-muted-foreground mt-3">Free to draft & preview · Pay only to download</p>
