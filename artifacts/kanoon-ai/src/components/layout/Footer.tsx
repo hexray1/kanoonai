@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import {
-  Scale, Mail, Phone, MapPin, Shield, Award, Lock, CheckCircle2,
+  Scale, Mail, MapPin, Shield, Award, Lock, CheckCircle2,
   Twitter, Facebook, Linkedin, Instagram, Send,
 } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
@@ -163,17 +163,13 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
               <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><Link href="/refund" className="hover:text-primary transition-colors">Refund Policy</Link></li>
+              <li><Link href="/refund" className="hover:text-primary transition-colors">Refund & Edit Policy</Link></li>
             </ul>
             <h4 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Contact</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <a href="mailto:support@kanooxai.in" className="hover:text-primary transition-colors break-all">support@kanooxai.in</a>
-              </li>
-              <li className="flex items-start gap-2">
-                <Phone className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <a href="tel:+918012345678" className="hover:text-primary transition-colors">+91 80 1234 5678</a>
+                <a href="mailto:support@mykanoon.ai" className="hover:text-primary transition-colors break-all">support@mykanoon.ai</a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
@@ -194,7 +190,7 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <CheckCircle2 className="h-3.5 w-3.5 text-green-400" />
-              <span>100% Secure · 7-Day Refund · 24×7 Support</span>
+              <span>100% Secure · 7-Day Free Edits · Email Support</span>
             </div>
           </div>
 

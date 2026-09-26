@@ -46,8 +46,8 @@ export default function DocumentPage() {
     ? `${docTitle} in ${cityName} | Online, Instant, ₹${docConfig?.price ?? 99}`
     : `${docTitle} Online India | AI-Generated, Lawyer-Reviewed`;
   const pageDesc   = cityName
-    ? `Create a ${docTitle} for ${cityName}, ${stateName} online in 60 seconds with NVIDIA AI. Compliant with ${stateName} laws. Free preview. ₹${docConfig?.price ?? 99} to download.`
-    : `Create a ${docTitle} online in India instantly. NVIDIA AI-powered. Lawyer-reviewed. 5 languages. Free draft & preview. Pay ₹${docConfig?.price ?? 99} to download.`;
+    ? `Create a ${docTitle} for ${cityName}, ${stateName} online in 60 seconds with AI. Compliant with ${stateName} laws. Free preview. ₹${docConfig?.price ?? 99} to download.`
+    : `Create a ${docTitle} online in India instantly. AI-powered. 5 languages. Free draft & preview. Pay ₹${docConfig?.price ?? 99} to download.`;
 
   useSeo({ title: pageTitle, description: pageDesc });
 
@@ -77,7 +77,7 @@ export default function DocumentPage() {
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
               {cityName
-                ? `Create a legally valid ${docTitle} for ${cityName} in minutes using NVIDIA AI. Compliant with ${stateName} laws. No lawyer needed.`
+                ? `Create a ${docTitle} for ${cityName} in minutes with AI drafting. Aligned with ${stateName} legal formats. Free preview. ₹${docConfig?.price ?? 99} to download.`
                 : `India's most trusted AI tool to generate a complete, legally sound ${docTitle} in under 60 seconds. Used by 12,000+ Indians.`}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -125,7 +125,7 @@ export default function DocumentPage() {
               "Witness and attestation blocks",
               "Stamp duty advisory and registration guidance",
               "Professional formatting ready for print",
-              "NVIDIA AI-verified legal language",
+              "AI-drafted legal language",
             ].map((item) => (
               <div key={item} className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
@@ -145,7 +145,7 @@ export default function DocumentPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { n: "1", title: "Fill the form",    desc: "Answer simple questions about the parties, amounts, and duration. No legal knowledge needed." },
-              { n: "2", title: "AI drafts it live", desc: "Watch NVIDIA AI write your complete, legally sound document in real-time — under 60 seconds." },
+              { n: "2", title: "AI drafts it live", desc: "Watch AI write your complete document in real-time — under 60 seconds." },
               { n: "3", title: "Preview free, pay to download", desc: `Preview your full ${docTitle} for free. Pay ₹${docConfig?.price ?? 99} to download the professional PDF.` },
             ].map((s) => (
               <div key={s.n} className="text-center">

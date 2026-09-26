@@ -29,6 +29,7 @@ type Phase = "wizard" | "streaming" | "locked" | "payment" | "success";
 
 interface PendingDoc {
   type: string;
+  documentId: string | null; // server-stored document id (payment binds to this)
   formData: Record<string, string>;
   content: string;
   language: string;
@@ -36,11 +37,18 @@ interface PendingDoc {
   price: number;
 }
 
+interface PaidAccess {
+  documentId: string;
+  downloadToken: string;
+  editToken: string | null;
+  editExpiresAt: string;
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────
-const PENDING_KEY = "kanoox_pending_doc";
+const PENDING_KEY = "kanoon_pending_doc";
 
 const STREAM_STAGES = [
-  "Connecting to Nemotron 3 Super…",
+  "Connecting to AI engine…",
   "Analysing Indian legal requirements…",
   "Drafting parties & recitals…",
   "Writing clauses & provisions…",
@@ -210,14 +218,14 @@ function OrderSidebar({
         </div>
         <div className="min-w-0">
           <p className="text-white font-semibold text-sm truncate">{title}</p>
-          <p className="text-muted-foreground text-xs">AI-generated · Lawyer-reviewed</p>
+          <p className="text-muted-foreground text-xs">AI-generated draft</p>
         </div>
       </div>
 
       {/* AI generation complete indicator */}
       <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-xl px-3 py-2.5 mb-5">
         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-        <span className="text-green-400 text-xs font-medium">NVIDIA AI generation complete</span>
+        <span className="text-green-400 text-xs font-medium">AI generation complete</span>
       </div>
 
       {/* Price breakdown */}
@@ -242,8 +250,8 @@ function OrderSidebar({
           "Professional print-ready PDF",
           "No watermark after download",
           "Instant PDF download after payment",
-          "Email delivery included",
-          "7-day refund guarantee",
+          "Secure download link included",
+          "Free edits for 7 days",
         ].map((f) => (
           <li key={f} className="flex items-center gap-2 text-muted-foreground">
             <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
@@ -481,7 +489,7 @@ function DocumentGenerationExperience({
             </div>
             <div className="hidden rounded-2xl border border-white/[0.08] bg-black/10 p-4 sm:block">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Powered by</p>
-              <p className="mt-2 text-sm font-medium text-white">NVIDIA AI · Nemotron 3 Super</p>
+              <p className="mt-2 text-sm font-medium text-white">AI document engine</p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Built for fast, context-aware Indian legal drafting.</p>
             </div>
           </aside>
@@ -496,22 +504,27 @@ function DocumentGenerationExperience({
   );
 }
 
-// ── Guest Success Page (no DB, PDF already downloaded) ───────────────────────
+// ── Guest Success Page (secure download link + 7-day edit access) ─────────────
 function GuestSuccessView({
-  title, blobUrl, onAnother,
+  title, blobUrl, access, onAnother,
 }: {
-  title: string; blobUrl: string | null;
+  title: string; blobUrl: string | null; access: PaidAccess | null;
   onAnother: () => void;
 }) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   function reDownload() {
-    if (!blobUrl) { toast({ title: "File expired", description: "Please generate a new document.", variant: "destructive" }); return; }
+    if (!blobUrl) { toast({ title: "File expired", description: "Please use the secure download link below.", variant: "destructive" }); return; }
     const a = document.createElement("a");
     a.href = blobUrl;
     a.download = `${title.replace(/\s+/g, "-")}.pdf`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
+
+  const editUntil = access?.editExpiresAt
+    ? new Date(access.editExpiresAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
+    : null;
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -548,12 +561,39 @@ function GuestSuccessView({
                 <Download className="mr-2 h-4 w-4" />Download Again
               </Button>
             )}
+            {access?.downloadToken && (
+              <Button
+                onClick={() => window.open(`${BASE}/api/documents/download/${access.downloadToken}`, "_blank")}
+                variant="outline"
+                className="w-full h-11 text-sm">
+                <ShieldCheck className="mr-2 h-4 w-4" /> Secure download link (24 hrs)
+              </Button>
+            )}
             <Button onClick={onAnother} variant="ghost"
               className="w-full h-10 text-muted-foreground text-sm hover:text-white">
               <Sparkles className="mr-2 h-4 w-4" /> Generate Another Document
             </Button>
           </motion.div>
         </div>
+
+        {/* 7-day edit access — edit access, NOT a refund */}
+        {access?.editToken && (
+          <div className="bg-card border border-primary/20 rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <PenLine className="h-4 w-4 text-primary" />
+              <p className="text-white text-sm font-bold">Free edits for 7 days</p>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+              Spotted a typo or need to change a detail? Edit your inputs and regenerate
+              this document free until <span className="text-white font-medium">{editUntil}</span>.
+            </p>
+            <Button
+              onClick={() => setLocation(`/documents/edit?token=${access.editToken}`)}
+              variant="outline" className="w-full h-10 text-sm border-primary/30 text-primary hover:bg-primary/10">
+              <PenLine className="mr-2 h-4 w-4" /> Edit this document
+            </Button>
+          </div>
+        )}
 
         <div className="text-center text-xs text-muted-foreground/70">
           No account required. Keep your downloaded PDF somewhere safe for future access.
@@ -578,7 +618,7 @@ export default function GenerateDocument() {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [formData, setFormData] = useState<Record<string, string>>(() => {
-    try { const s = localStorage.getItem(`kanoox_wizard_${type}`); return s ? JSON.parse(s) : {}; }
+    try { const s = localStorage.getItem(`kanoon_wizard_${type}`); return s ? JSON.parse(s) : {}; }
     catch { return {}; }
   });
   const [docLanguage, setDocLanguage] = useState("en");
@@ -588,6 +628,7 @@ export default function GenerateDocument() {
   // Streaming
   const [streamText, setStreamText] = useState("");
   const [stageIdx, setStageIdx] = useState(0);
+  const [repairing, setRepairing] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -595,13 +636,14 @@ export default function GenerateDocument() {
   const [generatedDoc, setGeneratedDoc] = useState<PendingDoc | null>(null);
   const [isPaying, setIsPaying] = useState(false);
   const [guestPdfBlobUrl, setGuestPdfBlobUrl] = useState<string | null>(null);
+  const [paidAccess, setPaidAccess] = useState<PaidAccess | null>(null);
 
   // ── Auto-save wizard ───────────────────────────────────────────────────────
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      try { localStorage.setItem(`kanoox_wizard_${type}`, JSON.stringify(formData)); } catch {}
+      try { localStorage.setItem(`kanoon_wizard_${type}`, JSON.stringify(formData)); } catch {}
     }, 600);
   }, [formData, type]);
 
@@ -637,14 +679,17 @@ export default function GenerateDocument() {
     );
   }
 
-  // ── Razorpay payment (guest — no DB, PDF returned directly) ─────────────────
+  // ── Razorpay payment (guest — order binds to the server-stored document) ──────
   async function openGuestRazorpay(pending: PendingDoc) {
     setIsPaying(true);
     try {
+      if (!pending.documentId) {
+        throw new Error("Document expired — please generate it again.");
+      }
       await loadRazorpay();
       const orderRes = await guestFetch(`${BASE}/api/payments/guest-create-order`, {
         method: "POST",
-        body: JSON.stringify({ type: pending.type }),
+        body: JSON.stringify({ documentId: pending.documentId }),
       });
       if (!orderRes.ok) throw new Error("Could not create payment order");
       const order = await orderRes.json();
@@ -660,14 +705,14 @@ export default function GenerateDocument() {
         theme: { color: "#F5C518" },
         handler: async (response: any) => {
           try {
+            // Only the Razorpay result goes to the server. The final PDF is
+            // rendered from the server-stored document — never from the client.
             const deliverRes = await guestFetch(`${BASE}/api/payments/guest-deliver`, {
               method: "POST",
               body: JSON.stringify({
                 orderId:   response.razorpay_order_id,
                 paymentId: response.razorpay_payment_id,
                 signature: response.razorpay_signature,
-                content:   pending.content,
-                title:     pending.title,
               }),
             });
             if (!deliverRes.ok) {
@@ -676,6 +721,19 @@ export default function GenerateDocument() {
             }
             const blob   = await deliverRes.blob();
             const blobUrl = URL.createObjectURL(blob);
+            // Secure access tokens issued by the server (response headers).
+            const access: PaidAccess = {
+              documentId:    deliverRes.headers.get("X-Document-Id") ?? pending.documentId!,
+              downloadToken: deliverRes.headers.get("X-Download-Token") ?? "",
+              editToken:     deliverRes.headers.get("X-Edit-Token"),
+              editExpiresAt: deliverRes.headers.get("X-Edit-Expires-At") ?? "",
+            };
+            try {
+              localStorage.setItem(
+                `kanoon_access_${access.documentId}`,
+                JSON.stringify(access),
+              );
+            } catch {}
             // Auto-download
             const a = document.createElement("a");
             a.href     = blobUrl;
@@ -683,9 +741,10 @@ export default function GenerateDocument() {
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
             // Show guest success
             setGuestPdfBlobUrl(blobUrl);
+            setPaidAccess(access);
             setPhase("success");
             try { localStorage.removeItem(PENDING_KEY); } catch {}
-            try { localStorage.removeItem(`kanoox_wizard_${type}`); } catch {}
+            try { localStorage.removeItem(`kanoon_wizard_${type}`); } catch {}
           } catch (err: any) {
             toast({ title: "Delivery failed", description: err.message ?? "Please contact support.", variant: "destructive" });
             setIsPaying(false);
@@ -710,6 +769,7 @@ export default function GenerateDocument() {
     setPhase("streaming");
     setStreamText("");
     setStageIdx(0);
+    setRepairing(false);
 
     const endpoint = `${BASE}/api/documents/stream/guest`;
 
@@ -745,12 +805,15 @@ export default function GenerateDocument() {
             continue;
           }
           if (payload.error) throw new Error(payload.error);
-          if (payload.chunk) {
+          if (payload.repairing) {
+            setRepairing(true);
+          } else if (payload.chunk) {
             fullContent += payload.chunk;
             setStreamText((p) => p + payload.chunk);
           } else if (payload.done) {
             const pending: PendingDoc = {
               type: type!, formData,
+              documentId: payload.documentId ?? null,
               content: fullContent,
               language: docLanguage,
               title: payload.title ?? docConfig.name,
@@ -776,6 +839,7 @@ export default function GenerateDocument() {
       <GuestSuccessView
         title={generatedDoc?.title ?? docConfig.name}
         blobUrl={guestPdfBlobUrl}
+        access={paidAccess}
         onAnother={() => setLocation("/documents")}
       />
     );
@@ -861,14 +925,21 @@ export default function GenerateDocument() {
   if (phase === "streaming") {
     const prog = Math.min(10 + (streamText.length / 8000) * 85, 95);
     return (
-      <DocumentGenerationExperience
-        documentName={docConfig.name}
-        streamText={streamText}
-        stageIdx={stageIdx}
-        progress={prog}
-        wordCount={wordCount}
-        onCancel={() => { abortRef.current?.abort(); setPhase("wizard"); }}
-      />
+      <>
+        {repairing && (
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-semibold backdrop-blur">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Repairing draft — one moment…
+          </div>
+        )}
+        <DocumentGenerationExperience
+          documentName={docConfig.name}
+          streamText={streamText}
+          stageIdx={stageIdx}
+          progress={prog}
+          wordCount={wordCount}
+          onCancel={() => { abortRef.current?.abort(); setPhase("wizard"); }}
+        />
+      </>
     );
   }
 
@@ -1043,13 +1114,13 @@ export default function GenerateDocument() {
             <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground/50">
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1"><Shield className="h-3 w-3" />SSL</span>
-                <span className="flex items-center gap-1"><Zap className="h-3 w-3" />NVIDIA AI</span>
+                <span className="flex items-center gap-1"><Zap className="h-3 w-3" />AI</span>
                 <span>Free preview · ₹{docConfig.price} to download</span>
               </div>
               <button onClick={() => {
                 if (confirm("Clear all answers and start over?")) {
                   setFormData({}); setStep(0);
-                  try { localStorage.removeItem(`kanoox_wizard_${type}`); } catch {}
+                  try { localStorage.removeItem(`kanoon_wizard_${type}`); } catch {}
                 }
               }} className="flex items-center gap-1 hover:text-muted-foreground transition-colors">
                 <RotateCcw className="h-3 w-3" />Reset

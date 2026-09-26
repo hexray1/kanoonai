@@ -48,3 +48,31 @@ export const guestOrderRateLimit = rateLimit({
   max: 20,
   message: "Too many payment attempts — please try again later.",
 });
+
+/** Guest deliver (payment verify + PDF render): 30 per IP per hour. CPU-heavy. */
+export const guestDeliverRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 30,
+  message: "Too many delivery attempts — please try again later.",
+});
+
+/** Tokenized PDF download: 60 per IP per hour. */
+export const downloadRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 60,
+  message: "Too many download attempts — please try again later.",
+});
+
+/** 7-day edit regeneration: 10 per IP per hour (AI-heavy). */
+export const editRegenRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: "Too many edit attempts — please try again later.",
+});
+
+/** Payment recovery (re-issue download token): 20 per IP per hour. */
+export const recoverRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  message: "Too many recovery attempts — please try again later.",
+});

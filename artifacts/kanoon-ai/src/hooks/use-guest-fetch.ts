@@ -1,4 +1,4 @@
-const GUEST_TOKEN_KEY = "kanoox_guest_token";
+const GUEST_TOKEN_KEY = "kanoon_guest_token";
 
 /** Returns a stable per-device guest token (UUID), creating one if needed. */
 export function getGuestToken(): string {

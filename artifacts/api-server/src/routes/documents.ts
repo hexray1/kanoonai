@@ -1,22 +1,69 @@
 import { Router } from "express";
-import { db, documentsTable } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
-import { authMiddleware, type AuthRequest } from "../middleware/auth.js";
+import {
+  db,
+  guestSessionsTable,
+  guestDocumentsTable,
+  documentVersionsTable,
+  documentPdfsTable,
+  downloadTokensTable,
+  editTokensTable,
+} from "@workspace/db";
 import {
   generateLegalDocumentStream,
   generateLegalDocument,
+  repairLegalDocument,
   getDocumentPrice,
   getDocumentTitle,
   DOCUMENT_PRICES,
 } from "../utils/aiGenerator.js";
 import { generatePDF } from "../utils/pdfGenerator.js";
-import { guestStreamRateLimit } from "../middleware/rateLimit.js";
+import {
+  validateFormData,
+  validateGeneratedContent,
+  TEMPLATE_VERSION,
+  PROMPT_VERSION,
+  LEGAL_VERSION,
+} from "../utils/documentConfig.js";
+import { generateToken, hashToken, isTokenLive } from "../utils/tokens.js";
+import {
+  guestStreamRateLimit,
+  downloadRateLimit,
+  editRegenRateLimit,
+} from "../middleware/rateLimit.js";
+import { audit } from "../utils/audit.js";
 
 const router = Router();
 
 const SUPPORTED_LANGUAGES = new Set(["en", "hi", "mr", "ta", "te"]);
+const DOWNLOAD_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const EDIT_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — edit access, NOT a refund
 
-// ─── PUBLIC: Guest streaming (no auth, no DB save) ──────────────────────────
+function deviceKeyOf(req: any): string {
+  const raw = String(req.headers["x-guest-token"] ?? "").slice(0, 100);
+  return raw || "guest-fallback";
+}
+
+async function getSessionId(deviceKey: string): Promise<string> {
+  const [row] = await db
+    .insert(guestSessionsTable)
+    .values({ deviceKey })
+    .onConflictDoNothing({ target: guestSessionsTable.deviceKey })
+    .returning({ id: guestSessionsTable.id });
+  if (row) return row.id;
+  const existing = await db
+    .select({ id: guestSessionsTable.id })
+    .from(guestSessionsTable)
+    .where(eq(guestSessionsTable.deviceKey, deviceKey))
+    .limit(1);
+  return existing[0]!.id;
+}
+
+// ─── PUBLIC: Guest streaming (no auth) ───────────────────────────────────────
+// Validates the smart-form server-side, streams the AI draft, then PERSISTS
+// the generated document. The persisted copy is the only source the
+// post-payment PDF is ever rendered from — the client is never trusted
+// to supply final content after payment.
 router.post("/stream/guest", guestStreamRateLimit, async (req, res) => {
   const { type, formData, language = "en" } = req.body as {
     type: string;
@@ -28,8 +75,9 @@ router.post("/stream/guest", guestStreamRateLimit, async (req, res) => {
     res.status(400).json({ error: "A valid document type is required" });
     return;
   }
-  if (!formData || typeof formData !== "object") {
-    res.status(400).json({ error: "formData is required" });
+  const formCheck = validateFormData(type, formData);
+  if (!formCheck.ok) {
+    res.status(400).json({ error: formCheck.error });
     return;
   }
   if (!SUPPORTED_LANGUAGES.has(language)) {
@@ -44,178 +92,305 @@ router.post("/stream/guest", guestStreamRateLimit, async (req, res) => {
   res.flushHeaders();
 
   const send = (data: object) => res.write(`data: ${JSON.stringify(data)}\n\n`);
-
-  try {
-    for await (const chunk of generateLegalDocumentStream(type, formData, language)) {
-      send({ chunk });
-    }
-    send({
-      done: true,
-      title: getDocumentTitle(type),
-      price: getDocumentPrice(type),
-    });
-  } catch (err: any) {
-    send({ error: err?.message || "Generation failed" });
-  } finally {
-    res.end();
-  }
-});
-
-// ─── All routes below require auth ──────────────────────────────────────────
-router.use(authMiddleware);
-
-// List user's documents
-router.get("/", async (req: AuthRequest, res) => {
-  try {
-    const docs = await db.select().from(documentsTable)
-      .where(eq(documentsTable.userId, req.userId!))
-      .orderBy(desc(documentsTable.createdAt));
-    res.json(docs.map((d) => ({
-      ...d,
-      content: d.paid ? d.content : d.content ? d.content.substring(0, 200) + "..." : null,
-    })));
-  } catch (err) {
-    req.log.error({ err }, "list docs error");
-    res.status(500).json({ error: "Failed to list documents" });
-  }
-});
-
-// Get single document (auth user's own)
-router.get("/:id", async (req: AuthRequest, res) => {
-  try {
-    const id = Number.parseInt(String(req.params.id), 10);
-    const docs = await db.select().from(documentsTable)
-      .where(and(eq(documentsTable.id, id), eq(documentsTable.userId, req.userId!)))
-      .limit(1);
-    if (docs.length === 0) { res.status(404).json({ error: "Not found" }); return; }
-    const doc = docs[0];
-    res.json({
-      ...doc,
-      content: doc.paid ? doc.content
-        : doc.content ? doc.content.substring(0, 500) + "\n\n[Full document unlocks after payment]" : null,
-    });
-  } catch (err) {
-    req.log.error({ err }, "get doc error");
-    res.status(500).json({ error: "Failed to get document" });
-  }
-});
-
-// Authenticated streaming (saves to DB automatically)
-router.post("/stream", async (req: AuthRequest, res) => {
-  const { type, formData, language = "en" } = req.body as {
-    type: string; formData: Record<string, unknown>; language: string;
-  };
-
-  if (!type || !formData) {
-    res.status(400).json({ error: "type and formData required" });
-    return;
-  }
-
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-  res.setHeader("X-Accel-Buffering", "no");
-  res.flushHeaders();
-
-  const send = (data: object) => res.write(`data: ${JSON.stringify(data)}\n\n`);
   let fullContent = "";
 
   try {
-    const price = getDocumentPrice(type);
-    const title = getDocumentTitle(type);
-
     for await (const chunk of generateLegalDocumentStream(type, formData, language)) {
       fullContent += chunk;
       send({ chunk });
     }
 
-    const [doc] = await db.insert(documentsTable).values({
-      userId: req.userId!,
-      type, title, content: fullContent,
-      formData, paid: false, language, price,
-    }).returning();
+    const outCheck = validateGeneratedContent(fullContent);
+    if (!outCheck.ok) {
+      // One repair pass: regenerate from the partial draft, stream it too.
+      send({ repairing: true });
+      try {
+        const repaired = await repairLegalDocument(type, formData, fullContent, language, outCheck.error ?? "incomplete");
+        for (let i = 0; i < repaired.length; i += 2000) {
+          const slice = repaired.slice(i, i + 2000);
+          fullContent += slice;
+          send({ chunk: slice });
+        }
+      } catch (repairErr: any) {
+        send({ error: `Generation failed validation and repair did not succeed: ${repairErr?.message ?? "unknown"}` });
+        return;
+      }
+      const recheck = validateGeneratedContent(fullContent);
+      if (!recheck.ok) {
+        send({ error: recheck.error });
+        return;
+      }
+    }
 
-    send({ done: true, docId: doc.id });
+    // Persist the server-generated document (source of truth for the PDF).
+    const basePrice = getDocumentPrice(type);
+    const totalPaise = (basePrice + Math.round(basePrice * 0.18)) * 100;
+    const sessionId = await getSessionId(deviceKeyOf(req));
+    const [doc] = await db
+      .insert(guestDocumentsTable)
+      .values({
+        sessionId,
+        docType: type,
+        formData,
+        content: fullContent,
+        language,
+        templateVersion: TEMPLATE_VERSION,
+        promptVersion: PROMPT_VERSION,
+        legalVersion: LEGAL_VERSION,
+        pricePaise: totalPaise,
+        status: "draft",
+      })
+      .returning({ id: guestDocumentsTable.id });
+    await db.insert(documentVersionsTable).values({
+      documentId: doc.id,
+      version: "1",
+      content: fullContent,
+      formData: JSON.stringify(formData),
+    });
+    audit("document.generated", {
+      documentId: doc.id,
+      ip: req.ip,
+      metadata: { type, language },
+    }).catch(() => {});
+
+    send({
+      done: true,
+      documentId: doc.id,
+      title: getDocumentTitle(type),
+      price: basePrice,
+    });
   } catch (err: any) {
-    req.log.error({ err }, "stream error");
     send({ error: err?.message || "Generation failed" });
   } finally {
     res.end();
   }
 });
 
-// Save pre-generated content (after guest login redirect)
-router.post("/from-content", async (req: AuthRequest, res) => {
+// ─── PUBLIC: Tokenized PDF download (no auth — token is the credential) ─────
+// Token must be cryptographically random (issued at payment), hashed in DB,
+// unexpired, unrevoked. Rate-limited per IP.
+router.get("/download/:token", downloadRateLimit, async (req, res) => {
   try {
-    const { type, title, content, formData, language = "en", price } = req.body as {
-      type: string; title: string; content: string;
-      formData: Record<string, unknown>; language: string; price: number;
-    };
-
-    if (!type || !content) {
-      res.status(400).json({ error: "type and content required" });
+    const raw = String(req.params.token ?? "");
+    if (!raw || raw.length > 200) {
+      res.status(404).json({ error: "Not found" });
       return;
     }
-
-    const [doc] = await db.insert(documentsTable).values({
-      userId: req.userId!,
-      type,
-      title: title || getDocumentTitle(type),
-      content,
-      formData: formData ?? {},
-      paid: false,
-      language,
-      price: price || getDocumentPrice(type),
-    }).returning();
-
-    res.json({ id: doc.id, title: doc.title, price: doc.price });
-  } catch (err) {
-    req.log.error({ err }, "from-content error");
-    res.status(500).json({ error: "Failed to save document" });
-  }
-});
-
-// Non-streaming fallback
-router.post("/", async (req: AuthRequest, res) => {
-  try {
-    const { type, formData, language = "en" } = req.body as {
-      type: string; formData: Record<string, unknown>; language: string;
-    };
-    if (!type || !formData) {
-      res.status(400).json({ error: "type and formData required" });
-      return;
-    }
-    const price = getDocumentPrice(type);
-    const title = getDocumentTitle(type);
-    const content = await generateLegalDocument(type, formData, language);
-    const [doc] = await db.insert(documentsTable).values({
-      userId: req.userId!, type, title, content, formData, paid: false, language, price,
-    }).returning();
-    res.json({ ...doc, content: doc.content ? doc.content.substring(0, 300) + "..." : null });
-  } catch (err) {
-    req.log.error({ err }, "generate error");
-    res.status(500).json({ error: "Failed to generate document" });
-  }
-});
-
-// Download PDF (paid documents)
-router.get("/:id/download", async (req: AuthRequest, res) => {
-  try {
-    const id = Number.parseInt(String(req.params.id), 10);
-    const docs = await db.select().from(documentsTable)
-      .where(and(eq(documentsTable.id, id), eq(documentsTable.userId, req.userId!)))
+    const tokenHash = hashToken(raw);
+    const rows = await db
+      .select()
+      .from(downloadTokensTable)
+      .where(eq(downloadTokensTable.tokenHash, tokenHash))
       .limit(1);
-    if (docs.length === 0) { res.status(404).json({ error: "Not found" }); return; }
-    const doc = docs[0];
-    if (!doc.paid) { res.status(403).json({ error: "Payment required" }); return; }
-    const pdfBuffer = await generatePDF(doc.content || "", doc.title, { watermark: false, documentId: doc.id });
+    const tok = rows[0];
+    // 404 for both missing and invalid/expired — no oracle for token probing.
+    if (!tok || !isTokenLive(tok)) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    const pdfs = await db
+      .select()
+      .from(documentPdfsTable)
+      .where(eq(documentPdfsTable.documentId, tok.documentId))
+      .limit(1);
+    if (pdfs.length === 0) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    const docs = await db
+      .select({ docType: guestDocumentsTable.docType })
+      .from(guestDocumentsTable)
+      .where(eq(guestDocumentsTable.id, tok.documentId))
+      .limit(1);
+
+    await db
+      .update(downloadTokensTable)
+      .set({ lastUsedAt: new Date() })
+      .where(eq(downloadTokensTable.id, tok.id))
+      .catch(() => {});
+    audit("pdf.downloaded", {
+      documentId: tok.documentId,
+      ip: req.ip,
+      metadata: { tokenId: tok.id },
+    }).catch(() => {});
+
+    const title = getDocumentTitle(docs[0]?.docType ?? "document");
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${doc.title.replace(/\s+/g, "-")}.pdf"`);
-    res.send(pdfBuffer);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${title.replace(/\s+/g, "-")}.pdf"`,
+    );
+    res.setHeader("Cache-Control", "private, no-store");
+    res.send(pdfs[0].pdfData);
   } catch (err) {
-    req.log.error({ err }, "download error");
-    res.status(500).json({ error: "Failed to download" });
+    res.status(500).json({ error: "Download failed" });
   }
 });
 
+// ─── PUBLIC: 7-day edit regeneration (no auth — edit token is credential) ───
+// NOT a refund. Lets the buyer regenerate the paid document with corrected
+// inputs within 7 days of payment. Creates a new version + new PDF + new
+// download token. The edit token stays valid until expiry (multi-use).
+router.post("/edit/regenerate", editRegenRateLimit, async (req, res) => {
+  try {
+    const { editToken, formData } = req.body as {
+      editToken: string;
+      formData: Record<string, unknown>;
+    };
+    if (!editToken || typeof editToken !== "string") {
+      res.status(400).json({ error: "editToken is required" });
+      return;
+    }
+    const tokenHash = hashToken(editToken);
+    const rows = await db
+      .select()
+      .from(editTokensTable)
+      .where(eq(editTokensTable.tokenHash, tokenHash))
+      .limit(1);
+    const tok = rows[0];
+    if (!tok || !isTokenLive(tok)) {
+      // 410 Gone for expired — lets the client explain the 7-day window.
+      const gone = tok && !tok.revoked && tok.expiresAt.getTime() <= Date.now();
+      res.status(gone ? 410 : 404).json({
+        error: gone ? "Edit access expired (7-day window)" : "Not found",
+      });
+      return;
+    }
+
+    const docs = await db
+      .select()
+      .from(guestDocumentsTable)
+      .where(eq(guestDocumentsTable.id, tok.documentId))
+      .limit(1);
+    const doc = docs[0];
+    if (!doc || doc.status !== "paid") {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+
+    const formCheck = validateFormData(doc.docType, formData);
+    if (!formCheck.ok) {
+      res.status(400).json({ error: formCheck.error });
+      return;
+    }
+
+    const content = await generateLegalDocument(doc.docType, formData, doc.language);
+    const outCheck = validateGeneratedContent(content);
+    if (!outCheck.ok) {
+      res.status(500).json({ error: "Regeneration failed validation" });
+      return;
+    }
+
+    const existing = await db
+      .select({ version: documentVersionsTable.version })
+      .from(documentVersionsTable)
+      .where(eq(documentVersionsTable.documentId, doc.id))
+      .orderBy(desc(documentVersionsTable.createdAt))
+      .limit(1);
+    const nextVersion = String((parseInt(existing[0]?.version ?? "0", 10) || 0) + 1);
+
+    await db.insert(documentVersionsTable).values({
+      documentId: doc.id,
+      version: nextVersion,
+      content,
+      formData: JSON.stringify(formData),
+    });
+    await db
+      .update(guestDocumentsTable)
+      .set({ content, formData, updatedAt: new Date() })
+      .where(eq(guestDocumentsTable.id, doc.id));
+
+    const pdfBuffer = await generatePDF(content, getDocumentTitle(doc.docType), {
+      watermark: false,
+    });
+    await db
+      .insert(documentPdfsTable)
+      .values({ documentId: doc.id, pdfData: pdfBuffer })
+      .onConflictDoUpdate({
+        target: documentPdfsTable.documentId,
+        set: { pdfData: pdfBuffer, createdAt: new Date() },
+      });
+
+    await db
+      .update(editTokensTable)
+      .set({ usedCount: tok.usedCount + 1 })
+      .where(eq(editTokensTable.id, tok.id));
+
+    // Rotate the download token so old links stop working after an edit.
+    await db
+      .update(downloadTokensTable)
+      .set({ revoked: true })
+      .where(eq(downloadTokensTable.documentId, doc.id));
+    const dlRaw = generateToken();
+    await db.insert(downloadTokensTable).values({
+      tokenHash: hashToken(dlRaw),
+      documentId: doc.id,
+      expiresAt: new Date(Date.now() + DOWNLOAD_TOKEN_TTL_MS),
+    });
+
+    audit("edit.regenerated", {
+      documentId: doc.id,
+      ip: req.ip,
+      metadata: { version: nextVersion },
+    }).catch(() => {});
+
+    res.json({
+      ok: true,
+      version: nextVersion,
+      downloadToken: dlRaw,
+      downloadUrl: `/api/documents/download/${dlRaw}`,
+      editExpiresAt: tok.expiresAt.toISOString(),
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Regeneration failed" });
+  }
+});
+
+// ─── PUBLIC: Edit-token document lookup (token is the credential) ────────────
+// Returns the document type + saved inputs so the buyer can correct them.
+// 404 for missing/invalid tokens (no oracle), 410 for expired tokens.
+router.get("/edit/:token", async (req, res) => {
+  try {
+    const raw = String(req.params.token ?? "");
+    if (!raw || raw.length > 200) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    const rows = await db
+      .select()
+      .from(editTokensTable)
+      .where(eq(editTokensTable.tokenHash, hashToken(raw)))
+      .limit(1);
+    const tok = rows[0];
+    if (!tok || tok.revoked) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    if (tok.expiresAt.getTime() <= Date.now()) {
+      res.status(410).json({ error: "Edit access expired (7-day window)" });
+      return;
+    }
+    const docs = await db
+      .select()
+      .from(guestDocumentsTable)
+      .where(eq(guestDocumentsTable.id, tok.documentId))
+      .limit(1);
+    const doc = docs[0];
+    if (!doc || doc.status !== "paid") {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.json({
+      docType: doc.docType,
+      title: getDocumentTitle(doc.docType),
+      formData: doc.formData,
+      language: doc.language,
+      editExpiresAt: tok.expiresAt.toISOString(),
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Lookup failed" });
+  }
+});
+
+export { DOWNLOAD_TOKEN_TTL_MS, EDIT_TOKEN_TTL_MS };
 export default router;

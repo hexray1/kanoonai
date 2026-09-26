@@ -1,4 +1,10 @@
 import OpenAI from "openai";
+import {
+  TEMPLATE_VERSION,
+  PROMPT_VERSION,
+  LEGAL_VERSION,
+  validateGeneratedContent,
+} from "./documentConfig.js";
 
 /**
  * Lazy NVIDIA client: the API must stay importable (and /api/healthz must
@@ -679,6 +685,30 @@ MANDATORY SECTIONS:
 10. DECLARATION — "I declare that the information provided is accurate. No family member is included in any other ration card. I am aware that inclusion of wrong information is punishable under PDS Order."
 11. APPLICANT SIGNATURE AND THUMB IMPRESSION — Date, place
 12. RATION CARD AGENT/WITNESS — If applicable`,
+
+  "invoice": `You are an Indian tax documentation specialist. Generate a GST-compliant Tax Invoice under the CGST Act, 2017 and SGST/IGST provisions.
+
+MANDATORY SECTIONS:
+1. INVOICE HEADER — "TAX INVOICE", invoice number, invoice date, place of supply, due date
+2. SUPPLIER DETAILS — Legal business name, registered address, GSTIN, PAN, state code, contact details
+3. RECIPIENT (BILL TO) DETAILS — Client name, billing address, GSTIN (if registered), state code, PAN
+4. SHIP TO DETAILS — Delivery address if different from billing address
+5. LINE ITEMS TABLE:
+   - Serial Number, Description of Goods/Services, HSN/SAC Code, Quantity, Unit Price (₹), Taxable Value (₹)
+   - Discount, if any
+   (List each item/service as a separate row from the provided items description)
+6. TAX COMPUTATION:
+   - Subtotal (taxable value)
+   - CGST @ applicable rate (intra-state supplies)
+   - SGST @ applicable rate (intra-state supplies)
+   - IGST @ applicable rate (inter-state supplies)
+   - Total tax amount
+7. GRAND TOTAL — Total invoice value in figures AND in words (as per Rule 34, CGST Rules)
+8. BANK/PAYMENT DETAILS — Bank name, account number, IFSC, UPI ID for payment
+9. DECLARATION — "We declare that this invoice shows the actual particulars of the goods/services described and that all particulars are true and correct."
+10. AUTHORISED SIGNATORY — Name, designation, signature, company seal
+11. NOTES — Payment terms, late-payment interest, reverse-charge applicability if any`,
+
 };
 
 // ── Language instructions ─────────────────────────────────────────────────────
@@ -696,9 +726,14 @@ function buildPrompt(
   formData: Record<string, unknown>,
   language: string,
 ): { system: string; user: string } {
+  // Engine version stamp — identifies the exact template/prompt/legal corpus
+  // that produced a document. Bumped deliberately, never silently.
+  const ENGINE_STAMP =
+    `[engine template=${TEMPLATE_VERSION} prompt=${PROMPT_VERSION} legal=${LEGAL_VERSION}]`;
   const system =
-    DOCUMENT_PROMPTS[documentType] ??
-    `You are a senior Indian legal document expert with 25+ years of experience drafting all categories of legal documents. Generate a comprehensive, court-enforceable, professionally formatted document compliant with all applicable Indian laws and regulations.`;
+    (DOCUMENT_PROMPTS[documentType] ??
+      `You are a senior Indian legal document expert with 25+ years of experience drafting all categories of legal documents. Generate a comprehensive, professionally formatted document aligned with all applicable Indian laws and regulations.`) +
+    `\n${ENGINE_STAMP}`;
 
   const langInstruction = LANGUAGE_INSTRUCTIONS[language] ?? "";
 
@@ -789,6 +824,61 @@ async function withRetry<T>(
     }
   }
   throw lastErr;
+}
+
+/**
+ * Repair pass: the streamed draft failed structural validation (truncated or
+ * degenerate). One non-streaming retry that carries the partial draft and
+ * instructs the model to complete/repair it into a full document.
+ * Returns validated content or throws.
+ */
+export async function repairLegalDocument(
+  documentType: string,
+  formData: Record<string, unknown>,
+  partialText: string,
+  language = "en",
+  reason = "incomplete",
+): Promise<string> {
+  const { system, user } = buildPrompt(documentType, formData, language);
+  const repairUser =
+    `${user}\n\n` +
+    `REPAIR INSTRUCTION: Your previous draft was ${reason} and failed validation. ` +
+    `Here is the partial draft:\n---\n${partialText.slice(0, 6000)}\n---\n` +
+    `Produce the COMPLETE document now — full body, all clauses, signature blocks, ` +
+    `witness sections, date and place. Do not truncate. Do not add commentary, ` +
+    `only the finished legal document.`;
+  const candidates = await getNvidiaCandidates();
+  let lastError: unknown;
+  for (const model of candidates) {
+    try {
+      const completion = await withRetry(() => getClient().chat.completions.create({
+        model,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: repairUser },
+        ],
+        temperature: 0.2,
+        max_tokens: 8192,
+      }));
+      const text = completion.choices[0]?.message?.content ?? "";
+      const check = validateGeneratedContent(text);
+      if (!check.ok) {
+        throw new Error(`Repair output failed validation: ${check.error}`);
+      }
+      console.log(`[AI] Repaired ${documentType} with ${model} (${text.length} chars)`);
+      return text;
+    } catch (error: any) {
+      lastError = error;
+      const status = error?.status;
+      const canTryNext =
+        status === 400 || status === 404 || status === 410 || status === 429 ||
+        status === 500 || status === 502 || status === 503 ||
+        error?.code === "ETIMEDOUT" || error?.code === "ECONNRESET";
+      if (!canTryNext) throw error;
+      console.warn(`[AI] Repair model ${model} failed; trying fallback`);
+    }
+  }
+  throw lastError ?? new Error("No model was available for repair.");
 }
 
 // ── Non-streaming generation ─────────────────────────────────────────────────
@@ -964,7 +1054,10 @@ export const DOCUMENT_PRICES: Record<string, number> = {
 };
 
 export function getDocumentPrice(documentType: string): number {
-  return DOCUMENT_PRICES[documentType] ?? 99;
+  const price = DOCUMENT_PRICES[documentType];
+  // Fail closed: an unknown type must never be priced silently.
+  if (price === undefined) throw new Error(`Unknown document type for pricing: ${documentType}`);
+  return price;
 }
 
 export function getDocumentTitle(documentType: string): string {

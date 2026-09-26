@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MessageCircle, Phone, Mail, X, ArrowUp } from "lucide-react";
+import { Mail, X, ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function FloatingSupport() {
@@ -14,24 +14,10 @@ export function FloatingSupport() {
 
   const channels = [
     {
-      Icon: MessageCircle,
-      label: "WhatsApp",
-      sub: "Reply within 5 minutes",
-      href: "https://wa.me/918012345678?text=Hi%20Kanoon%20AI%2C%20I%20need%20help%20with%20a%20document",
-      color: "bg-green-500",
-    },
-    {
-      Icon: Phone,
-      label: "Call Support",
-      sub: "Mon–Sat, 9 AM – 9 PM",
-      href: "tel:+918012345678",
-      color: "bg-blue-500",
-    },
-    {
       Icon: Mail,
       label: "Email Us",
-      sub: "support@kanooxai.in",
-      href: "mailto:support@kanooxai.in",
+      sub: "support@mykanoon.ai",
+      href: "mailto:support@mykanoon.ai",
       color: "bg-primary",
     },
   ];
@@ -106,7 +92,7 @@ export function FloatingSupport() {
           <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-30"></span>
         )}
         <span className="relative">
-          {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+          {open ? <X className="h-6 w-6" /> : <Mail className="h-6 w-6" />}
         </span>
         {!open && (
           <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-[10px] font-bold rounded-full border-2 border-background flex items-center justify-center text-white">

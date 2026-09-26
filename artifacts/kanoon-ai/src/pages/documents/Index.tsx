@@ -100,7 +100,7 @@ export default function DocumentSelection() {
             </h1>
             <p className="text-muted-foreground text-base sm:text-lg mb-8 max-w-2xl mx-auto">
               {t(
-                "Every Indian legal document, drafted by NVIDIA AI in 60 seconds. Free to preview — pay only to download.",
+                "Every Indian legal document, drafted by AI in 60 seconds. Free to preview — pay only to download.",
                 "हर भारतीय कानूनी दस्तावेज़ — NVIDIA AI द्वारा 60 सेकंड में। पहले देखें, फिर भुगतान करें।"
               )}
             </p>

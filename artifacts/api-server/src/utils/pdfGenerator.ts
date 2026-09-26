@@ -76,7 +76,7 @@ export async function generatePDF(
 
       // Right side: website + verification
       doc.fillColor(COLORS.gold).fontSize(9).font("Helvetica-Bold")
-        .text("kanooxai.in", W - M.right - 100, 22, { width: 100, align: "right" });
+        .text("mykanoon.ai", W - M.right - 100, 22, { width: 100, align: "right" });
       doc.fillColor("#AAAAAA").fontSize(7).font("Helvetica")
         .text(`Verified · ${dateStr}`, W - M.right - 100, 38, { width: 100, align: "right" });
       doc.restore();
@@ -106,7 +106,7 @@ export async function generatePDF(
           M.left, H - 22, { width: TW, align: "left" });
 
       doc.fillColor(COLORS.gold).fontSize(6.5).font("Helvetica-Bold")
-        .text("kanooxai.in", W - M.right - 80, H - 22, { width: 80, align: "right" });
+        .text("mykanoon.ai", W - M.right - 80, H - 22, { width: 80, align: "right" });
       doc.restore();
     };
 

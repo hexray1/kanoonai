@@ -15,22 +15,12 @@ const CONTACT_ITEMS = [
   {
     icon: Mail,
     title: "Email Support",
-    value: "support@kanooxai.in",
+    value: "support@mykanoon.ai",
     sub: "Average reply: under 24 hours",
-    href: "mailto:support@kanooxai.in",
+    href: "mailto:support@mykanoon.ai",
     color: "text-blue-400",
     bg: "bg-blue-500/10",
     border: "border-blue-500/20",
-  },
-  {
-    icon: MessageCircle,
-    title: "WhatsApp",
-    value: "+91 98765 43210",
-    sub: "Mon–Sat, 10 AM – 6 PM IST",
-    href: "https://wa.me/919876543210",
-    color: "text-green-400",
-    bg: "bg-green-500/10",
-    border: "border-green-500/20",
   },
   {
     icon: Clock,
@@ -55,17 +45,17 @@ const CONTACT_ITEMS = [
 ];
 
 const QUICK_TOPICS = [
-  "I need to cancel/get a refund",
+  "Payment was deducted but no document",
   "My document has an error",
   "I want to re-download my paid PDF",
-  "Payment was deducted but no document",
+  "Question about 7-day edit access",
   "Other question",
 ];
 
 export default function Contact() {
   useSeo({
-    title: "Contact Kanoon AI — WhatsApp, Email & Phone Support",
-    description: "Reach Kanoon AI on WhatsApp +91 98765 43210 or email support@kanooxai.in. Mon–Sat, 10 AM – 6 PM IST. Average response under 24 hours.",
+    title: "Contact Kanoon AI — Email Support",
+    description: "Reach Kanoon AI at support@mykanoon.ai. Mon–Sat, 10 AM – 6 PM IST. Average response under 24 hours.",
   });
 
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });

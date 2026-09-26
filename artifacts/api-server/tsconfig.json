@@ -6,6 +6,7 @@
     "types": ["node"]
   },
   "include": ["src"],
+  "exclude": ["src/utils/__tests__", "test"],
   "references": [
     {
       "path": "../../lib/db"

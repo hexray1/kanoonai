@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
-import { RotateCcw, ArrowLeft, MessageCircle, FileText } from "lucide-react";
+import { PenLine, ArrowLeft, MessageCircle, FileText, BadgeCheck } from "lucide-react";
 import { Link } from "wouter";
 import { useSeo } from "@/hooks/use-seo";
 
 export default function RefundPolicy() {
   useSeo({
-    title: "Refund & Cancellation Policy — Kanoon AI",
-    description: "Kanoon AI's refund policy for digital legal documents. 7-day satisfaction guarantee on most templates.",
+    title: "Refund & Edit Policy — Kanoon AI",
+    description: "Kanoon AI's policy for digital legal documents: free preview before payment and free edits for 7 days after payment.",
   });
   return (
     <div className="min-h-screen bg-background py-16 px-4">
@@ -22,106 +22,81 @@ export default function RefundPolicy() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           {/* Header */}
           <div className="bg-card border border-white/10 rounded-2xl p-6 mb-8 flex items-start gap-4">
-            <div className="h-12 w-12 bg-green-500/10 rounded-xl flex items-center justify-center border border-green-500/20 shrink-0">
-              <RotateCcw className="h-6 w-6 text-green-400" />
+            <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 shrink-0">
+              <PenLine className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white mb-1">Refund & Cancellation Policy</h1>
-              <p className="text-muted-foreground text-sm">Last updated: March 1, 2025 · 7-day money-back guarantee</p>
+              <h1 className="text-2xl font-bold text-white mb-1">Refund & Edit Policy</h1>
+              <p className="text-muted-foreground text-sm">Last updated: September 26, 2026 · Free preview before you pay, free edits for 7 days after</p>
             </div>
           </div>
 
-          <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-6 mb-8">
-            <h2 className="text-xl font-bold text-green-400 mb-2">7-Day Money Back Guarantee</h2>
-            <p className="text-green-200">We stand behind the quality of our AI-generated documents. If you are not satisfied with your purchase for any reason, we offer a full refund within 7 days — no questions asked.</p>
+          <div className="bg-primary/10 border border-primary/30 rounded-2xl p-6 mb-8">
+            <h2 className="text-xl font-bold text-primary mb-2">7-Day Free Edit Access</h2>
+            <p className="text-muted-foreground">Every purchase includes free edits for 7 days after payment. Correct any detail and regenerate your document — new version, new PDF, no extra charge. This is edit access, not a refund.</p>
           </div>
 
           <div className="prose prose-invert max-w-none space-y-8 text-muted-foreground leading-relaxed">
             <section>
-              <h2 className="text-xl font-semibold text-white mb-3">Refund Eligibility</h2>
-              <p>You are eligible for a full refund if:</p>
+              <h2 className="text-xl font-semibold text-white mb-3">Try Before You Pay</h2>
+              <p>
+                Every document is drafted and previewed <strong className="text-white">completely free</strong>. You see the
+                full generated document before any payment screen appears — so you always know exactly what you are buying.
+                Payment unlocks the final print-ready PDF.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-3">Why Digital Documents Are Non-Refundable</h2>
+              <p>
+                Once payment is captured, the final PDF is generated and delivered to you instantly. Because a digital
+                document cannot be "returned", all sales are <strong className="text-white">final and non-refundable</strong> —
+                this is standard for instantly-delivered digital goods.
+              </p>
+              <p className="mt-2">
+                Instead of refunds, we give you two stronger protections: a <strong className="text-white">free full preview before payment</strong>,
+                and <strong className="text-white">7 days of free edits after payment</strong>. If a name, date, or clause is wrong,
+                fix it and regenerate at no cost.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-3">Exceptions</h2>
+              <p>A refund may be issued only in these cases:</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li>Your refund request is made within <strong className="text-white">7 calendar days</strong> of payment</li>
-                <li>The document was generated but you are unsatisfied with the quality</li>
-                <li>The document could not be generated due to a technical error on our end</li>
-                <li>You were charged twice for the same document (duplicate charge)</li>
+                <li>You were <strong className="text-white">charged twice</strong> for the same document (duplicate charge) — the duplicate is refunded in full.</li>
+                <li>Payment was captured but the PDF could not be delivered due to a <strong className="text-white">technical failure on our end</strong> and could not be recovered.</li>
               </ul>
+              <p className="mt-2">
+                Refunds are processed to the original payment method via Razorpay within 5–7 business days of approval.
+              </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-3">Non-Refundable Cases</h2>
-              <p>Refunds will <strong className="text-white">not</strong> be issued in the following situations:</p>
-              <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li>Refund request made after 7 days of payment</li>
-                <li>You provided incorrect or insufficient information in the form and the document was generated as per your inputs</li>
-                <li>The document was used in a legal proceeding (you accepted responsibility upon download)</li>
-                <li>Subscription plans where more than 1 document has been generated in the billing cycle</li>
-                <li>Referral credits and promotional discounts are non-refundable</li>
-              </ul>
+              <h2 className="text-xl font-semibold text-white mb-3">How to Request</h2>
+              <p>
+                Contact us with your payment/order details and a description of the issue. Each request is reviewed
+                individually against the exceptions above.
+              </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold text-white mb-3">How to Request a Refund</h2>
-              <ol className="list-decimal pl-6 space-y-2">
-                <li>Email <strong className="text-primary">refunds@kanooxai.in</strong> with your payment ID and document details to request a refund.</li>
-                <li>Or email us at <strong className="text-primary">refunds@kanooxai.in</strong> with:
-                  <ul className="list-disc pl-6 mt-1 space-y-1 text-sm">
-                    <li>Your registered email address</li>
-                    <li>The document type and date of purchase</li>
-                    <li>Razorpay payment ID (found in your email receipt)</li>
-                    <li>Reason for refund (optional but helps us improve)</li>
-                  </ul>
-                </li>
-              </ol>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-white mb-3">Refund Processing Time</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-                {[
-                  { step: "1", label: "Request Submitted", time: "Instant" },
-                  { step: "2", label: "Review & Approval", time: "1–2 business days" },
-                  { step: "3", label: "Money Credited", time: "5–7 business days" },
-                ].map((item) => (
-                  <div key={item.step} className="bg-card border border-white/10 rounded-xl p-4 text-center">
-                    <div className="h-8 w-8 bg-primary/20 text-primary rounded-full flex items-center justify-center font-bold mx-auto mb-2">{item.step}</div>
-                    <p className="text-white text-sm font-medium">{item.label}</p>
-                    <p className="text-muted-foreground text-xs mt-1">{item.time}</p>
-                  </div>
-                ))}
+            <section className="bg-card border border-white/10 rounded-2xl p-6 flex items-start gap-4">
+              <MessageCircle className="h-6 w-6 text-primary shrink-0 mt-1" />
+              <div>
+                <h3 className="text-white font-semibold mb-1 flex items-center gap-2">
+                  Questions about a payment? <BadgeCheck className="h-4 w-4 text-primary" />
+                </h3>
+                <p className="text-sm">
+                  Reach us via the <Link href="/contact" className="text-primary hover:underline">contact page</Link>.
+                  Include your order ID (shown on the payment receipt) so we can help faster.
+                </p>
               </div>
-              <p className="mt-4 text-sm">Refunds are credited back to the original payment method (UPI, credit card, debit card, or bank account). Bank processing times may vary.</p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold text-white mb-3">Subscription Cancellation</h2>
-              <p>Kanoon AI currently charges per document. If a recurring plan is introduced in the future, cancellation instructions will be provided before enrollment.</p>
-              <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li>No recurring subscription is required to generate or download a document</li>
-                <li>Refund requests are handled under the policy above</li>
-              </ul>
+            <section className="flex items-center gap-2 text-sm">
+              <FileText className="h-4 w-4 text-primary" />
+              <span>Also see our <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link> for the full purchase terms.</span>
             </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-white mb-3">Contact</h2>
-              <p>For refund-related queries: <strong className="text-primary">refunds@kanooxai.in</strong></p>
-              <p className="mt-1">We respond to all refund requests within 1 business day.</p>
-            </section>
-          </div>
-
-          {/* Bottom CTA */}
-          <div className="mt-12 bg-card border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <h3 className="text-white font-semibold mb-1">Need to request a refund?</h3>
-              <p className="text-muted-foreground text-sm">Email <span className="text-primary">refunds@kanooxai.in</span> or message us on WhatsApp — resolved within 1 business day.</p>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <Link href="/contact">
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors">
-                  <MessageCircle className="h-4 w-4" /> Contact Us
-                </button>
-              </Link>
-            </div>
           </div>
         </motion.div>
       </div>

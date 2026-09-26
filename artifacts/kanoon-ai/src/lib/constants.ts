@@ -12,7 +12,7 @@ export const DOCUMENTS = {
   'rent-agreement':  { category: 'rental',     name: 'Rent Agreement',            nameHi: 'किरायानामा',                  price: 199, fields: ['landlord_name', 'landlord_address', 'tenant_name', 'tenant_address', 'property_address', 'monthly_rent', 'deposit_amount', 'start_date', 'duration_months', 'state'] },
   'leave-license':   { category: 'rental',     name: 'Leave & License',           nameHi: 'लीव एंड लाइसेंस',             price: 199, fields: ['licensor_name', 'licensee_name', 'property_address', 'monthly_fee', 'deposit', 'duration_months'] },
   'noc-letter':      { category: 'rental',     name: 'NOC Letter',                nameHi: 'अनापत्ति प्रमाण पत्र (NOC)',  price: 99,  fields: ['issuer_name', 'recipient_name', 'property_details', 'purpose', 'date'] },
-  'eviction-notice': { category: 'rental',     name: 'Eviction Notice',           nameHi: 'बेदखली नोटिस',                price: 99,  fields: ['landlord_name', 'tenant_name', 'property_address', 'reason', 'vacate_by_date'] },
+  'eviction-notice': { category: 'rental',     name: 'Eviction Notice',           nameHi: 'बेदखली नोटिस',                price: 149,  fields: ['landlord_name', 'tenant_name', 'property_address', 'reason', 'vacate_by_date'] },
 
   // Business & Finance
   'partnership-deed':  { category: 'business', name: 'Partnership Deed',          nameHi: 'साझेदारी विलेख',              price: 499, fields: ['partner1_name', 'partner1_address', 'partner2_name', 'partner2_address', 'business_name', 'business_address', 'profit_ratio', 'start_date'] },
@@ -34,9 +34,9 @@ export const DOCUMENTS = {
   'rti':               { category: 'legal',    name: 'RTI Application',           nameHi: 'आरटीआई आवेदन',              price: 99,  fields: ['applicant_name', 'applicant_address', 'authority_name', 'authority_address', 'information_sought', 'date'] },
 
   // Employment
-  'offer-letter':      { category: 'employment', name: 'Offer Letter',            nameHi: 'प्रस्ताव पत्र',              price: 99,  fields: ['company_name', 'candidate_name', 'designation', 'salary', 'joining_date', 'reporting_manager'] },
-  'emp-contract':      { category: 'employment', name: 'Employment Contract',     nameHi: 'रोज़गार अनुबंध',             price: 199, fields: ['company_name', 'employee_name', 'designation', 'salary', 'probation_period', 'notice_period'] },
-  'termination-letter':{ category: 'employment', name: 'Termination Letter',      nameHi: 'समाप्ति पत्र',               price: 99,  fields: ['company_name', 'employee_name', 'designation', 'termination_date', 'reason', 'notice_period'] },
+  'offer-letter':      { category: 'employment', name: 'Offer Letter',            nameHi: 'प्रस्ताव पत्र',              price: 149,  fields: ['company_name', 'candidate_name', 'designation', 'salary', 'joining_date', 'reporting_manager'] },
+  'emp-contract':      { category: 'employment', name: 'Employment Contract',     nameHi: 'रोज़गार अनुबंध',             price: 299, fields: ['company_name', 'employee_name', 'designation', 'salary', 'probation_period', 'notice_period'] },
+  'termination-letter':{ category: 'employment', name: 'Termination Letter',      nameHi: 'समाप्ति पत्र',               price: 149,  fields: ['company_name', 'employee_name', 'designation', 'termination_date', 'reason', 'notice_period'] },
   'experience-cert':   { category: 'employment', name: 'Experience Certificate',  nameHi: 'अनुभव प्रमाण पत्र',         price: 99,  fields: ['company_name', 'employee_name', 'designation', 'start_date', 'end_date', 'performance_note'] },
 
   // Government

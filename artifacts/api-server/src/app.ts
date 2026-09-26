@@ -30,9 +30,13 @@ app.use(
   }),
 );
 
-// CORS: restrict to the configured frontend origin in production;
-// fall back to permissive CORS only outside production (dev).
+// CORS: restrict to the configured frontend origin in production.
+// Fail closed: in production without FRONTEND_URL the API must not serve
+// cross-origin browser traffic at all (not even permissive CORS).
 const frontendOrigin = process.env.FRONTEND_URL;
+if (!frontendOrigin && process.env.NODE_ENV === "production") {
+  throw new Error("FRONTEND_URL must be set in production");
+}
 app.use(
   frontendOrigin
     ? cors({ origin: frontendOrigin.split(",").map((o) => o.trim()) })

@@ -194,9 +194,6 @@ importers:
       google-auth-library:
         specifier: ^10.6.2
         version: 10.6.2
-      jsonwebtoken:
-        specifier: ^9.0.3
-        version: 9.0.3
       openai:
         specifier: ^6.38.0
         version: 6.38.0(zod@4.3.6)
@@ -222,9 +219,6 @@ importers:
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
-      '@types/jsonwebtoken':
-        specifier: ^9.0.10
-        version: 9.0.10
       '@types/node':
         specifier: 'catalog:'
         version: 25.3.5

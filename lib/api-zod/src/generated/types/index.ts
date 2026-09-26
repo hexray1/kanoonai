@@ -23,7 +23,9 @@ export * from "./payment";
 export * from "./paymentOrder";
 export * from "./paymentVerifyResponse";
 export * from "./sendOtpRequest";
-export * from "./sendOtpResponse";
+// NOTE: "./sendOtpResponse" intentionally not re-exported — it re-declares
+// SendOtpResponse which is already exported by ../api.ts (dead OTP residue
+// in the guest-only product). Re-exporting it breaks the barrel (TS2308).
 export * from "./user";
 export * from "./userAdmin";
 export * from "./verifyOtpRequest";

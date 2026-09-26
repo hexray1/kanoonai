@@ -3,7 +3,7 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
   Shield, Zap, FileText, CheckCircle2, ArrowRight, XCircle,
-  Bot, Download, Star, Quote, Users, Award, Lock, Sparkles,
+  Bot, Download, Users, Award, Lock, Sparkles,
   Clock, Check, TrendingUp, ChevronDown, Globe, Cpu,
   MessageCircle, BadgeCheck, IndianRupee, Scale, Gavel,
 } from "lucide-react";
@@ -198,7 +198,7 @@ function DocumentTypingPreview() {
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-[10px] text-green-400 font-medium">NVIDIA AI drafting…</span>
+          <span className="text-[10px] text-green-400 font-medium">AI drafting…</span>
         </div>
       </div>
 
@@ -221,7 +221,7 @@ function DocumentTypingPreview() {
           {displayedLines.length}/{doc.lines.length} lines · {displayedLines.join(" ").split(/\s+/).filter(Boolean).length} words
         </span>
         <span className="text-gray-600 flex items-center gap-1">
-          <Zap className="h-2.5 w-2.5" />Nemotron 3 Super
+          <Zap className="h-2.5 w-2.5" />AI drafting
         </span>
       </div>
     </div>
@@ -271,17 +271,17 @@ function LiveTicker() {
 
 // ── Data ───────────────────────────────────────────────────────────────────
 const STATS = [
-  { value: 47000, suffix: "+", label: "Documents Generated", icon: FileText },
-  { value: 12000, suffix: "+", label: "Happy Customers",     icon: Users },
-  { value: 28,    suffix: "",  label: "Indian States Served", icon: Globe },
-  { value: 60,    suffix: "s", label: "Avg. Generation Time", icon: Zap },
+  { value: 25,  suffix: "+", label: "Legal Document Types", icon: FileText },
+  { value: 5,   suffix: "",  label: "Indian Languages",      icon: Users },
+  { value: 28,  suffix: "",  label: "States & UTs Covered",  icon: Globe },
+  { value: 60,  suffix: "s", label: "Avg. Generation Time",  icon: Zap },
 ];
 
 const STEPS = [
   { icon: FileText, step: "01", title: "Pick Your Document",
     desc: "Choose from 25+ Indian legal templates — rent agreements, NDAs, affidavits, wills, legal notices and more." },
   { icon: Bot,      step: "02", title: "Fill a Simple Form",
-    desc: "Answer plain-language questions. No legal jargon. Our NVIDIA AI handles all the legal drafting for you." },
+    desc: "Answer plain-language questions. No legal jargon. Our AI handles all the legal drafting for you." },
   { icon: Download, step: "03", title: "Download Your PDF",
     desc: "Get a complete, print-ready PDF in 60 seconds — ready for stamp paper, signing, notarization, or registration." },
 ];
@@ -356,23 +356,8 @@ const LAWYER_COSTS: Record<string, { lawyer: number; name: string }> = {
 const KANOOX_COSTS: Record<string, number> = {
   "Rent Agreement": 199, "NDA": 299, "Partnership Deed": 499,
   "Affidavit": 199, "Legal Notice": 299, "Will & Testament": 499,
-  "Employment Contract": 199, "Gift Deed": 499,
+  "Employment Contract": 299, "Gift Deed": 499,
 };
-
-const TESTIMONIALS = [
-  { name: "Rahul Sharma",   loc: "Delhi",     role: "Small Business Owner",
-    text: "Drafted my partnership deed in 5 minutes. Saved ₹15,000 in lawyer fees. The document was perfect — even my CA was impressed.", rating: 5 },
-  { name: "Priya Patel",    loc: "Mumbai",    role: "Independent Consultant",
-    text: "I send NDAs to 10+ clients every month. Kanoon AI completely changed my workflow. Professional, fast, and legally solid.", rating: 5 },
-  { name: "Anand Kumar",    loc: "Bengaluru", role: "Landlord (3 properties)",
-    text: "Generated Hindi rent agreements for all my tenants. They loved how professional the documents looked. Highly recommended.", rating: 5 },
-  { name: "Sneha Reddy",    loc: "Hyderabad", role: "HR Manager, TechStartup",
-    text: "We use Kanoon AI for offer letters, experience certificates, and termination letters. Saves our team 3+ hours per week.", rating: 5 },
-  { name: "Vikram Singh",   loc: "Jaipur",    role: "CA & Tax Consultant",
-    text: "I recommend Kanoon AI to all my SME clients for basic contracts and agreements. Fast, affordable, and legally sound.", rating: 5 },
-  { name: "Deepa Menon",    loc: "Kochi",     role: "Freelance Designer",
-    text: "Sent my first legal notice to a client who didn't pay me. The AI wrote a perfectly worded notice that got results in 3 days!", rating: 5 },
-];
 
 const COMPARISON = [
   { feature: "Cost",              kanoox: "₹99 – ₹499",     lawyer: "₹3,000 – ₹50,000", others: "₹500 – ₹2,000" },
@@ -382,17 +367,17 @@ const COMPARISON = [
   { feature: "Available 24/7",    kanoox: true,              lawyer: false,                others: true            },
   { feature: "Live AI drafting",  kanoox: true,              lawyer: false,                others: false           },
   { feature: "Free preview",      kanoox: true,              lawyer: false,                others: false           },
-  { feature: "7-day refund",      kanoox: true,              lawyer: false,                others: "Partial"       },
-  { feature: "NVIDIA AI powered", kanoox: true,              lawyer: false,                others: false           },
+  { feature: "7-day free edits", kanoox: true,              lawyer: false,                others: "Partial"       },
+  { feature: "AI powered",       kanoox: true,              lawyer: false,                others: false           },
 ];
 
 const HOME_FAQS = [
   { q: "Are these documents legally valid in India?",
-    a: "Yes. All templates comply with Indian statutes — Indian Contract Act, Transfer of Property Act, Indian Partnership Act, Indian Evidence Act — and include witness sections, stamp duty advisories, and jurisdiction clauses. Certain documents like Wills may require notarization/registration; the AI includes guidance on this." },
+    a: "Kanoon AI generates structured legal drafts aligned with current Indian statutes — the Indian Contract Act, Transfer of Property Act, Indian Partnership Act, and the Bharatiya Sakshya Adhiniyam, 2023 — with witness sections, stamp duty advisories, and jurisdiction clauses. A draft becomes legally effective only when properly executed: signed, stamped as per your state's Stamp Act, and registered where the law requires it (e.g. gift deeds, leases over 11 months). For high-stakes matters, have an advocate review the final document before use." },
   { q: "Do I need to pay before I can see my document?",
     a: "Never. Kanoon AI lets you draft and preview the complete document for free. You pay only when you're satisfied and ready to download the final PDF. No hidden charges." },
   { q: "How long does it take to get my document?",
-    a: "Under 60 seconds for most documents. You watch the NVIDIA AI write it in real-time — like watching a senior lawyer type your document live on screen. Complex documents like Partnership Deeds or Wills may take up to 90 seconds." },
+    a: "Under 60 seconds for most documents. You watch the AI write it in real-time, word by word. Complex documents like Partnership Deeds or Wills may take up to 90 seconds." },
   { q: "Which states and languages are supported?",
     a: "All 28 states and 8 UTs of India. 5 languages: English, Hindi, Marathi, Tamil, Telugu. State-specific laws are applied automatically — e.g., Maharashtra Rent Control Act for Leave & License agreements." },
 ];
@@ -474,7 +459,7 @@ export default function Home() {
 
               <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }}
                 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-5 leading-[1.06]">
-                India's #1 AI<br />
+                India's AI<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-300 to-primary">
                   Legal Document
                 </span>
@@ -484,7 +469,7 @@ export default function Home() {
               <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.16 }}
                 className="text-base md:text-lg text-muted-foreground mb-3 leading-relaxed">
                 {t(
-                  "Rent agreements, NDAs, affidavits, wills & 22 more legal documents — drafted live by NVIDIA AI in 60 seconds. India-specific. From ₹99.",
+                  "Rent agreements, NDAs, affidavits, wills & 22 more legal documents — drafted live by AI in 60 seconds. India-specific. From ₹99.",
                   "NVIDIA AI से 25+ भारतीय कानूनी दस्तावेज़ 60 सेकंड में। किराया अनुबंध, NDA, हलफनामे, वसीयत। सिर्फ ₹99 से।"
                 )}
               </motion.p>
@@ -536,7 +521,7 @@ export default function Home() {
                   { icon: Lock,       text: "SSL Encrypted"        },
                   { icon: Shield,     text: "Razorpay Secured"      },
                   { icon: Award,      text: "Lawyer-Reviewed"       },
-                  { icon: Cpu,        text: "NVIDIA Nemotron 3 Super"    },
+                  { icon: Cpu,        text: "AI document engine"    },
                   { icon: BadgeCheck, text: "DPDPA 2023 Compliant"  },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-1">
@@ -565,7 +550,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-white text-xs font-bold">Document Ready</p>
-                      <p className="text-[10px] text-muted-foreground">42 sec · NVIDIA AI</p>
+                      <p className="text-[10px] text-muted-foreground">42 sec · AI</p>
                     </div>
                   </motion.div>
                   {/* Floating users badge */}
@@ -579,8 +564,8 @@ export default function Home() {
                       ))}
                     </div>
                     <div>
-                      <p className="text-white text-xs font-bold">12,000+ users</p>
-                      <p className="text-[10px] text-muted-foreground">247 docs today</p>
+                      <p className="text-white text-xs font-bold">25+ document types</p>
+                      <p className="text-[10px] text-muted-foreground">5 Indian languages</p>
                     </div>
                   </motion.div>
                 </div>
@@ -617,12 +602,12 @@ export default function Home() {
       <section className="py-10 border-b border-white/5 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-xs text-muted-foreground/50 uppercase tracking-widest font-semibold mb-6">
-            Trusted by professionals featured in
+            How Kanoon AI works for you
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
             {[
-              "Economic Times", "YourStory", "Inc42", "Business Standard",
-              "Mint", "The Hindu Business Line", "Entrackr", "VCCircle",
+              "No account needed", "Pay per document", "Free draft & preview",
+              "7-day free edits", "UPI · Cards · Netbanking",
             ].map((pub) => (
               <span key={pub} className="text-sm font-bold text-white/20 hover:text-white/40 transition-colors tracking-wide uppercase cursor-default select-none">
                 {pub}
@@ -721,7 +706,7 @@ export default function Home() {
               Your legal document in 3 steps
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              No legal jargon. No lawyer appointments. No waiting. Just fill a form, watch NVIDIA AI draft it live, and download.
+              No legal jargon. No lawyer appointments. No waiting. Just fill a form, watch AI draft it live, and download.
             </p>
           </div>
 
@@ -946,19 +931,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── NVIDIA AI POWER ──────────────────────────────────────────────── */}
+      {/* ── AI ENGINE ──────────────────────────────────────────────────────── */}
       <section className="py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#76b900]/10 border border-[#76b900]/30 text-[#76b900] text-xs font-semibold mb-6">
-                <Cpu className="h-3.5 w-3.5" /> Powered by NVIDIA
+                <Cpu className="h-3.5 w-3.5" /> Powered by AI
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
                 World's most powerful AI writes your legal documents
               </h2>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Kanoon AI uses <strong className="text-white">NVIDIA Nemotron 3 Super</strong> — served on NVIDIA's enterprise AI platform — one of the highest-ranked open models for professional, structured writing. You can watch it draft your document in real-time, word by word, like a senior lawyer typing in front of you.
+                Kanoon AI uses a <strong className="text-white">state-of-the-art AI document engine</strong> — tuned for Indian legal drafting. You can watch it draft your document in real-time, word by word.
               </p>
               <div className="space-y-3">
                 {[
@@ -1007,64 +992,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ─────────────────────────────────────────────────── */}
-      <section className="py-24 bg-card/30 border-y border-white/5">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-4">
-              Real Reviews
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Loved across India</h2>
-            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 text-primary fill-primary" />)}
-              </div>
-              <span>4.9 / 5 from 1,247 verified reviews</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {TESTIMONIALS.map((t, i) => {
-              const avatarColors = [
-                "bg-blue-500/20 text-blue-400",
-                "bg-purple-500/20 text-purple-400",
-                "bg-green-500/20 text-green-400",
-                "bg-rose-500/20 text-rose-400",
-                "bg-amber-500/20 text-amber-400",
-                "bg-teal-500/20 text-teal-400",
-              ];
-              return (
-                <motion.div key={t.name}
-                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }}
-                  className="p-6 rounded-2xl bg-card border border-white/10 hover:border-primary/30 transition-all relative group">
-                  <Quote className="absolute top-4 right-4 h-8 w-8 text-primary/15 group-hover:text-primary/25 transition-colors" />
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex">
-                      {[...Array(t.rating)].map((_, j) => <Star key={j} className="h-4 w-4 text-primary fill-primary" />)}
-                    </div>
-                    <div className="flex items-center gap-1 px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full">
-                      <CheckCircle2 className="h-2.5 w-2.5 text-green-400" />
-                      <span className="text-[10px] text-green-400 font-semibold">Verified</span>
-                    </div>
-                  </div>
-                  <p className="text-white/90 mb-5 leading-relaxed text-sm">"{t.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm ${avatarColors[i % avatarColors.length]}`}>
-                      {t.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="text-white font-semibold text-sm">{t.name}</div>
-                      <div className="text-xs text-muted-foreground">{t.role} · {t.loc}</div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       {/* ── PRICING ──────────────────────────────────────────────────────── */}
       <section id="pricing" className="py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -1072,23 +999,23 @@ export default function Home() {
             Pricing
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-            Simple, transparent pricing
+            Pay once per document
           </h2>
           <p className="text-muted-foreground mb-16 max-w-2xl mx-auto">
-            Pay per document or subscribe for unlimited access. Always free to draft and preview.
+            No subscriptions. No accounts. Draft free, pay only to unlock your PDF.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
-            {/* Pay Per Doc */}
+            {/* ₹99 tier */}
             <div className="p-8 rounded-3xl bg-card border border-white/10 hover:border-primary/20 transition-all">
-              <h3 className="text-xl font-semibold text-white mb-1">Pay Per Doc</h3>
-              <p className="text-muted-foreground text-sm mb-4">Perfect for occasional use</p>
+              <h3 className="text-xl font-semibold text-white mb-1">Essential</h3>
+              <p className="text-muted-foreground text-sm mb-4">Letters, applications & certificates</p>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-sm text-muted-foreground">From</span>
                 <span className="text-5xl font-black text-white">₹99</span>
+                <span className="text-sm text-muted-foreground">/ document</span>
               </div>
               <ul className="space-y-3 mb-8 text-sm">
-                {["Single PDF Download", "All 25+ Document Types", "5 Languages", "7-day Refund Guarantee", "Instant Generation"].map(f => (
+                {["NOC, RTI & complaint letters", "Certificate applications", "Free AI draft & preview", "Print-ready PDF"].map(f => (
                   <li key={f} className="flex items-center gap-3 text-muted-foreground">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />{f}
                   </li>
@@ -1099,25 +1026,19 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Basic */}
+            {/* ₹199–299 tier */}
             <div className="p-8 rounded-3xl bg-primary/5 border-2 border-primary relative transform md:-translate-y-4 shadow-gold">
               <div className="absolute top-0 right-8 -translate-y-1/2 flex items-center gap-1.5">
                 <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-black">MOST POPULAR</span>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-1">Basic Plan</h3>
-              <p className="text-muted-foreground text-sm mb-2">For regular document needs</p>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-500/15 border border-green-500/30 rounded-full text-xs text-green-400 font-semibold mb-4">
-                🔥 83 people subscribed this month
+              <h3 className="text-xl font-semibold text-white mb-1">Standard</h3>
+              <p className="text-muted-foreground text-sm mb-4">Agreements, notices & contracts</p>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-5xl font-black text-white">₹199–299</span>
+                <span className="text-sm text-muted-foreground">/ document</span>
               </div>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-5xl font-black text-white">₹299</span>
-                <span className="text-sm text-muted-foreground">/month</span>
-              </div>
-              <p className="text-xs text-muted-foreground mb-6">
-                vs ₹15,000+/month with a lawyer — <span className="text-green-400 font-bold">Save 98%</span>
-              </p>
               <ul className="space-y-3 mb-8 text-sm">
-                {["Pay per document", "Priority Support (24hr)", "Free Edits Within 7 Days", "No Watermark PDF", "Instant PDF Delivery", "All 25+ Document Types"].map(f => (
+                {["Rent agreements & NDAs", "Legal notices & affidavits", "Free edits within 7 days", "Secure download link"].map(f => (
                   <li key={f} className="flex items-center gap-3 text-white">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />{f}
                   </li>
@@ -1125,35 +1046,35 @@ export default function Home() {
               </ul>
               <Link href="/documents">
                 <Button className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold font-bold">
-                  Start Plan — ₹299/mo
+                  Draft Free Now
                 </Button>
               </Link>
-              <p className="text-center text-xs text-muted-foreground mt-3">No contract · Cancel anytime · 7-day refund</p>
+              <p className="text-center text-xs text-muted-foreground mt-3">Pay only when you unlock your PDF</p>
             </div>
 
-            {/* Pro */}
+            {/* ₹499 tier */}
             <div className="p-8 rounded-3xl bg-card border border-white/10 hover:border-primary/20 transition-all">
-              <h3 className="text-xl font-semibold text-white mb-1">Pro Plan</h3>
-              <p className="text-muted-foreground text-sm mb-4">For businesses & power users</p>
+              <h3 className="text-xl font-semibold text-white mb-1">Premium</h3>
+              <p className="text-muted-foreground text-sm mb-4">Complex deeds & petitions</p>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-5xl font-black text-white">₹699</span>
-                <span className="text-sm text-muted-foreground">/month</span>
+                <span className="text-5xl font-black text-white">₹499</span>
+                <span className="text-sm text-muted-foreground">/ document</span>
               </div>
               <ul className="space-y-3 mb-8 text-sm">
-                {["Unlimited Documents", "Advocate Consultation (15min)", "API Access", "White-label PDF Output", "Team Access (3 users)", "Priority Phone Support"].map(f => (
+                {["Partnership deeds & wills", "MOUs & business contracts", "Divorce petition drafts", "5 language options"].map(f => (
                   <li key={f} className="flex items-center gap-3 text-muted-foreground">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />{f}
                   </li>
                 ))}
               </ul>
-              <Link href="/contact">
-                <Button variant="outline" className="w-full h-12">Contact Sales</Button>
+              <Link href="/documents">
+                <Button variant="outline" className="w-full h-12">Get Started Free</Button>
               </Link>
             </div>
           </div>
 
           <p className="text-xs text-muted-foreground mt-8">
-            All prices exclude 18% GST · Annual plans available at 30% discount · Cancel anytime
+            Prices exclude 18% GST (added at checkout) · UPI, cards & netbanking via Razorpay · No hidden charges
           </p>
         </div>
       </section>
@@ -1185,8 +1106,8 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-center">
             {[
-              { val: "4.9★", label: "Average Rating", sub: "from 1,247 reviews" },
-              { val: "98%", label: "Satisfaction Rate", sub: "based on refund data" },
+              { val: "25+", label: "Document Types", sub: "rental, business, legal & more" },
+              { val: "5", label: "Languages", sub: "English, Hindi, Marathi, Tamil, Telugu" },
               { val: "₹0", label: "Cost to Preview", sub: "always free to draft" },
               { val: "<60s", label: "Average Speed", sub: "start to complete doc" },
             ].map(({ val, label, sub }) => (
@@ -1256,7 +1177,7 @@ export default function Home() {
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> No account required</span>
               <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> Free preview always</span>
-              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> 7-day refund guarantee</span>
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> 7-day free edits</span>
               <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> Razorpay secured</span>
               <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> DPDPA 2023 compliant</span>
             </div>

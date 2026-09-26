@@ -64,7 +64,7 @@ export default function Terms() {
               <h2 className="text-xl font-semibold text-white mb-3">5. Payments & Pricing</h2>
               <ul className="list-disc pl-6 space-y-1">
                 <li>Document generation fees are as displayed on the platform (₹99–₹499 per document)</li>
-                <li>All prices are inclusive of applicable GST</li>
+                <li>Prices shown are exclusive of GST; 18% GST is added at checkout</li>
                 <li>Payments are processed by Razorpay, a PCI-DSS compliant payment gateway</li>
                 <li>We accept UPI, credit cards, debit cards, and net banking</li>
                 <li>Kanoon AI currently uses one-time per-document payments; no subscription is required</li>
@@ -108,7 +108,7 @@ export default function Terms() {
 
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">10. Contact</h2>
-              <p>For any questions about these Terms, contact us at <strong className="text-primary">legal@kanooxai.in</strong></p>
+              <p>For any questions about these Terms, contact us at <strong className="text-primary">legal@mykanoon.ai</strong></p>
             </section>
           </div>
 
@@ -116,7 +116,7 @@ export default function Terms() {
           <div className="mt-12 bg-card border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <h3 className="text-white font-semibold mb-1">Questions about our Terms?</h3>
-              <p className="text-muted-foreground text-sm">Email <span className="text-primary">legal@kanooxai.in</span> — we respond within 2 business days.</p>
+              <p className="text-muted-foreground text-sm">Email <span className="text-primary">legal@mykanoon.ai</span> — we respond within 2 business days.</p>
             </div>
             <div className="flex gap-2 shrink-0">
               <Link href="/contact">

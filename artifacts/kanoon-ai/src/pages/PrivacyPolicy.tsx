@@ -84,7 +84,7 @@ export default function PrivacyPolicy() {
                 <li>Withdraw consent for data processing</li>
                 <li>Nominate a person to exercise rights on your behalf</li>
               </ul>
-              <p className="mt-2">To exercise any right, email us at: <strong className="text-primary">privacy@kanooxai.in</strong></p>
+              <p className="mt-2">To exercise any right, email us at: <strong className="text-primary">privacy@mykanoon.ai</strong></p>
             </section>
 
             <section>
@@ -107,7 +107,7 @@ export default function PrivacyPolicy() {
               <p>As required by the Information Technology Act, 2000, our Grievance Officer is:</p>
               <div className="mt-2 bg-card border border-white/10 rounded-xl p-4">
                 <p className="text-white font-medium">Kanoon AI Support Team</p>
-                <p>Email: <strong className="text-primary">legal@kanooxai.in</strong></p>
+                <p>Email: <strong className="text-primary">legal@mykanoon.ai</strong></p>
                 <p>Response time: Within 30 days</p>
               </div>
             </section>
@@ -117,7 +117,7 @@ export default function PrivacyPolicy() {
           <div className="mt-12 bg-card border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <h3 className="text-white font-semibold mb-1">Have a privacy question?</h3>
-              <p className="text-muted-foreground text-sm">Email us at <span className="text-primary">privacy@kanooxai.in</span> — we respond within 30 days.</p>
+              <p className="text-muted-foreground text-sm">Email us at <span className="text-primary">privacy@mykanoon.ai</span> — we respond within 30 days.</p>
             </div>
             <div className="flex gap-2 shrink-0">
               <Link href="/contact">

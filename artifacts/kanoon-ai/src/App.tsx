@@ -13,6 +13,7 @@ import { ExitIntent } from "@/components/layout/ExitIntent";
 const Home             = lazy(() => import("@/pages/Home"));
 const DocumentSelection = lazy(() => import("@/pages/documents/Index"));
 const GenerateDocument = lazy(() => import("@/pages/documents/Generate"));
+const EditDocument     = lazy(() => import("@/pages/documents/EditDocument"));
 const PrivacyPolicy    = lazy(() => import("@/pages/PrivacyPolicy"));
 const Terms            = lazy(() => import("@/pages/Terms"));
 const RefundPolicy     = lazy(() => import("@/pages/RefundPolicy"));
@@ -46,6 +47,8 @@ function Router() {
             {/* Guest-only flow: generation, payment and PDF delivery require no account. */}
             <Route path="/documents/generate/:type" component={GenerateDocument} />
             <Route path="/generate/:type" component={GenerateDocument} />
+            {/* 7-day edit access for paid documents (token-gated, no account). */}
+            <Route path="/documents/edit" component={EditDocument} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/terms" component={Terms} />
             <Route path="/refund" component={RefundPolicy} />
